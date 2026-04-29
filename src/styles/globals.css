@@ -65,6 +65,25 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Map Detail Panel — Slide-up animation                              */
+/* ------------------------------------------------------------------ */
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.25s ease-out forwards;
+}
+
+/* ------------------------------------------------------------------ */
 /* Logo Intro — First-visit branded animation                         */
 /* ------------------------------------------------------------------ */
 

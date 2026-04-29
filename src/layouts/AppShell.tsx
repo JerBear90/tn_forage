@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import OfflineBadge from "@/components/OfflineBadge";
+import SyncStatusIndicator from "@/components/SyncStatusIndicator";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 
 /** Pages where the app shell header should be hidden (auth screens). */
@@ -45,8 +46,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </span>
         </Link>
 
-        {/* Offline badge — shows "Offline" pill when navigator.onLine is false */}
-        <OfflineBadge />
+        <div className="flex items-center gap-2">
+          {/* Sync status — Offline / Syncing / Up to date */}
+          <SyncStatusIndicator />
+          {/* Offline badge — shows "Offline" pill when navigator.onLine is false */}
+          <OfflineBadge />
+        </div>
       </header>
 
       {/* Content wrapper — padded for fixed header (top) and bottom nav */}

@@ -6,6 +6,7 @@ import ThemeProvider from "@/components/ThemeProvider";
 import PwaSplash from "@/components/PwaSplash";
 import LogoIntro from "@/components/LogoIntro";
 import AppShell from "@/layouts/AppShell";
+import AuthProvider from "@/auth/AuthProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -140,10 +141,12 @@ export default function RootLayout({
       </head>
       <body className="antialiased min-h-screen bg-brand-sand text-brand-charcoal font-sans dark:bg-brand-charcoal dark:text-brand-sand pb-20">
         <ThemeProvider>
-          <LogoIntro />
-          <PwaSplash />
-          <AppShell>{children}</AppShell>
-          <BottomNav />
+          <AuthProvider>
+            <LogoIntro />
+            <PwaSplash />
+            <AppShell>{children}</AppShell>
+            <BottomNav />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
