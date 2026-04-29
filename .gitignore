@@ -17,10 +17,13 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
 *.pem
+Thumbs.db
+Desktop.ini
 
 # debug
 npm-debug.log*
@@ -28,15 +31,41 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
+# env files — secrets, keys, local overrides
 .env
 .env*.local
 !.env.example
 !.env.sso.example
 !.env.local.example
 
+# secrets & credentials — never commit these
+*.key
+*.p12
+*.pfx
+*.crt
+*.csr
+*.jks
+*.keystore
+credentials.json
+service-account*.json
+secrets/
+
+# PocketBase
+/pb_data/
+/pb_migrations/
+
+# Stripe
+stripe-cli/
+stripe-webhook-secret*
+
 # vercel
 .vercel
+
+# IDE / editor
+.idea/
+*.swp
+*.swo
+*~
 
 # typescript
 *.tsbuildinfo
@@ -49,3 +78,8 @@ next-env.d.ts
 /public/workbox-*.js.map
 /public/swe-worker-*.js
 /public/fallback-*.js
+
+# OS files
+.Spotlight-V100
+.Trashes
+ehthumbs.db
