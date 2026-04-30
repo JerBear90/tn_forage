@@ -7,6 +7,13 @@
  * Tries each store in order: species → plants → trees.
  * Returns the full record with loading/error state and a discriminated
  * `kind` field so the detail page knows which type it received.
+ *
+ * Includes retry logic for IndexedDB hydration delay: if findRecordById
+ * returns null on first attempt, retries up to 3 times with exponential
+ * backoff (200ms, 400ms, 800ms) to handle direct URL navigation where
+ * IndexedDB may not be fully initialized yet.
+ *
+ * Requirements: 17.1, 17.2, 17.3, 17.4
  */
 
 import { useState, useEffect } from "react";
@@ -24,6 +31,10 @@ export interface UseSpeciesDetailResult {
   loading: boolean;
   error: string | null;
 }
+
+/** Retry configuration for IndexedDB hydration delay */
+export const RETRY_DELAYS = [200, 400, 800] as const;
+export const MAX_RETRIES = RETRY_DELAYS.length;
 
 /**
  * Look up a record by ID across species, plants, and trees stores.
@@ -45,8 +56,38 @@ export async function findRecordById(
 }
 
 /**
+ * Utility: wait for a given number of milliseconds.
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Look up a record by ID with retry logic for IndexedDB hydration delay.
+ * If the first attempt returns null, retries up to 3 times with exponential
+ * backoff (200ms, 400ms, 800ms).
+ */
+export async function findRecordByIdWithRetry(
+  id: string
+): Promise<SpeciesDetailRecord | null> {
+  // First attempt
+  const result = await findRecordById(id);
+  if (result) return result;
+
+  // Retry with exponential backoff
+  for (const retryDelay of RETRY_DELAYS) {
+    await delay(retryDelay);
+    const retryResult = await findRecordById(id);
+    if (retryResult) return retryResult;
+  }
+
+  return null;
+}
+
+/**
  * Hook that loads a single species/plant/tree record by ID from IndexedDB.
  * Seeds the database on first run if stores are empty.
+ * Includes retry logic for IndexedDB hydration delay on direct URL navigation.
  */
 export function useSpeciesDetail(id: string): UseSpeciesDetailResult {
   const [record, setRecord] = useState<SpeciesDetailRecord | null>(null);
@@ -61,7 +102,8 @@ export function useSpeciesDetail(id: string): UseSpeciesDetailResult {
         // Seed database if empty (idempotent)
         await seedDatabase();
 
-        const result = await findRecordById(id);
+        // Use retry logic to handle IndexedDB hydration delay
+        const result = await findRecordByIdWithRetry(id);
 
         if (cancelled) return;
 

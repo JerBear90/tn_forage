@@ -193,7 +193,7 @@ describe("findRecordById with seeded data", () => {
   it("finds a seeded tree by known ID", async () => {
     await seedDatabase();
 
-    const result = await findRecordById("tr-white-oak");
+    const result = await findRecordById("tree-white-oak");
 
     expect(result).not.toBeNull();
     expect(result!.kind).toBe("tree");
@@ -248,7 +248,7 @@ describe("species detail data integrity", () => {
   it("tree record includes all required fields for detail page", async () => {
     await seedDatabase();
 
-    const result = await findRecordById("tr-white-oak");
+    const result = await findRecordById("tree-white-oak");
     expect(result).not.toBeNull();
     expect(result!.kind).toBe("tree");
 

@@ -8,6 +8,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        /* Dark mode surface and text tokens for WCAG AA compliance (Req 7.1) */
+        dark: {
+          surface: "#1a2332",
+          text: "#e8e0d0",
+          "text-muted": "#b8b0a0",
+          border: "#2e3a4a",
+        },
         brand: {
           teal: {
             DEFAULT: "#0F766E",

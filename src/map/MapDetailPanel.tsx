@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import type { Park, Trail, Route, TrailDifficulty } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -46,27 +46,27 @@ function ParkDetail({ park }: { park: Park }) {
   return (
     <div className="space-y-3">
       {/* Region */}
-      <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 font-medium uppercase tracking-wide">
+      <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted font-medium uppercase tracking-wide">
         {park.region}
       </p>
 
       {/* Hours & Fees */}
       {park.hours && (
         <div>
-          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-brand-sand/70 mb-0.5">
+          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-dark-text-muted mb-0.5">
             Hours
           </h4>
-          <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+          <p className="text-sm text-brand-charcoal dark:text-dark-text">
             {park.hours}
           </p>
         </div>
       )}
       {park.fees && (
         <div>
-          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-brand-sand/70 mb-0.5">
+          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-dark-text-muted mb-0.5">
             Fees
           </h4>
-          <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+          <p className="text-sm text-brand-charcoal dark:text-dark-text">
             {park.fees}
           </p>
         </div>
@@ -75,7 +75,7 @@ function ParkDetail({ park }: { park: Park }) {
       {/* Amenities */}
       {park.amenities.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-brand-sand/70 mb-1">
+          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-dark-text-muted mb-1">
             Amenities
           </h4>
           <div className="flex flex-wrap gap-1.5">
@@ -96,7 +96,7 @@ function ParkDetail({ park }: { park: Park }) {
         <h4 className="text-xs font-semibold text-brand-earth mb-0.5">
           Foraging Rules
         </h4>
-        <p className="text-xs text-brand-charcoal/80 dark:text-brand-sand/80">
+        <p className="text-xs text-brand-charcoal/80 dark:text-dark-text-muted">
           {park.foragingRules}
         </p>
       </div>
@@ -137,14 +137,14 @@ function TrailRouteDetail({
     <div className="space-y-3">
       {/* Park name */}
       {parkName && (
-        <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 font-medium uppercase tracking-wide">
+        <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted font-medium uppercase tracking-wide">
           {parkName}
         </p>
       )}
 
       {/* Distance + Difficulty */}
       <div className="flex items-center gap-3">
-        <span className="text-sm text-brand-charcoal dark:text-brand-sand font-medium">
+        <span className="text-sm text-brand-charcoal dark:text-dark-text font-medium">
           {distance} mi
         </span>
         <DifficultyBadge difficulty={difficulty} />
@@ -158,7 +158,7 @@ function TrailRouteDetail({
       {/* Likely Trees */}
       {likelyTrees.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-brand-sand/70 mb-1">
+          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-dark-text-muted mb-1">
             Likely Trees
           </h4>
           <div className="flex flex-wrap gap-1.5">
@@ -177,7 +177,7 @@ function TrailRouteDetail({
       {/* Likely Species */}
       {likelySpecies.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-brand-sand/70 mb-1">
+          <h4 className="text-xs font-semibold text-brand-charcoal/70 dark:text-dark-text-muted mb-1">
             Likely Species
           </h4>
           <div className="flex flex-wrap gap-1.5">
@@ -225,6 +225,40 @@ export default function MapDetailPanel({ item, onClose }: MapDetailPanelProps) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [item, onClose]);
 
+  // Focus trap — keep Tab/Shift+Tab within the panel when open (Req 6.5)
+  const handleFocusTrap = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !panelRef.current) return;
+
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!item) return;
+    document.addEventListener('keydown', handleFocusTrap);
+    return () => document.removeEventListener('keydown', handleFocusTrap);
+  }, [item, handleFocusTrap]);
+
   if (!item) return null;
 
   const title =
@@ -243,11 +277,11 @@ export default function MapDetailPanel({ item, onClose }: MapDetailPanelProps) {
       role="dialog"
       aria-label={`${typeLabel} details: ${title}`}
       aria-modal="false"
-      className="absolute bottom-0 left-0 right-0 z-[1000] animate-slide-up"
+      className="absolute top-0 left-0 right-0 z-[1000] animate-slide-down"
     >
-      <div className="mx-2 mb-2 max-h-[60vh] rounded-xl bg-white dark:bg-brand-charcoal-800 border border-brand-forest/10 dark:border-brand-charcoal/30 shadow-xl overflow-hidden flex flex-col">
+      <div className="mx-2 mt-2 max-h-[50vh] rounded-xl bg-white dark:bg-dark-surface border border-brand-forest/10 dark:border-dark-border shadow-xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-start justify-between gap-2 px-4 pt-3 pb-2 border-b border-brand-forest/5 dark:border-brand-charcoal/20 shrink-0">
+        <div className="flex items-start justify-between gap-2 px-4 pt-3 pb-2 border-b border-brand-forest/5 dark:border-dark-border shrink-0">
           <div className="min-w-0 flex-1">
             <h3 className="text-base font-bold text-brand-forest dark:text-brand-moss font-heading truncate">
               {title}
@@ -263,7 +297,7 @@ export default function MapDetailPanel({ item, onClose }: MapDetailPanelProps) {
           >
             <svg
               aria-hidden="true"
-              className="w-5 h-5 text-brand-charcoal/60 dark:text-brand-sand/60"
+              className="w-5 h-5 text-brand-charcoal/60 dark:text-dark-text-muted"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

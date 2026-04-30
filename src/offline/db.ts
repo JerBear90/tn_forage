@@ -28,6 +28,7 @@ import type {
   CachedMapRegion,
   CommunityDraft,
   CommunityFlag,
+  Challenge,
 } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -35,7 +36,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const DB_NAME = 'forageflow';
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export interface ForageFlowDB extends DBSchema {
   species: {
@@ -181,6 +182,14 @@ export interface ForageFlowDB extends DBSchema {
       'by-createdAt': string;
     };
   };
+  challenges: {
+    key: string;
+    value: Challenge;
+    indexes: {
+      'by-category': string;
+      'by-completedAt': string;
+    };
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -205,6 +214,7 @@ export const STORE_NAMES: (keyof ForageFlowDB)[] = [
   'cachedMapRegions',
   'communityDrafts',
   'communityFlags',
+  'challenges',
 ];
 
 // ---------------------------------------------------------------------------
@@ -222,102 +232,112 @@ let dbPromise: Promise<IDBPDatabase<ForageFlowDB>> | null = null;
 export function getDB(): Promise<IDBPDatabase<ForageFlowDB>> {
   if (!dbPromise) {
     dbPromise = openDB<ForageFlowDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        // ---- Species ----
-        const speciesStore = db.createObjectStore('species', { keyPath: 'id' });
-        speciesStore.createIndex('by-category', 'category');
-        speciesStore.createIndex('by-commonName', 'commonName');
-        speciesStore.createIndex('by-scientificName', 'scientificName');
-        speciesStore.createIndex('by-edibilityLabel', 'edibilityLabel');
-        speciesStore.createIndex('by-lastUpdated', 'lastUpdated');
+      upgrade(db, oldVersion) {
+        // ---- Version 1: Create all original stores ----
+        if (oldVersion < 1) {
+          // ---- Species ----
+          const speciesStore = db.createObjectStore('species', { keyPath: 'id' });
+          speciesStore.createIndex('by-category', 'category');
+          speciesStore.createIndex('by-commonName', 'commonName');
+          speciesStore.createIndex('by-scientificName', 'scientificName');
+          speciesStore.createIndex('by-edibilityLabel', 'edibilityLabel');
+          speciesStore.createIndex('by-lastUpdated', 'lastUpdated');
 
-        // ---- Plants ----
-        const plantsStore = db.createObjectStore('plants', { keyPath: 'id' });
-        plantsStore.createIndex('by-commonName', 'commonName');
-        plantsStore.createIndex('by-scientificName', 'scientificName');
-        plantsStore.createIndex('by-edibilityLabel', 'edibilityLabel');
-        plantsStore.createIndex('by-lastUpdated', 'lastUpdated');
+          // ---- Plants ----
+          const plantsStore = db.createObjectStore('plants', { keyPath: 'id' });
+          plantsStore.createIndex('by-commonName', 'commonName');
+          plantsStore.createIndex('by-scientificName', 'scientificName');
+          plantsStore.createIndex('by-edibilityLabel', 'edibilityLabel');
+          plantsStore.createIndex('by-lastUpdated', 'lastUpdated');
 
-        // ---- Trees ----
-        const treesStore = db.createObjectStore('trees', { keyPath: 'id' });
-        treesStore.createIndex('by-commonName', 'commonName');
-        treesStore.createIndex('by-scientificName', 'scientificName');
-        treesStore.createIndex('by-lastUpdated', 'lastUpdated');
+          // ---- Trees ----
+          const treesStore = db.createObjectStore('trees', { keyPath: 'id' });
+          treesStore.createIndex('by-commonName', 'commonName');
+          treesStore.createIndex('by-scientificName', 'scientificName');
+          treesStore.createIndex('by-lastUpdated', 'lastUpdated');
 
-        // ---- Parks ----
-        const parksStore = db.createObjectStore('parks', { keyPath: 'id' });
-        parksStore.createIndex('by-name', 'name');
-        parksStore.createIndex('by-region', 'region');
-        parksStore.createIndex('by-lastUpdated', 'lastUpdated');
+          // ---- Parks ----
+          const parksStore = db.createObjectStore('parks', { keyPath: 'id' });
+          parksStore.createIndex('by-name', 'name');
+          parksStore.createIndex('by-region', 'region');
+          parksStore.createIndex('by-lastUpdated', 'lastUpdated');
 
-        // ---- Trails ----
-        const trailsStore = db.createObjectStore('trails', { keyPath: 'id' });
-        trailsStore.createIndex('by-parkId', 'parkId');
-        trailsStore.createIndex('by-name', 'name');
-        trailsStore.createIndex('by-difficulty', 'difficulty');
-        trailsStore.createIndex('by-lastUpdated', 'lastUpdated');
+          // ---- Trails ----
+          const trailsStore = db.createObjectStore('trails', { keyPath: 'id' });
+          trailsStore.createIndex('by-parkId', 'parkId');
+          trailsStore.createIndex('by-name', 'name');
+          trailsStore.createIndex('by-difficulty', 'difficulty');
+          trailsStore.createIndex('by-lastUpdated', 'lastUpdated');
 
-        // ---- Routes ----
-        const routesStore = db.createObjectStore('routes', { keyPath: 'id' });
-        routesStore.createIndex('by-parkId', 'parkId');
-        routesStore.createIndex('by-name', 'name');
-        routesStore.createIndex('by-difficulty', 'difficulty');
-        routesStore.createIndex('by-lastUpdated', 'lastUpdated');
+          // ---- Routes ----
+          const routesStore = db.createObjectStore('routes', { keyPath: 'id' });
+          routesStore.createIndex('by-parkId', 'parkId');
+          routesStore.createIndex('by-name', 'name');
+          routesStore.createIndex('by-difficulty', 'difficulty');
+          routesStore.createIndex('by-lastUpdated', 'lastUpdated');
 
-        // ---- Trips ----
-        const tripsStore = db.createObjectStore('trips', { keyPath: 'id' });
-        tripsStore.createIndex('by-userId', 'userId');
-        tripsStore.createIndex('by-date', 'date');
-        tripsStore.createIndex('by-syncStatus', 'syncStatus');
+          // ---- Trips ----
+          const tripsStore = db.createObjectStore('trips', { keyPath: 'id' });
+          tripsStore.createIndex('by-userId', 'userId');
+          tripsStore.createIndex('by-date', 'date');
+          tripsStore.createIndex('by-syncStatus', 'syncStatus');
 
-        // ---- Expedition Logs ----
-        const logsStore = db.createObjectStore('expeditionLogs', { keyPath: 'id' });
-        logsStore.createIndex('by-userId', 'userId');
-        logsStore.createIndex('by-tripId', 'tripId');
-        logsStore.createIndex('by-syncStatus', 'syncStatus');
+          // ---- Expedition Logs ----
+          const logsStore = db.createObjectStore('expeditionLogs', { keyPath: 'id' });
+          logsStore.createIndex('by-userId', 'userId');
+          logsStore.createIndex('by-tripId', 'tripId');
+          logsStore.createIndex('by-syncStatus', 'syncStatus');
 
-        // ---- Photos ----
-        const photosStore = db.createObjectStore('photos', { keyPath: 'id' });
-        photosStore.createIndex('by-expeditionLogId', 'expeditionLogId');
-        photosStore.createIndex('by-syncStatus', 'syncStatus');
-        photosStore.createIndex('by-createdAt', 'createdAt');
+          // ---- Photos ----
+          const photosStore = db.createObjectStore('photos', { keyPath: 'id' });
+          photosStore.createIndex('by-expeditionLogId', 'expeditionLogId');
+          photosStore.createIndex('by-syncStatus', 'syncStatus');
+          photosStore.createIndex('by-createdAt', 'createdAt');
 
-        // ---- User Profile (local cache) ----
-        db.createObjectStore('userProfileLocal', { keyPath: 'id' });
+          // ---- User Profile (local cache) ----
+          db.createObjectStore('userProfileLocal', { keyPath: 'id' });
 
-        // ---- Membership (local cache) ----
-        const membershipStore = db.createObjectStore('membershipLocal', { keyPath: 'id' });
-        membershipStore.createIndex('by-userId', 'userId');
+          // ---- Membership (local cache) ----
+          const membershipStore = db.createObjectStore('membershipLocal', { keyPath: 'id' });
+          membershipStore.createIndex('by-userId', 'userId');
 
-        // ---- Auth Meta (local cache) ----
-        const authStore = db.createObjectStore('authMetaLocal', { keyPath: 'id' });
-        authStore.createIndex('by-userId', 'userId');
+          // ---- Auth Meta (local cache) ----
+          const authStore = db.createObjectStore('authMetaLocal', { keyPath: 'id' });
+          authStore.createIndex('by-userId', 'userId');
 
-        // ---- Sync Queue ----
-        const syncStore = db.createObjectStore('syncQueue', { keyPath: 'localId' });
-        syncStore.createIndex('by-userId', 'userId');
-        syncStore.createIndex('by-collection', 'collection');
-        syncStore.createIndex('by-syncStatus', 'syncStatus');
-        syncStore.createIndex('by-createdAt', 'createdAt');
+          // ---- Sync Queue ----
+          const syncStore = db.createObjectStore('syncQueue', { keyPath: 'localId' });
+          syncStore.createIndex('by-userId', 'userId');
+          syncStore.createIndex('by-collection', 'collection');
+          syncStore.createIndex('by-syncStatus', 'syncStatus');
+          syncStore.createIndex('by-createdAt', 'createdAt');
 
-        // ---- Settings ----
-        db.createObjectStore('settings', { keyPath: 'id' });
+          // ---- Settings ----
+          db.createObjectStore('settings', { keyPath: 'id' });
 
-        // ---- Cached Map Regions ----
-        const mapStore = db.createObjectStore('cachedMapRegions', { keyPath: 'id' });
-        mapStore.createIndex('by-cachedAt', 'cachedAt');
+          // ---- Cached Map Regions ----
+          const mapStore = db.createObjectStore('cachedMapRegions', { keyPath: 'id' });
+          mapStore.createIndex('by-cachedAt', 'cachedAt');
 
-        // ---- Community Drafts ----
-        const draftsStore = db.createObjectStore('communityDrafts', { keyPath: 'id' });
-        draftsStore.createIndex('by-userId', 'userId');
-        draftsStore.createIndex('by-createdAt', 'createdAt');
-        draftsStore.createIndex('by-updatedAt', 'updatedAt');
+          // ---- Community Drafts ----
+          const draftsStore = db.createObjectStore('communityDrafts', { keyPath: 'id' });
+          draftsStore.createIndex('by-userId', 'userId');
+          draftsStore.createIndex('by-createdAt', 'createdAt');
+          draftsStore.createIndex('by-updatedAt', 'updatedAt');
 
-        // ---- Community Flags ----
-        const flagsStore = db.createObjectStore('communityFlags', { keyPath: 'id' });
-        flagsStore.createIndex('by-targetId', 'targetId');
-        flagsStore.createIndex('by-userId', 'userId');
-        flagsStore.createIndex('by-createdAt', 'createdAt');
+          // ---- Community Flags ----
+          const flagsStore = db.createObjectStore('communityFlags', { keyPath: 'id' });
+          flagsStore.createIndex('by-targetId', 'targetId');
+          flagsStore.createIndex('by-userId', 'userId');
+          flagsStore.createIndex('by-createdAt', 'createdAt');
+        }
+
+        // ---- Version 2: Add challenges store ----
+        if (oldVersion < 2) {
+          const challengesStore = db.createObjectStore('challenges', { keyPath: 'id' });
+          challengesStore.createIndex('by-category', 'category');
+          challengesStore.createIndex('by-completedAt', 'completedAt');
+        }
       },
     });
   }
@@ -331,7 +351,7 @@ export function getDB(): Promise<IDBPDatabase<ForageFlowDB>> {
 type StoreName = 'species' | 'plants' | 'trees' | 'parks' | 'trails'
   | 'routes' | 'trips' | 'expeditionLogs' | 'photos' | 'userProfileLocal'
   | 'membershipLocal' | 'authMetaLocal' | 'syncQueue' | 'settings'
-  | 'cachedMapRegions' | 'communityDrafts' | 'communityFlags';
+  | 'cachedMapRegions' | 'communityDrafts' | 'communityFlags' | 'challenges';
 
 // ---------------------------------------------------------------------------
 // Generic CRUD Helpers

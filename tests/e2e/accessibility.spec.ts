@@ -1,250 +1,330 @@
 /**
  * ForageFlow — E2E Tests: Accessibility (WCAG AA)
  *
- * Playwright test stubs for WCAG AA compliance checks.
- * These tests verify contrast, screen reader labels, focus management,
- * and keyboard navigation across key pages.
+ * Integrates @axe-core/playwright for automated accessibility checks.
+ * Runs axe-core on Home, Field Guide, and Map pages in both light and
+ * dark modes. Reports any WCAG AA violations.
  *
  * Note: Full WCAG AA validation requires manual testing with assistive
  * technologies and expert accessibility review. These automated tests
  * cover programmatically verifiable criteria.
  *
  * Run with: npx playwright test tests/e2e/accessibility.spec.ts
+ *
+ * Validates: Requirements 18.10
  */
 
 import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 // ---------------------------------------------------------------------------
-// WCAG AA Contrast
+// Helpers
 // ---------------------------------------------------------------------------
 
-test.describe('WCAG AA — Contrast', () => {
-  test('should not have white text on light backgrounds on home page', async ({ page }) => {
+/**
+ * Set the theme by updating localStorage and reloading the page.
+ */
+async function setTheme(page: import('@playwright/test').Page, theme: 'light' | 'dark') {
+  await page.evaluate((t) => {
+    localStorage.setItem('forageflow-theme', t);
+  }, theme);
+  await page.reload();
+  // Wait for theme class to be applied
+  if (theme === 'dark') {
+    await page.waitForFunction(() =>
+      document.documentElement.classList.contains('dark')
+    );
+  } else {
+    await page.waitForFunction(() =>
+      !document.documentElement.classList.contains('dark')
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Home Page — Accessibility
+// ---------------------------------------------------------------------------
+
+test.describe('Accessibility — Home Page', () => {
+  test('should have no WCAG AA violations in light mode', async ({ page }) => {
     await page.goto('/');
-    // Check that no visible text elements use white (#fff / #ffffff) on a light background
-    const whiteOnLight = await page.evaluate(() => {
-      const elements = Array.from(document.querySelectorAll('p, span, h1, h2, h3, h4, h5, h6, a, button, label'));
-      for (let i = 0; i < elements.length; i++) {
-        const el = elements[i];
-        const style = window.getComputedStyle(el);
-        const color = style.color;
-        const bg = style.backgroundColor;
-        // Check for white text (rgb 255,255,255) on light backgrounds
-        if (
-          color === 'rgb(255, 255, 255)' &&
-          bg &&
-          bg !== 'rgba(0, 0, 0, 0)' &&
-          bg !== 'transparent'
-        ) {
-          const match = bg.match(/(\d+),\s*(\d+),\s*(\d+)/);
-          // If background is light (luminance > 128), flag it
-          if (match && parseInt(match[1]) > 200 && parseInt(match[2]) > 200 && parseInt(match[3]) > 200) {
-            return true;
-          }
-        }
-      }
-      return false;
-    });
-    expect(whiteOnLight).toBe(false);
+    await setTheme(page, 'light');
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa'])
+      .analyze();
+
+    // Report violations for debugging
+    if (results.violations.length > 0) {
+      const summary = results.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        description: v.description,
+        nodes: v.nodes.length,
+      }));
+      console.log('Home (light) violations:', JSON.stringify(summary, null, 2));
+    }
+
+    expect(results.violations).toEqual([]);
   });
 
-  test('should not have white text on light backgrounds on Field Guide', async ({ page }) => {
-    await page.goto('/field-guide');
-    const whiteOnLight = await page.evaluate(() => {
-      const elements = Array.from(document.querySelectorAll('p, span, h1, h2, h3, h4, h5, h6, a, button, label'));
-      for (let i = 0; i < elements.length; i++) {
-        const el = elements[i];
-        const style = window.getComputedStyle(el);
-        const color = style.color;
-        const bg = style.backgroundColor;
-        if (
-          color === 'rgb(255, 255, 255)' &&
-          bg &&
-          bg !== 'rgba(0, 0, 0, 0)' &&
-          bg !== 'transparent'
-        ) {
-          const match = bg.match(/(\d+),\s*(\d+),\s*(\d+)/);
-          if (match && parseInt(match[1]) > 200 && parseInt(match[2]) > 200 && parseInt(match[3]) > 200) {
-            return true;
-          }
-        }
-      }
-      return false;
-    });
-    expect(whiteOnLight).toBe(false);
+  test('should have no WCAG AA violations in dark mode', async ({ page }) => {
+    await page.goto('/');
+    await setTheme(page, 'dark');
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa'])
+      .analyze();
+
+    if (results.violations.length > 0) {
+      const summary = results.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        description: v.description,
+        nodes: v.nodes.length,
+      }));
+      console.log('Home (dark) violations:', JSON.stringify(summary, null, 2));
+    }
+
+    expect(results.violations).toEqual([]);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Screen Reader Labels
+// Field Guide Page — Accessibility
 // ---------------------------------------------------------------------------
 
-test.describe('Screen Reader Labels', () => {
-  test('should have aria-labels on bottom navigation links', async ({ page }) => {
-    await page.goto('/');
-    const navLinks = page.locator('nav a, nav button');
-    const count = await navLinks.count();
-    for (let i = 0; i < count; i++) {
-      const link = navLinks.nth(i);
-      const ariaLabel = await link.getAttribute('aria-label');
-      const textContent = await link.textContent();
-      const srOnly = await link.locator('.sr-only').count();
-      // Each nav item should have an aria-label, visible text, or sr-only text
-      expect(ariaLabel || textContent?.trim() || srOnly > 0).toBeTruthy();
+test.describe('Accessibility — Field Guide Page', () => {
+  test('should have no WCAG AA violations in light mode', async ({ page }) => {
+    await page.goto('/field-guide');
+    await setTheme(page, 'light');
+
+    // Wait for species cards to load
+    await page
+      .locator('[data-testid="species-card"]')
+      .first()
+      .waitFor({ timeout: 10_000 })
+      .catch(() => {
+        // Species may not load if IndexedDB is empty — still run axe
+      });
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa'])
+      .analyze();
+
+    if (results.violations.length > 0) {
+      const summary = results.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        description: v.description,
+        nodes: v.nodes.length,
+      }));
+      console.log('Field Guide (light) violations:', JSON.stringify(summary, null, 2));
     }
+
+    expect(results.violations).toEqual([]);
   });
 
-  test('should have labels on form inputs on login page', async ({ page }) => {
-    await page.goto('/login');
-    const inputs = page.locator('input:not([type="hidden"])');
-    const count = await inputs.count();
-    for (let i = 0; i < count; i++) {
-      const input = inputs.nth(i);
-      const id = await input.getAttribute('id');
-      const ariaLabel = await input.getAttribute('aria-label');
-      const ariaLabelledBy = await input.getAttribute('aria-labelledby');
-      const placeholder = await input.getAttribute('placeholder');
-      // Each input should have an associated label, aria-label, or aria-labelledby
-      if (id) {
-        const label = page.locator(`label[for="${id}"]`);
-        const hasLabel = (await label.count()) > 0;
-        expect(hasLabel || !!ariaLabel || !!ariaLabelledBy || !!placeholder).toBeTruthy();
-      } else {
-        expect(!!ariaLabel || !!ariaLabelledBy || !!placeholder).toBeTruthy();
-      }
+  test('should have no WCAG AA violations in dark mode', async ({ page }) => {
+    await page.goto('/field-guide');
+    await setTheme(page, 'dark');
+
+    await page
+      .locator('[data-testid="species-card"]')
+      .first()
+      .waitFor({ timeout: 10_000 })
+      .catch(() => {});
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa'])
+      .analyze();
+
+    if (results.violations.length > 0) {
+      const summary = results.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        description: v.description,
+        nodes: v.nodes.length,
+      }));
+      console.log('Field Guide (dark) violations:', JSON.stringify(summary, null, 2));
     }
+
+    expect(results.violations).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Map Page — Accessibility
+// ---------------------------------------------------------------------------
+
+test.describe('Accessibility — Map Page', () => {
+  test('should have no WCAG AA violations in light mode', async ({ page }) => {
+    await page.goto('/map');
+    await setTheme(page, 'light');
+
+    // Wait for map to load
+    await page
+      .locator('.leaflet-container')
+      .waitFor({ timeout: 15_000 })
+      .catch(() => {
+        // Map may not load in test environment — still run axe
+      });
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa'])
+      // Exclude the Leaflet map container from axe checks — Leaflet generates
+      // its own DOM that we don't control and may have known issues
+      .exclude('.leaflet-container')
+      .analyze();
+
+    if (results.violations.length > 0) {
+      const summary = results.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        description: v.description,
+        nodes: v.nodes.length,
+      }));
+      console.log('Map (light) violations:', JSON.stringify(summary, null, 2));
+    }
+
+    expect(results.violations).toEqual([]);
   });
 
-  test('should have alt text or aria-hidden on images', async ({ page }) => {
+  test('should have no WCAG AA violations in dark mode', async ({ page }) => {
+    await page.goto('/map');
+    await setTheme(page, 'dark');
+
+    await page
+      .locator('.leaflet-container')
+      .waitFor({ timeout: 15_000 })
+      .catch(() => {});
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa'])
+      .exclude('.leaflet-container')
+      .analyze();
+
+    if (results.violations.length > 0) {
+      const summary = results.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        description: v.description,
+        nodes: v.nodes.length,
+      }));
+      console.log('Map (dark) violations:', JSON.stringify(summary, null, 2));
+    }
+
+    expect(results.violations).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Semantic HTML Checks
+// ---------------------------------------------------------------------------
+
+test.describe('Accessibility — Semantic HTML', () => {
+  test('should use semantic landmarks on the home page', async ({ page }) => {
     await page.goto('/');
+
+    // Should have a <main> element
+    const main = page.locator('main');
+    await expect(main).toHaveCount(1);
+
+    // Should have a <nav> element (bottom nav)
+    const nav = page.locator('nav');
+    expect(await nav.count()).toBeGreaterThanOrEqual(1);
+  });
+
+  test('should have proper heading hierarchy on the home page', async ({ page }) => {
+    await page.goto('/');
+
+    // Should have an h1
+    const h1 = page.locator('h1');
+    expect(await h1.count()).toBeGreaterThanOrEqual(1);
+  });
+
+  test('should have aria-labels on navigation elements', async ({ page }) => {
+    await page.goto('/');
+
+    // Bottom nav should have aria-label
+    const nav = page.locator('nav[aria-label]');
+    expect(await nav.count()).toBeGreaterThanOrEqual(1);
+  });
+
+  test('should have alt text on all images', async ({ page }) => {
+    await page.goto('/');
+
     const images = page.locator('img');
     const count = await images.count();
+
     for (let i = 0; i < count; i++) {
       const img = images.nth(i);
       const alt = await img.getAttribute('alt');
       const ariaHidden = await img.getAttribute('aria-hidden');
       const role = await img.getAttribute('role');
-      // Images should have alt text, be aria-hidden, or have role="presentation"
-      expect(alt !== null || ariaHidden === 'true' || role === 'presentation').toBeTruthy();
+
+      // Every image should have alt text, be aria-hidden, or have role="presentation"
+      expect(
+        alt !== null || ariaHidden === 'true' || role === 'presentation'
+      ).toBeTruthy();
     }
   });
 });
 
 // ---------------------------------------------------------------------------
-// Focus Management
+// Focus and Keyboard Accessibility
 // ---------------------------------------------------------------------------
 
-test.describe('Focus Management', () => {
-  test('should trap focus within modal dialogs', async ({ page }) => {
+test.describe('Accessibility — Focus Management', () => {
+  test('should have visible focus indicators on interactive elements', async ({ page }) => {
     await page.goto('/');
-    // If a modal/dialog is present, verify focus stays within it
-    const dialog = page.locator('[role="dialog"], dialog');
-    if ((await dialog.count()) > 0) {
-      const firstFocusable = dialog.locator('button, a, input, [tabindex]').first();
-      await firstFocusable.focus();
-      expect(await firstFocusable.evaluate((el) => document.activeElement === el)).toBeTruthy();
-    }
+
+    // Tab to the first interactive element
+    await page.keyboard.press('Tab');
+
+    const focusedElement = page.locator(':focus');
+    const count = await focusedElement.count();
+
+    // Something should be focused after pressing Tab
+    expect(count).toBeGreaterThanOrEqual(1);
   });
 
-  test('should return focus after closing a modal', async ({ page }) => {
-    await page.goto('/field-guide');
-    // Click on an image to open lightbox (if available)
-    const speciesCard = page.locator('[data-testid="species-card"]').first();
-    if ((await speciesCard.count()) > 0) {
-      await speciesCard.click();
-      // If a lightbox/modal opens, close it and verify focus returns
-      const closeButton = page.locator('[aria-label="Close"], button:has-text("Close")').first();
-      if ((await closeButton.count()) > 0) {
-        await closeButton.click();
-        // Focus should return to the triggering element or a reasonable target
-        const activeTag = await page.evaluate(() => document.activeElement?.tagName);
-        expect(activeTag).toBeTruthy();
+  test('should have labels on all form inputs on login page', async ({ page }) => {
+    await page.goto('/login');
+
+    const inputs = page.locator('input:not([type="hidden"])');
+    const count = await inputs.count();
+
+    for (let i = 0; i < count; i++) {
+      const input = inputs.nth(i);
+      const id = await input.getAttribute('id');
+      const ariaLabel = await input.getAttribute('aria-label');
+      const ariaLabelledBy = await input.getAttribute('aria-labelledby');
+
+      if (id) {
+        const label = page.locator(`label[for="${id}"]`);
+        const hasLabel = (await label.count()) > 0;
+        // Each input should have an associated label or aria-label
+        expect(hasLabel || !!ariaLabel || !!ariaLabelledBy).toBeTruthy();
+      } else {
+        expect(!!ariaLabel || !!ariaLabelledBy).toBeTruthy();
       }
     }
   });
 
-  test('should have visible focus indicators on interactive elements', async ({ page }) => {
+  test('should support keyboard navigation through bottom nav', async ({ page }) => {
     await page.goto('/');
-    // Tab to the first interactive element and check for focus visibility
-    await page.keyboard.press('Tab');
-    const focusedElement = page.locator(':focus');
-    const outlineStyle = await focusedElement.evaluate((el) => {
-      const style = window.getComputedStyle(el);
-      return {
-        outline: style.outline,
-        outlineWidth: style.outlineWidth,
-        boxShadow: style.boxShadow,
-      };
-    });
-    // Should have some visible focus indicator (outline or box-shadow)
-    const hasVisibleFocus =
-      (focusedElement && focusedElement !== null) &&
-      (focusedElement !== undefined);
-    expect(hasVisibleFocus).toBeTruthy();
-  });
-});
 
-// ---------------------------------------------------------------------------
-// Keyboard Navigation
-// ---------------------------------------------------------------------------
-
-test.describe('Keyboard Navigation', () => {
-  test('should navigate through bottom nav with Tab key', async ({ page }) => {
-    await page.goto('/');
-    // Tab through the page and verify bottom nav items are reachable
-    const navItems = page.locator('nav a, nav button');
-    const navCount = await navItems.count();
+    // Focus the first nav link
+    const navLinks = page.locator('nav a');
+    const navCount = await navLinks.count();
 
     if (navCount > 0) {
-      // Focus the first nav item
-      await navItems.first().focus();
-      expect(await navItems.first().evaluate((el) => document.activeElement === el)).toBeTruthy();
-
-      // Tab to next nav item
-      await page.keyboard.press('Tab');
-      // Active element should still be within nav
-      const activeInNav = await page.evaluate(() => {
-        const active = document.activeElement;
-        return active?.closest('nav') !== null;
-      });
-      // This may or may not be true depending on tab order, but nav should be reachable
-      expect(typeof activeInNav).toBe('boolean');
-    }
-  });
-
-  test('should activate buttons with Enter and Space keys', async ({ page }) => {
-    await page.goto('/');
-    const firstButton = page.getByRole('button').first();
-    if ((await firstButton.count()) > 0) {
-      await firstButton.focus();
-      // Press Enter — should not throw
-      await page.keyboard.press('Enter');
-      // Press Space — should not throw
-      await firstButton.focus();
-      await page.keyboard.press('Space');
-    }
-  });
-
-  test('should navigate Field Guide with keyboard only', async ({ page }) => {
-    await page.goto('/field-guide');
-    // Tab to search input
-    const searchInput = page.getByPlaceholder(/search/i);
-    if ((await searchInput.count()) > 0) {
-      await searchInput.focus();
-      expect(await searchInput.evaluate((el) => document.activeElement === el)).toBeTruthy();
-      // Type a search term
-      await page.keyboard.type('oak');
-      await page.waitForTimeout(500);
-    }
-  });
-
-  test('should support Escape key to close overlays', async ({ page }) => {
-    await page.goto('/');
-    // If any overlay/modal is open, Escape should close it
-    const dialog = page.locator('[role="dialog"], dialog');
-    if ((await dialog.count()) > 0) {
-      await page.keyboard.press('Escape');
-      await expect(dialog).not.toBeVisible();
+      await navLinks.first().focus();
+      const isFocused = await navLinks
+        .first()
+        .evaluate((el) => document.activeElement === el);
+      expect(isFocused).toBeTruthy();
     }
   });
 });

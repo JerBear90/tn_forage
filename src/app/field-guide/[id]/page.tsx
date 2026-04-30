@@ -20,6 +20,9 @@ import {
   type SpeciesDetailRecord,
 } from "@/hooks/useSpeciesDetail";
 import ImageLightbox from "@/components/ImageLightbox";
+import EdibilityTab from "@/components/EdibilityTab";
+import AssociatedSpeciesLink from "@/components/AssociatedSpeciesLink";
+import { useAssociatedSpeciesLookup } from "@/hooks/useAssociatedSpeciesLookup";
 import type {
   Species,
   Plant,
@@ -96,7 +99,7 @@ function Section({
     <section className="mt-6" aria-labelledby={id}>
       <h2
         id={id}
-        className="text-lg font-heading font-semibold text-brand-charcoal dark:text-brand-sand mb-2"
+        className="text-lg font-heading font-semibold text-brand-charcoal dark:text-dark-text mb-2"
       >
         {title}
       </h2>
@@ -131,7 +134,7 @@ function ImageGallery({ images }: { images: string[] }) {
             role="listitem"
             aria-label={`View image ${i + 1} of ${images.length}`}
             onClick={() => setLightboxIndex(i)}
-            className="shrink-0 w-48 h-36 rounded-lg bg-brand-sand/60 dark:bg-brand-charcoal/80 border border-brand-charcoal/10 dark:border-brand-sand/10 flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-shadow"
+            className="shrink-0 w-48 h-36 rounded-lg bg-brand-sand/60 dark:bg-dark-surface/80 border border-brand-charcoal/10 dark:border-dark-border flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-shadow"
           >
             {isRealImage(src) ? (
               /* eslint-disable-next-line @next/next/no-img-element */
@@ -187,7 +190,7 @@ function LookalikeCard({
       className={`rounded-lg border p-3 ${
         isToxicSection
           ? "border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700"
-          : "border-brand-charcoal/10 bg-white/60 dark:bg-brand-charcoal/40 dark:border-brand-sand/10"
+          : "border-brand-charcoal/10 bg-white/60 dark:bg-dark-surface/60 dark:border-dark-border"
       }`}
     >
       <div className="flex items-center gap-2 mb-1">
@@ -199,11 +202,11 @@ function LookalikeCard({
             ⚠ TOXIC
           </span>
         )}
-        <span className="font-semibold text-sm text-brand-charcoal dark:text-brand-sand">
+        <span className="font-semibold text-sm text-brand-charcoal dark:text-dark-text">
           {lookalike.commonName}
         </span>
       </div>
-      <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 leading-relaxed">
+      <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted leading-relaxed">
         {lookalike.differentiatingFeatures}
       </p>
     </div>
@@ -357,30 +360,12 @@ function SpeciesOrPlantDetail({
         </Section>
       )}
 
-      {/* Edibility — appears AFTER toxic lookalikes */}
-      <Section title="Edibility" id="section-edibility">
-        <span
-          className={`inline-block rounded-full border px-3 py-1 text-sm font-medium ${edibilityColor(d.edibilityLabel)}`}
-        >
-          {edibilityDisplayText(d.edibilityLabel)}
-        </span>
-      </Section>
-
-      {/* Safety Notes — prominent warning styling, AFTER toxic lookalikes */}
-      <Section title="⚠ Safety Notes" id="section-safety">
-        <div
-          className="rounded-lg border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 p-4"
-          role="alert"
-          aria-label="Safety warning"
-        >
-          <p className="text-sm text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
-            {d.safetyNotes}
-          </p>
-          <p className="text-xs text-amber-700 dark:text-amber-400 mt-2 font-semibold">
-            Verify with a qualified expert before consuming any wild species.
-          </p>
-        </div>
-      </Section>
+      {/* Edibility Tab — replaces inline edibility/safety sections */}
+      <EdibilityTab
+        edibilityLabel={d.edibilityLabel}
+        safetyNotes={d.safetyNotes}
+        toxicLookalikes={d.toxicLookalikes}
+      />
 
       {/* Spore Print (mushrooms only) */}
       {speciesData?.sporePrint && (
@@ -447,6 +432,8 @@ function SpeciesOrPlantDetail({
 }
 
 function TreeDetail({ data }: { data: Tree }) {
+  const associatedSpeciesMap = useAssociatedSpeciesLookup(data.associatedSpecies);
+
   return (
     <>
       {/* Header */}
@@ -497,13 +484,18 @@ function TreeDetail({ data }: { data: Tree }) {
         </p>
       </Section>
 
-      {/* Associated Species */}
+      {/* Associated Species — rendered as links when resolved */}
       {data.associatedSpecies.length > 0 && (
         <Section title="Associated Species" id="section-associated">
-          <TagList
-            items={data.associatedSpecies}
-            label="Associated mushroom and plant species"
-          />
+          <div className="flex flex-wrap gap-1.5" role="list" aria-label="Associated mushroom and plant species">
+            {data.associatedSpecies.map((name) => (
+              <AssociatedSpeciesLink
+                key={name}
+                speciesName={name}
+                speciesId={associatedSpeciesMap[name] ?? null}
+              />
+            ))}
+          </div>
         </Section>
       )}
 

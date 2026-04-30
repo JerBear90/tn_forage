@@ -11,7 +11,8 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useSpecies, type FieldGuideItem } from "@/hooks/useSpecies";
-import type { SpeciesCategory, EdibilityLabel } from "@/types";
+import RegionalFilter from "@/components/RegionalFilter";
+import type { SpeciesCategory, EdibilityLabel, TnRegion } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -131,7 +132,7 @@ function FilterPanel({
           onClick={() => setOpen((prev) => !prev)}
           aria-expanded={open}
           aria-controls="field-guide-filters"
-          className="flex items-center gap-1.5 rounded-lg border border-brand-teal/20 bg-white/60 dark:bg-brand-charcoal/40 px-3 py-2 text-xs font-medium text-brand-charcoal dark:text-brand-sand hover:bg-brand-teal/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+          className="flex items-center gap-1.5 rounded-lg border border-brand-teal/20 bg-white/60 dark:bg-dark-surface/60 px-3 py-2 text-xs font-medium text-brand-charcoal dark:text-dark-text hover:bg-brand-teal/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
         >
           {/* Filter icon */}
           <svg
@@ -182,11 +183,11 @@ function FilterPanel({
       {open && (
         <div
           id="field-guide-filters"
-          className="mt-3 rounded-lg border border-brand-teal/10 bg-white/60 dark:bg-brand-charcoal/40 p-4 space-y-4"
+          className="mt-3 rounded-lg border border-brand-teal/10 bg-white/60 dark:bg-dark-surface/60 p-4 space-y-4"
         >
           {/* Season filter */}
           <fieldset>
-            <legend className="text-xs font-semibold text-brand-charcoal dark:text-brand-sand mb-2">
+            <legend className="text-xs font-semibold text-brand-charcoal dark:text-dark-text mb-2">
               Season
             </legend>
             <div className="flex flex-wrap gap-2" role="group" aria-label="Season filters">
@@ -201,7 +202,7 @@ function FilterPanel({
                     className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
                       isActive
                         ? "bg-brand-forest text-white border-brand-forest"
-                        : "bg-white/60 dark:bg-brand-charcoal/60 text-brand-charcoal dark:text-brand-sand border-brand-forest/20 hover:bg-brand-forest/10"
+                        : "bg-white/60 dark:bg-dark-surface/80 text-brand-charcoal dark:text-dark-text border-brand-forest/20 hover:bg-brand-forest/10"
                     }`}
                   >
                     {season}
@@ -213,7 +214,7 @@ function FilterPanel({
 
           {/* Edibility label filter */}
           <fieldset>
-            <legend className="text-xs font-semibold text-brand-charcoal dark:text-brand-sand mb-2">
+            <legend className="text-xs font-semibold text-brand-charcoal dark:text-dark-text mb-2">
               Edibility
             </legend>
             <div className="flex flex-wrap gap-2" role="group" aria-label="Edibility filters">
@@ -228,7 +229,7 @@ function FilterPanel({
                     className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
                       isActive
                         ? "bg-brand-earth text-white border-brand-earth"
-                        : "bg-white/60 dark:bg-brand-charcoal/60 text-brand-charcoal dark:text-brand-sand border-brand-earth/20 hover:bg-brand-earth/10"
+                        : "bg-white/60 dark:bg-dark-surface/80 text-brand-charcoal dark:text-dark-text border-brand-earth/20 hover:bg-brand-earth/10"
                     }`}
                   >
                     {opt.label}
@@ -251,7 +252,7 @@ function SpeciesCard({ item }: { item: FieldGuideItem }) {
   return (
     <Link
       href={`/field-guide/${item.id}`}
-      className="block rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white/80 dark:bg-brand-charcoal/60 overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+      className="block rounded-xl border border-brand-charcoal/10 dark:border-dark-border bg-white/80 dark:bg-dark-surface/80 overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
     >
       {/* Image placeholder */}
       <div className="aspect-[4/3] bg-brand-sand/60 dark:bg-brand-charcoal/80 flex items-center justify-center">
@@ -273,10 +274,10 @@ function SpeciesCard({ item }: { item: FieldGuideItem }) {
 
       {/* Card body */}
       <div className="p-3">
-        <h3 className="font-heading font-semibold text-sm text-brand-charcoal dark:text-brand-sand leading-tight">
+        <h3 className="font-heading font-semibold text-sm text-brand-charcoal dark:text-dark-text leading-tight">
           {item.commonName}
         </h3>
-        <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 italic mt-0.5">
+        <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted italic mt-0.5">
           {item.scientificName}
         </p>
 
@@ -312,7 +313,7 @@ function LoadingSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white/80 dark:bg-brand-charcoal/60 overflow-hidden animate-pulse"
+          className="rounded-xl border border-brand-charcoal/10 dark:border-dark-border bg-white/80 dark:bg-dark-surface/80 overflow-hidden animate-pulse"
         >
           <div className="aspect-[4/3] bg-brand-sand/40 dark:bg-brand-charcoal/40" />
           <div className="p-3 space-y-2">
@@ -373,6 +374,7 @@ export default function FieldGuidePage() {
   const { items, loading, error } = useSpecies();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<SpeciesCategory | "all">("all");
+  const [selectedRegion, setSelectedRegion] = useState<TnRegion | "all">("all");
   const [selectedSeasons, setSelectedSeasons] = useState<Set<Season>>(new Set());
   const [selectedEdibility, setSelectedEdibility] = useState<Set<EdibilityLabel>>(new Set());
 
@@ -386,6 +388,11 @@ export default function FieldGuidePage() {
     // Category filter
     if (activeCategory !== "all") {
       result = result.filter((item) => item.category === activeCategory);
+    }
+
+    // Region filter — item matches if its regions array includes the selected region
+    if (selectedRegion !== "all") {
+      result = result.filter((item) => item.regions.includes(selectedRegion));
     }
 
     // Season filter — item matches if ANY of its seasons match ANY selected season
@@ -411,16 +418,18 @@ export default function FieldGuidePage() {
     }
 
     return result;
-  }, [items, activeCategory, selectedSeasons, selectedEdibility, search]);
+  }, [items, activeCategory, selectedRegion, selectedSeasons, selectedEdibility, search]);
 
   const hasFilters =
     search.trim() !== "" ||
     activeCategory !== "all" ||
+    selectedRegion !== "all" ||
     selectedSeasons.size > 0 ||
     selectedEdibility.size > 0;
 
   function handleClearAllFilters() {
     setActiveCategory("all");
+    setSelectedRegion("all");
     setSelectedSeasons(new Set());
     setSelectedEdibility(new Set());
     setSearch("");
@@ -479,7 +488,7 @@ export default function FieldGuidePage() {
             </Link>
           </div>
         </div>
-        <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mt-1">
+        <p className="text-sm text-brand-charcoal/70 dark:text-dark-text-muted mt-1">
           Offline species reference for Tennessee mushrooms, plants, and trees.
         </p>
       </header>
@@ -495,7 +504,7 @@ export default function FieldGuidePage() {
           placeholder="Search by common or scientific name…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-brand-teal/20 bg-white/80 dark:bg-brand-charcoal/60 px-4 py-3 text-sm text-brand-charcoal dark:text-brand-sand placeholder:text-brand-charcoal/40 dark:placeholder:text-brand-sand/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
+          className="w-full rounded-lg border border-brand-teal/20 bg-white/80 dark:bg-dark-surface/60 px-4 py-3 text-sm text-brand-charcoal dark:text-dark-text placeholder:text-brand-charcoal/40 dark:placeholder:text-dark-text-muted focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
         />
       </div>
 
@@ -516,7 +525,7 @@ export default function FieldGuidePage() {
               className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
                 isActive
                   ? "bg-brand-teal text-white border-brand-teal"
-                  : "bg-white/60 dark:bg-brand-charcoal/40 text-brand-charcoal dark:text-brand-sand border-brand-teal/20 hover:bg-brand-teal/10"
+                  : "bg-white/60 dark:bg-dark-surface/60 text-brand-charcoal dark:text-dark-text border-brand-teal/20 hover:bg-brand-teal/10"
               }`}
             >
               {filter.label}
@@ -524,6 +533,12 @@ export default function FieldGuidePage() {
           );
         })}
       </div>
+
+      {/* Regional filter chips */}
+      <RegionalFilter
+        selectedRegion={selectedRegion}
+        onRegionChange={setSelectedRegion}
+      />
 
       {/* Advanced filters — collapsible panel */}
       <FilterPanel
@@ -553,7 +568,7 @@ export default function FieldGuidePage() {
       ) : (
         <>
           {/* Results count */}
-          <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mb-3">
+          <p className="text-xs text-brand-charcoal/50 dark:text-dark-text-muted mb-3">
             {filtered.length} {filtered.length === 1 ? "species" : "species"} found
           </p>
 

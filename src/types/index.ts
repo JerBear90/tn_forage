@@ -96,6 +96,31 @@ export type TrailDifficulty = 'easy' | 'moderate' | 'hard' | 'expert';
 /** Expedition log visibility */
 export type LogVisibility = 'private' | 'public';
 
+/** Tennessee geographic region */
+export type TnRegion = 'East TN' | 'Middle TN' | 'West TN';
+
+/** Challenge category */
+export type ChallengeCategory = 'foraging' | 'seasonal' | 'park-exploration';
+
+/** A single criterion within a challenge */
+export interface ChallengeCriterion {
+  id: string;
+  label: string;
+  completed: boolean;
+  completedAt?: string;
+}
+
+/** A challenge definition with user progress */
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  category: ChallengeCategory;
+  criteria: ChallengeCriterion[];
+  completedAt?: string;
+  lastUpdated: string;
+}
+
 // ---------------------------------------------------------------------------
 // Species
 // ---------------------------------------------------------------------------
@@ -117,6 +142,7 @@ export interface Species {
   treeAssociations: string[];
   season: string[];
   region: string;
+  regions?: string[];
   identificationSteps: string[];
   lookalikes: Lookalike[];
   toxicLookalikes: Lookalike[];
@@ -142,6 +168,7 @@ export interface Plant {
   treeAssociations: string[];
   season: string[];
   region: string;
+  regions?: string[];
   identificationSteps: string[];
   lookalikes: Lookalike[];
   toxicLookalikes: Lookalike[];
@@ -166,6 +193,8 @@ export interface Tree {
   shapeDescription: string;
   associatedSpecies: string[];
   region: string;
+  sourceUrl?: string;
+  regions?: TnRegion[];
   lastUpdated: string;
 }
 
@@ -184,6 +213,7 @@ export interface Park {
   hours?: string;
   fees?: string;
   foragingRules: string;
+  sourceUrl?: string;
   lastUpdated: string;
 }
 
@@ -202,6 +232,7 @@ export interface Trail {
   likelyTrees: string[];
   likelySpecies: string[];
   images: string[];
+  sourceUrl?: string;
   lastUpdated: string;
 }
 

@@ -24,6 +24,7 @@ export interface FieldGuideItem {
   season: string[];
   habitat: string;
   treeAssociations: string[];
+  regions: string[];
 }
 
 export interface UseSpeciesResult {
@@ -46,6 +47,7 @@ function speciesTo(s: Species): FieldGuideItem {
     season: s.season,
     habitat: s.habitat,
     treeAssociations: s.treeAssociations,
+    regions: s.regions ?? [],
   };
 }
 
@@ -63,6 +65,7 @@ function plantTo(p: Plant): FieldGuideItem {
     season: p.season,
     habitat: p.habitat,
     treeAssociations: p.treeAssociations,
+    regions: p.regions ?? [],
   };
 }
 
@@ -82,6 +85,7 @@ function treeTo(t: Tree): FieldGuideItem {
     season: [],
     habitat: t.habitat,
     treeAssociations: t.associatedSpecies,
+    regions: t.regions ?? [],
   };
 }
 

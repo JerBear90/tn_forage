@@ -119,14 +119,14 @@ export default function MapPageClient() {
   }, []);
 
   return (
-    <main className="flex flex-col h-[calc(100vh-4rem)]">
+    <main className="flex flex-col">
       <header className="px-4 pt-4 pb-2 shrink-0">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-2xl font-bold text-brand-forest dark:text-brand-moss font-heading">
               Map
             </h1>
-            <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mt-1">
+            <p className="text-sm text-brand-charcoal/70 dark:text-dark-text-muted mt-1">
               Tennessee parks, trails, and routes. Previously viewed areas are
               available offline.
             </p>
@@ -134,7 +134,7 @@ export default function MapPageClient() {
 
           {/* Map / List toggle */}
           <div
-            className="shrink-0 flex rounded-lg border border-brand-forest/15 dark:border-brand-charcoal/30 overflow-hidden"
+            className="shrink-0 flex rounded-lg border border-brand-forest/15 dark:border-dark-border overflow-hidden"
             role="group"
             aria-label="View mode"
           >
@@ -145,7 +145,7 @@ export default function MapPageClient() {
               className={`px-3 py-1.5 text-xs font-semibold transition-colors touch-manipulation ${
                 viewMode === 'map'
                   ? 'bg-brand-teal text-white'
-                  : 'bg-white dark:bg-brand-charcoal-800 text-brand-charcoal/70 dark:text-brand-sand/70 hover:bg-brand-teal/10'
+                  : 'bg-white dark:bg-dark-surface text-brand-charcoal/70 dark:text-dark-text-muted hover:bg-brand-teal/10'
               }`}
             >
               <span className="flex items-center gap-1">
@@ -162,7 +162,7 @@ export default function MapPageClient() {
               className={`px-3 py-1.5 text-xs font-semibold transition-colors touch-manipulation ${
                 viewMode === 'list'
                   ? 'bg-brand-teal text-white'
-                  : 'bg-white dark:bg-brand-charcoal-800 text-brand-charcoal/70 dark:text-brand-sand/70 hover:bg-brand-teal/10'
+                  : 'bg-white dark:bg-dark-surface text-brand-charcoal/70 dark:text-dark-text-muted hover:bg-brand-teal/10'
               }`}
             >
               <span className="flex items-center gap-1">
@@ -185,11 +185,45 @@ export default function MapPageClient() {
         </div>
       )}
 
+      {/* Legend — above the map, visible only in map mode */}
+      {viewMode === 'map' && (
+        <div
+          className="px-4 pb-2 shrink-0"
+          aria-label="Map legend"
+          role="complementary"
+        >
+          <div className="flex flex-wrap gap-4 text-xs text-brand-charcoal/70 dark:text-dark-text-muted">
+            <span className="flex items-center gap-1.5">
+              <span
+                className="inline-block w-3 h-3 rounded-full bg-brand-teal"
+                aria-hidden="true"
+              />
+              Parks
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span
+                className="inline-block w-3 h-1.5 rounded bg-brand-moss"
+                aria-hidden="true"
+              />
+              Trails
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span
+                className="inline-block w-3 h-1.5 rounded bg-brand-earth border-dashed border border-brand-earth"
+                aria-hidden="true"
+              />
+              Routes
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Map view — hidden with CSS when in list mode to preserve Leaflet state */}
       <div
-        className={`flex-1 mx-4 mb-4 rounded-xl overflow-hidden border border-brand-forest/10 relative ${
+        className={`mx-4 mb-4 rounded-xl overflow-hidden border border-brand-forest/10 relative ${
           viewMode === 'list' ? 'hidden' : ''
         }`}
+        style={{ height: 'max(65vh, 300px)' }}
         role="region"
         aria-label="Map view"
       >
@@ -212,14 +246,15 @@ export default function MapPageClient() {
           />
         )}
 
-        {/* Detail panel overlays the map */}
+        {/* Detail panel overlays the map — positioned at top */}
         <MapDetailPanel item={panelItem} onClose={handleClosePanel} />
       </div>
 
       {/* List view — shown when in list mode */}
       {viewMode === 'list' && (
         <div
-          className="flex-1 mx-4 mb-4 rounded-xl overflow-hidden border border-brand-forest/10 dark:border-brand-charcoal/30 bg-brand-sand/50 dark:bg-brand-charcoal/50 relative"
+          className="flex-1 mx-4 mb-4 rounded-xl overflow-hidden border border-brand-forest/10 dark:border-dark-border bg-brand-sand/50 dark:bg-dark-surface/80 relative"
+          style={{ height: 'max(65vh, 300px)' }}
           role="region"
           aria-label="List view"
         >
@@ -244,39 +279,6 @@ export default function MapPageClient() {
 
           {/* Detail panel overlays the list view too */}
           <MapDetailPanel item={panelItem} onClose={handleClosePanel} />
-        </div>
-      )}
-
-      {/* Legend — only shown in map mode */}
-      {viewMode === 'map' && (
-        <div
-          className="px-4 pb-4 shrink-0"
-          aria-label="Map legend"
-          role="complementary"
-        >
-          <div className="flex flex-wrap gap-4 text-xs text-brand-charcoal/70 dark:text-brand-sand/70">
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block w-3 h-3 rounded-full bg-brand-teal"
-                aria-hidden="true"
-              />
-              Parks
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block w-3 h-1.5 rounded bg-brand-moss"
-                aria-hidden="true"
-              />
-              Trails
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block w-3 h-1.5 rounded bg-brand-earth border-dashed border border-brand-earth"
-                aria-hidden="true"
-              />
-              Routes
-            </span>
-          </div>
         </div>
       )}
     </main>

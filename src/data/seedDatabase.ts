@@ -12,6 +12,7 @@ import { treesSeed } from '@/data/treesSeed';
 import { parksSeed } from '@/data/parksSeed';
 import { trailsSeed } from '@/data/trailsSeed';
 import { routesSeed } from '@/data/routesSeed';
+import { challengesSeed } from '@/data/challengesSeed';
 
 /**
  * Seed the IndexedDB database with local species, plant, tree, park, trail, and route data.
@@ -28,6 +29,7 @@ export async function seedDatabase(): Promise<{
   parksSeeded: number;
   trailsSeeded: number;
   routesSeeded: number;
+  challengesSeeded: number;
 }> {
   const db = await getDB();
 
@@ -37,6 +39,7 @@ export async function seedDatabase(): Promise<{
   let parksSeeded = 0;
   let trailsSeeded = 0;
   let routesSeeded = 0;
+  let challengesSeeded = 0;
 
   // --- Seed species (mushrooms) ---
   const speciesCount = await countRecords('species');
@@ -104,5 +107,16 @@ export async function seedDatabase(): Promise<{
     routesSeeded = routesSeed.length;
   }
 
-  return { speciesSeeded, plantsSeeded, treesSeeded, parksSeeded, trailsSeeded, routesSeeded };
+  // --- Seed challenges ---
+  const challengesCount = await countRecords('challenges');
+  if (challengesCount === 0) {
+    const tx = db.transaction('challenges', 'readwrite');
+    for (const challenge of challengesSeed) {
+      await tx.store.put(challenge);
+    }
+    await tx.done;
+    challengesSeeded = challengesSeed.length;
+  }
+
+  return { speciesSeeded, plantsSeeded, treesSeeded, parksSeeded, trailsSeeded, routesSeeded, challengesSeeded };
 }
