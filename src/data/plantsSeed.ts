@@ -1,0 +1,215 @@
+/**
+ * ForageFlow — Tennessee Plant Seed Data
+ *
+ * Local seed data for plant species commonly found in Tennessee.
+ * This data is loaded into IndexedDB on first run.
+ *
+ * SAFETY: No entry may use "safe to eat", "confirmed edible", or
+ * "definitely edible". Toxic lookalikes are always listed.
+ */
+
+import type { Plant } from '@/types';
+
+export const plantsSeed: Plant[] = [
+  {
+    id: 'pl-ramps',
+    commonName: 'Ramps',
+    scientificName: 'Allium tricoccum',
+    category: 'plant',
+    images: [
+      'https://plants.usda.gov/gallery/large/altr3_002_lhp.jpg',
+      '/images/species/pl-ramps.jpg',
+    ],
+    habitat: 'Found in rich, moist deciduous forests, often in coves and along streams. Prefers shaded slopes with deep leaf litter. Grows in dense colonies.',
+    treeAssociations: ['Sugar Maple', 'Beech', 'Tulip Poplar', 'Birch'],
+    season: ['Spring'],
+    region: 'Tennessee',
+    regions: ['East TN', 'Middle TN'],
+    identificationSteps: [
+      'Look for broad, smooth, lily-of-the-valley-like leaves emerging from the forest floor in early spring.',
+      'Leaves are 2–3 per plant, 15–25 cm long, bright green, and smooth.',
+      'Crush a leaf — it should have a strong garlic/onion aroma. If no onion smell, it is NOT ramps.',
+      'Bulb is white to reddish, small (1–3 cm), and resembles a small leek.',
+      'Leaves wither before the plant flowers in late spring/early summer.',
+      'Flowers are small, white, and appear on a leafless stalk after leaves die back.',
+    ],
+    lookalikes: [
+      {
+        speciesId: 'pl-lily-of-the-valley',
+        commonName: 'Lily of the Valley',
+        isToxic: true,
+        differentiatingFeatures: 'Lily of the Valley (Convallaria majalis) has similar broad leaves but NO onion/garlic smell when crushed. It is highly toxic. Always perform the smell test.',
+      },
+      {
+        speciesId: 'pl-false-hellebore',
+        commonName: 'False Hellebore',
+        isToxic: true,
+        differentiatingFeatures: 'False Hellebore (Veratrum viride) has larger, pleated/ribbed leaves with parallel veins and NO onion/garlic smell. Highly toxic. Leaves are much larger and more textured than ramps.',
+      },
+    ],
+    toxicLookalikes: [
+      {
+        speciesId: 'pl-lily-of-the-valley',
+        commonName: 'Lily of the Valley',
+        isToxic: true,
+        differentiatingFeatures: 'Lily of the Valley (Convallaria majalis) has similar broad leaves but NO onion/garlic smell when crushed. It is highly toxic. Always perform the smell test.',
+      },
+      {
+        speciesId: 'pl-false-hellebore',
+        commonName: 'False Hellebore',
+        isToxic: true,
+        differentiatingFeatures: 'False Hellebore (Veratrum viride) has larger, pleated/ribbed leaves with parallel veins and NO onion/garlic smell. Highly toxic. Leaves are much larger and more textured than ramps.',
+      },
+    ],
+    edibilityLabel: 'commonly-considered-edible-with-expert-confirmation',
+    safetyNotes: 'Commonly considered edible and a traditional Appalachian spring food. However, ramps have toxic lookalikes including Lily of the Valley and False Hellebore. Always confirm the strong onion/garlic smell. Verify with a qualified expert before consuming. Harvest sustainably — overharvesting threatens wild populations.',
+    sources: [
+      'Peterson, L. (2010). A Field Guide to Edible Wild Plants. Houghton Mifflin.',
+      'Thayer, S. (2006). The Forager\'s Harvest. Forager\'s Harvest Press.',
+    ],
+    lastUpdated: '2024-01-15',
+  },
+  {
+    id: 'pl-pawpaw',
+    commonName: 'Pawpaw',
+    scientificName: 'Asimina triloba',
+    category: 'plant',
+    images: [
+      'https://plants.usda.gov/gallery/large/astr_002_lhp.jpg',
+      '/images/species/pl-pawpaw.jpg',
+    ],
+    habitat: 'Found in rich bottomlands, floodplains, and moist forests. Often grows in the understory of hardwood forests along streams and rivers. Forms dense thickets via root suckers.',
+    treeAssociations: ['Sycamore', 'Tulip Poplar', 'Beech', 'Maple'],
+    season: ['Fall'],
+    region: 'Tennessee',
+    regions: ['East TN', 'Middle TN', 'West TN'],
+    identificationSteps: [
+      'Look for a small understory tree or large shrub, 3–12 meters tall.',
+      'Leaves are large (15–30 cm), oblong, drooping, and tropical-looking.',
+      'Leaves have a distinctive unpleasant odor when crushed.',
+      'Flowers appear in spring before leaves — dark reddish-purple, 3–5 cm wide.',
+      'Fruit ripens in September–October, 5–15 cm long, green turning yellowish-brown.',
+      'Fruit is soft when ripe, with custard-like flesh and large brown seeds.',
+    ],
+    lookalikes: [],
+    toxicLookalikes: [],
+    edibilityLabel: 'commonly-considered-edible-with-expert-confirmation',
+    safetyNotes: 'Commonly considered edible — the fruit has a custard-like flavor. However, some individuals experience allergic reactions or gastrointestinal upset. Seeds and bark are not edible. Verify with a qualified expert before consuming. Only eat fully ripe fruit.',
+    sources: [
+      'Peterson, L. (2010). A Field Guide to Edible Wild Plants. Houghton Mifflin.',
+      'Jones, S. C., & Layne, D. R. (2009). Pawpaw: A Potential New Fruit Crop. ASHS Press.',
+    ],
+    lastUpdated: '2024-01-15',
+  },
+  {
+    id: 'pl-pokeweed',
+    commonName: 'Pokeweed',
+    scientificName: 'Phytolacca americana',
+    category: 'plant',
+    images: [
+      'https://plants.usda.gov/gallery/large/pham4_002_lhp.jpg',
+      '/images/species/pl-pokeweed.jpg',
+    ],
+    habitat: 'Found in disturbed areas, roadsides, field edges, fence rows, and open woodlands. Thrives in rich, moist soils. Very common throughout Tennessee.',
+    treeAssociations: [],
+    season: ['Spring', 'Summer', 'Fall'],
+    region: 'Tennessee',
+    regions: ['East TN', 'Middle TN', 'West TN'],
+    identificationSteps: [
+      'CAUTION: This plant is toxic in most forms.',
+      'Large herbaceous perennial, 1–3 meters tall with thick, hollow, reddish-purple stems.',
+      'Leaves are large (10–30 cm), alternate, simple, and lance-shaped.',
+      'Small white to greenish flowers in drooping racemes.',
+      'Berries are dark purple-black, in drooping clusters, and stain heavily.',
+      'Root is large, fleshy, and extremely toxic.',
+      'All parts of the mature plant are toxic.',
+    ],
+    lookalikes: [],
+    toxicLookalikes: [],
+    edibilityLabel: 'toxic',
+    safetyNotes: 'TOXIC. All parts of the mature plant are toxic, including roots, stems, leaves, and berries. Contains phytolaccatoxin and phytolaccigenin. Ingestion can cause severe gastrointestinal distress, respiratory depression, and in severe cases, death. Some traditional preparations use very young shoots with extensive boiling, but this does not make the plant safe. Do not consume without expert guidance.',
+    sources: [
+      'Peterson, L. (2010). A Field Guide to Edible Wild Plants. Houghton Mifflin.',
+      'Kingsbury, J. M. (1964). Poisonous Plants of the United States and Canada. Prentice-Hall.',
+    ],
+    lastUpdated: '2024-01-15',
+  },
+  {
+    id: 'pl-poison-ivy',
+    commonName: 'Poison Ivy',
+    scientificName: 'Toxicodendron radicans',
+    category: 'plant',
+    images: [
+      'https://plants.usda.gov/gallery/large/tora2_002_lhp.jpg',
+      '/images/species/pl-poison-ivy.jpg',
+    ],
+    habitat: 'Found in forests, forest edges, roadsides, fence rows, and disturbed areas. Grows as a vine, shrub, or ground cover. Extremely common throughout Tennessee.',
+    treeAssociations: ['Oak', 'Hickory', 'Maple', 'Elm'],
+    season: ['Spring', 'Summer', 'Fall'],
+    region: 'Tennessee',
+    regions: ['East TN', 'Middle TN', 'West TN'],
+    identificationSteps: [
+      'CAUTION: All parts of this plant cause severe allergic contact dermatitis in most people.',
+      '"Leaves of three, let it be" — each leaf has three leaflets.',
+      'Middle leaflet has a longer stalk than the two side leaflets.',
+      'Leaflets are 5–15 cm long, glossy or dull, with smooth, toothed, or lobed edges.',
+      'Young leaves are reddish, mature leaves are green, fall leaves turn red/orange.',
+      'Grows as a ground vine, shrub, or climbing vine with hairy aerial rootlets.',
+      'Small white or yellowish berries in clusters.',
+    ],
+    lookalikes: [
+      {
+        speciesId: 'pl-virginia-creeper',
+        commonName: 'Virginia Creeper',
+        isToxic: false,
+        differentiatingFeatures: 'Virginia Creeper has FIVE leaflets per leaf (not three). It also has adhesive pads on tendrils rather than hairy aerial rootlets. Berries are blue-black, not white.',
+      },
+      {
+        speciesId: 'pl-box-elder',
+        commonName: 'Box Elder Seedling',
+        isToxic: false,
+        differentiatingFeatures: 'Box Elder seedlings have opposite leaves (not alternate like poison ivy) and the leaflets are more uniformly toothed. Stems are green and smooth.',
+      },
+    ],
+    toxicLookalikes: [],
+    edibilityLabel: 'toxic',
+    safetyNotes: 'TOXIC — DO NOT TOUCH. All parts contain urushiol oil, which causes severe allergic contact dermatitis (rash, blisters, intense itching) in approximately 85% of people. Urushiol remains active on surfaces for years. Burning poison ivy releases urushiol in smoke, which can cause lung irritation. Wash exposed skin immediately with soap and water. Seek medical attention for severe reactions.',
+    sources: [
+      'Kingsbury, J. M. (1964). Poisonous Plants of the United States and Canada. Prentice-Hall.',
+      'Frankel, E. (1991). Poison Ivy, Poison Oak, Poison Sumac and Their Relatives. Boxwood Press.',
+    ],
+    lastUpdated: '2024-01-15',
+  },
+  {
+    id: 'pl-wild-ginger',
+    commonName: 'Wild Ginger',
+    scientificName: 'Asarum canadense',
+    category: 'plant',
+    images: [
+      'https://plants.usda.gov/gallery/large/asca_002_lhp.jpg',
+      '/images/species/pl-wild-ginger.jpg',
+    ],
+    habitat: 'Found in rich, moist deciduous forests, often on shaded slopes and along streams. Grows as a low ground cover in colonies. Prefers deep leaf litter and humus-rich soil.',
+    treeAssociations: ['Beech', 'Maple', 'Tulip Poplar', 'Oak'],
+    season: ['Spring', 'Summer'],
+    region: 'Tennessee',
+    regions: ['East TN', 'Middle TN'],
+    identificationSteps: [
+      'Look for pairs of large, heart-shaped, velvety leaves close to the ground.',
+      'Leaves are 8–15 cm wide, dark green, and covered in fine hairs.',
+      'Each plant produces two leaves on hairy stalks from a creeping rhizome.',
+      'Flower is hidden at ground level between the two leaf stalks — cup-shaped, brownish-purple, with three pointed lobes.',
+      'Rhizome (underground stem) has a ginger-like aroma when broken.',
+      'Not related to culinary ginger (Zingiber officinale).',
+    ],
+    lookalikes: [],
+    toxicLookalikes: [],
+    edibilityLabel: 'unknown',
+    safetyNotes: 'Historically used as a ginger substitute, but contains aristolochic acid, which is a known carcinogen and nephrotoxin. Current research advises caution. This plant should not be consumed in significant quantities. Verify with a qualified expert before consuming. Not related to culinary ginger.',
+    sources: [
+      'Peterson, L. (2010). A Field Guide to Edible Wild Plants. Houghton Mifflin.',
+      'Thayer, S. (2006). The Forager\'s Harvest. Forager\'s Harvest Press.',
+    ],
+    lastUpdated: '2024-01-15',
+  },
+];

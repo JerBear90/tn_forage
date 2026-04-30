@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Poppins, Nunito_Sans } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "@/styles/globals.css";
 import BottomNav from "@/components/BottomNav";
 import ThemeProvider from "@/components/ThemeProvider";
 import PwaSplash from "@/components/PwaSplash";
 import LogoIntro from "@/components/LogoIntro";
 import AppShell from "@/layouts/AppShell";
+import AuthProvider from "@/auth/AuthProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,12 +18,6 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-poppins",
-  display: "swap",
-});
-
-const nunitoSans = Nunito_Sans({
-  subsets: ["latin"],
-  variable: "--font-nunito-sans",
   display: "swap",
 });
 
@@ -134,16 +129,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable} ${nunitoSans.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${poppins.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="antialiased min-h-screen bg-brand-sand text-brand-charcoal font-sans dark:bg-brand-charcoal dark:text-brand-sand pb-20">
+      <body className="antialiased min-h-screen bg-brand-sand text-brand-charcoal font-sans dark:bg-dark-surface dark:text-dark-text pb-20">
         <ThemeProvider>
-          <LogoIntro />
-          <PwaSplash />
-          <AppShell>{children}</AppShell>
-          <BottomNav />
+          <AuthProvider>
+            <LogoIntro />
+            <PwaSplash />
+            <AppShell>{children}</AppShell>
+            <BottomNav />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

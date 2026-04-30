@@ -1,0 +1,612 @@
+"use client";
+
+/**
+ * ForageFlow — Species Detail Page
+ *
+ * Dynamic route that displays the full detail for a species, plant, or tree.
+ * Reads from IndexedDB via the useSpeciesDetail hook.
+ *
+ * SAFETY RULES:
+ * - Toxic lookalikes ALWAYS appear BEFORE edibility/safety notes
+ * - NEVER display "safe to eat", "confirmed edible", or "definitely edible"
+ * - Safety notes are displayed prominently with warning styling
+ */
+
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useState } from "react";
+import {
+  useSpeciesDetail,
+  type SpeciesDetailRecord,
+} from "@/hooks/useSpeciesDetail";
+import ImageLightbox from "@/components/ImageLightbox";
+import EdibilityTab from "@/components/EdibilityTab";
+import AssociatedSpeciesLink from "@/components/AssociatedSpeciesLink";
+import { useAssociatedSpeciesLookup } from "@/hooks/useAssociatedSpeciesLookup";
+import type {
+  Species,
+  Plant,
+  Tree,
+  Lookalike,
+  EdibilityLabel,
+  SpeciesCategory,
+} from "@/types";
+
+// ---------------------------------------------------------------------------
+// Edibility helpers
+// ---------------------------------------------------------------------------
+
+function edibilityColor(label: EdibilityLabel): string {
+  switch (label) {
+    case "commonly-considered-edible-with-expert-confirmation":
+      return "bg-brand-moss/15 text-brand-moss border-brand-moss/30";
+    case "toxic":
+      return "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700";
+    case "inedible":
+      return "bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600";
+    case "unknown":
+    default:
+      return "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700";
+  }
+}
+
+function edibilityDisplayText(label: EdibilityLabel): string {
+  switch (label) {
+    case "commonly-considered-edible-with-expert-confirmation":
+      return "Expert confirmation needed";
+    case "toxic":
+      return "Toxic";
+    case "inedible":
+      return "Inedible";
+    case "unknown":
+    default:
+      return "Unknown";
+  }
+}
+
+function categoryBadgeClasses(category: SpeciesCategory): string {
+  switch (category) {
+    case "mushroom":
+      return "bg-brand-earth/15 text-brand-earth border-brand-earth/30";
+    case "plant":
+      return "bg-brand-moss/15 text-brand-moss border-brand-moss/30";
+    case "tree":
+      return "bg-brand-forest/15 text-brand-forest border-brand-forest/30";
+    default:
+      return "bg-gray-100 text-gray-600 border-gray-300";
+  }
+}
+
+function categoryDisplayLabel(category: SpeciesCategory): string {
+  return category.charAt(0).toUpperCase() + category.slice(1);
+}
+
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+/** Section wrapper with consistent spacing and heading */
+function Section({
+  title,
+  children,
+  id,
+}: {
+  title: string;
+  children: React.ReactNode;
+  id?: string;
+}) {
+  return (
+    <section className="mt-6" aria-labelledby={id}>
+      <h2
+        id={id}
+        className="text-lg font-heading font-semibold text-brand-charcoal dark:text-dark-text mb-2"
+      >
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+/** Image gallery with tap-to-enlarge lightbox */
+function ImageGallery({ images }: { images: string[] }) {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  if (images.length === 0) return null;
+
+  /** Check if a src looks like a real image URL (not a placeholder path) */
+  const isRealImage = (src: string) =>
+    src.startsWith("http") || src.startsWith("data:") || src.startsWith("blob:");
+
+  const lightboxOpen = lightboxIndex !== null;
+  const lightboxSrc =
+    lightboxIndex !== null && isRealImage(images[lightboxIndex])
+      ? images[lightboxIndex]
+      : null;
+
+  return (
+    <div className="mt-4">
+      <div className="flex gap-3 overflow-x-auto pb-2" role="list" aria-label="Species images">
+        {images.map((src, i) => (
+          <button
+            key={i}
+            type="button"
+            role="listitem"
+            aria-label={`View image ${i + 1} of ${images.length}`}
+            onClick={() => setLightboxIndex(i)}
+            className="shrink-0 w-48 h-36 rounded-lg bg-brand-sand/60 dark:bg-dark-surface/80 border border-brand-charcoal/10 dark:border-dark-border flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-shadow"
+          >
+            {isRealImage(src) ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={src}
+                alt={`Species image ${i + 1}`}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <svg
+                aria-hidden="true"
+                className="w-10 h-10 text-brand-charcoal/20 dark:text-brand-sand/20"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+                />
+              </svg>
+            )}
+          </button>
+        ))}
+      </div>
+
+      <ImageLightbox
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxIndex(null)}
+        imageSrc={lightboxSrc}
+        imageAlt={
+          lightboxIndex !== null
+            ? `Species image ${lightboxIndex + 1} of ${images.length}`
+            : "Species image"
+        }
+      />
+    </div>
+  );
+}
+
+/** Lookalike card */
+function LookalikeCard({
+  lookalike,
+  isToxicSection,
+}: {
+  lookalike: Lookalike;
+  isToxicSection: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-lg border p-3 ${
+        isToxicSection
+          ? "border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700"
+          : "border-brand-charcoal/10 bg-white/60 dark:bg-dark-surface/60 dark:border-dark-border"
+      }`}
+    >
+      <div className="flex items-center gap-2 mb-1">
+        {isToxicSection && (
+          <span
+            className="inline-block rounded-full bg-red-600 text-white text-[10px] font-bold px-2 py-0.5"
+            aria-label="Toxic"
+          >
+            ⚠ TOXIC
+          </span>
+        )}
+        <span className="font-semibold text-sm text-brand-charcoal dark:text-dark-text">
+          {lookalike.commonName}
+        </span>
+      </div>
+      <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted leading-relaxed">
+        {lookalike.differentiatingFeatures}
+      </p>
+    </div>
+  );
+}
+
+/** Tag list (for seasons, tree associations, etc.) */
+function TagList({ items, label }: { items: string[]; label: string }) {
+  if (items.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-1.5" role="list" aria-label={label}>
+      {items.map((item) => (
+        <span
+          key={item}
+          role="listitem"
+          className="inline-block rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2.5 py-0.5 text-xs text-brand-teal dark:text-brand-teal-300"
+        >
+          {item}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Detail renderers by type
+// ---------------------------------------------------------------------------
+
+function SpeciesOrPlantDetail({
+  record,
+}: {
+  record: { kind: "species" | "plant"; data: Species | Plant };
+}) {
+  const d = record.data;
+  const isSpecies = record.kind === "species";
+  const speciesData = isSpecies ? (d as Species) : null;
+
+  return (
+    <>
+      {/* Header */}
+      <header>
+        <h1 className="text-2xl font-bold font-heading text-brand-forest dark:text-brand-moss leading-tight">
+          {d.commonName}
+        </h1>
+        <p className="text-sm italic text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
+          {d.scientificName}
+        </p>
+        <div className="flex flex-wrap gap-2 mt-3">
+          <span
+            className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium ${categoryBadgeClasses(d.category)}`}
+          >
+            {categoryDisplayLabel(d.category)}
+          </span>
+          <span
+            className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium ${edibilityColor(d.edibilityLabel)}`}
+          >
+            {edibilityDisplayText(d.edibilityLabel)}
+          </span>
+        </div>
+      </header>
+
+      {/* Image gallery */}
+      <ImageGallery images={d.images} />
+
+      {/* Habitat */}
+      <Section title="Habitat" id="section-habitat">
+        <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
+          {d.habitat}
+        </p>
+      </Section>
+
+      {/* Tree Associations */}
+      {d.treeAssociations.length > 0 && (
+        <Section title="Tree Associations" id="section-trees">
+          <TagList items={d.treeAssociations} label="Associated trees" />
+        </Section>
+      )}
+
+      {/* Season */}
+      {d.season.length > 0 && (
+        <Section title="Season" id="section-season">
+          <TagList items={d.season} label="Active seasons" />
+        </Section>
+      )}
+
+      {/* Region */}
+      <Section title="Region" id="section-region">
+        <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80">
+          {d.region}
+        </p>
+      </Section>
+
+      {/* Identification Steps */}
+      {d.identificationSteps.length > 0 && (
+        <Section title="Identification Steps" id="section-id-steps">
+          <ol className="list-decimal list-inside space-y-1.5">
+            {d.identificationSteps.map((step, i) => (
+              <li
+                key={i}
+                className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed"
+              >
+                {step}
+              </li>
+            ))}
+          </ol>
+        </Section>
+      )}
+
+      {/* ============================================================
+          CRITICAL ORDERING: Toxic lookalikes BEFORE edibility/safety
+          ============================================================ */}
+
+      {/* Toxic Lookalikes — MUST appear before edibility/safety notes */}
+      {d.toxicLookalikes.length > 0 && (
+        <Section title="⚠ Toxic Lookalikes" id="section-toxic-lookalikes">
+          <div
+            className="rounded-lg border-2 border-red-400 bg-red-50/50 dark:bg-red-900/10 dark:border-red-600 p-3 mb-2"
+            role="alert"
+          >
+            <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-2">
+              Review these toxic lookalikes carefully before considering
+              edibility.
+            </p>
+          </div>
+          <div className="space-y-2">
+            {d.toxicLookalikes.map((la) => (
+              <LookalikeCard
+                key={la.speciesId}
+                lookalike={la}
+                isToxicSection={true}
+              />
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* Non-toxic Lookalikes */}
+      {d.lookalikes.filter((la) => !la.isToxic).length > 0 && (
+        <Section title="Other Lookalikes" id="section-lookalikes">
+          <div className="space-y-2">
+            {d.lookalikes
+              .filter((la) => !la.isToxic)
+              .map((la) => (
+                <LookalikeCard
+                  key={la.speciesId}
+                  lookalike={la}
+                  isToxicSection={false}
+                />
+              ))}
+          </div>
+        </Section>
+      )}
+
+      {/* Edibility Tab — replaces inline edibility/safety sections */}
+      <EdibilityTab
+        edibilityLabel={d.edibilityLabel}
+        safetyNotes={d.safetyNotes}
+        toxicLookalikes={d.toxicLookalikes}
+      />
+
+      {/* Spore Print (mushrooms only) */}
+      {speciesData?.sporePrint && (
+        <Section title="Spore Print" id="section-spore-print">
+          <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80">
+            {speciesData.sporePrint}
+          </p>
+          <Link
+            href="/field-guide/spore-print"
+            className="inline-flex items-center gap-1.5 mt-2 text-xs font-medium text-brand-teal hover:text-brand-teal-600 dark:text-brand-teal-300 dark:hover:text-brand-teal-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors"
+          >
+            <svg
+              aria-hidden="true"
+              className="w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+              />
+            </svg>
+            How to take a spore print
+          </Link>
+        </Section>
+      )}
+
+      {/* Bruising Notes (mushrooms only) */}
+      {speciesData?.bruisingNotes && (
+        <Section title="Bruising Notes" id="section-bruising">
+          <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80">
+            {speciesData.bruisingNotes}
+          </p>
+        </Section>
+      )}
+
+      {/* Sources */}
+      {d.sources.length > 0 && (
+        <Section title="Sources" id="section-sources">
+          <ul className="list-disc list-inside space-y-1">
+            {d.sources.map((source, i) => (
+              <li
+                key={i}
+                className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 leading-relaxed"
+              >
+                {source}
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {/* Last Updated */}
+      <Section title="Last Updated" id="section-updated">
+        <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
+          {d.lastUpdated}
+        </p>
+      </Section>
+    </>
+  );
+}
+
+function TreeDetail({ data }: { data: Tree }) {
+  const associatedSpeciesMap = useAssociatedSpeciesLookup(data.associatedSpecies);
+
+  return (
+    <>
+      {/* Header */}
+      <header>
+        <h1 className="text-2xl font-bold font-heading text-brand-forest dark:text-brand-moss leading-tight">
+          {data.commonName}
+        </h1>
+        <p className="text-sm italic text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
+          {data.scientificName}
+        </p>
+        <div className="flex flex-wrap gap-2 mt-3">
+          <span
+            className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium ${categoryBadgeClasses("tree")}`}
+          >
+            Tree
+          </span>
+        </div>
+      </header>
+
+      {/* Image gallery */}
+      <ImageGallery images={data.images} />
+
+      {/* Habitat */}
+      <Section title="Habitat" id="section-habitat">
+        <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
+          {data.habitat}
+        </p>
+      </Section>
+
+      {/* Bark Description */}
+      <Section title="Bark" id="section-bark">
+        <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
+          {data.barkDescription}
+        </p>
+      </Section>
+
+      {/* Leaf Description */}
+      <Section title="Leaves" id="section-leaves">
+        <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
+          {data.leafDescription}
+        </p>
+      </Section>
+
+      {/* Shape Description */}
+      <Section title="Shape" id="section-shape">
+        <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
+          {data.shapeDescription}
+        </p>
+      </Section>
+
+      {/* Associated Species — rendered as links when resolved */}
+      {data.associatedSpecies.length > 0 && (
+        <Section title="Associated Species" id="section-associated">
+          <div className="flex flex-wrap gap-1.5" role="list" aria-label="Associated mushroom and plant species">
+            {data.associatedSpecies.map((name) => (
+              <AssociatedSpeciesLink
+                key={name}
+                speciesName={name}
+                speciesId={associatedSpeciesMap[name] ?? null}
+              />
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* Region */}
+      <Section title="Region" id="section-region">
+        <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80">
+          {data.region}
+        </p>
+      </Section>
+
+      {/* Last Updated */}
+      <Section title="Last Updated" id="section-updated">
+        <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
+          {data.lastUpdated}
+        </p>
+      </Section>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Loading Skeleton
+// ---------------------------------------------------------------------------
+
+function DetailSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4" role="status">
+      <div className="h-7 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-3/4" />
+      <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-1/2" />
+      <div className="flex gap-2 mt-3">
+        <div className="h-5 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-full w-20" />
+        <div className="h-5 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-full w-28" />
+      </div>
+      <div className="h-36 bg-brand-sand/40 dark:bg-brand-charcoal/40 rounded-lg mt-4" />
+      <div className="space-y-2 mt-6">
+        <div className="h-5 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-24" />
+        <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-full" />
+        <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-5/6" />
+      </div>
+      <span className="sr-only">Loading species details…</span>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main Page Component
+// ---------------------------------------------------------------------------
+
+export default function SpeciesDetailPage() {
+  const params = useParams<{ id: string }>();
+  const router = useRouter();
+  const id = params.id ?? "";
+  const { record, loading, error } = useSpeciesDetail(id);
+
+  return (
+    <main className="flex min-h-screen flex-col px-4 py-6 pb-24 max-w-2xl mx-auto">
+      {/* Back button */}
+      <nav aria-label="Breadcrumb" className="mb-4">
+        <Link
+          href="/field-guide"
+          className="inline-flex items-center gap-1.5 text-sm text-brand-teal hover:text-brand-teal-600 dark:text-brand-teal-300 dark:hover:text-brand-teal-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors"
+          aria-label="Back to Field Guide"
+        >
+          <svg
+            aria-hidden="true"
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+          Field Guide
+        </Link>
+      </nav>
+
+      {/* Error state */}
+      {error && (
+        <div
+          className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 mb-6 text-sm text-red-700 dark:text-red-400"
+          role="alert"
+        >
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={() => router.push("/field-guide")}
+            className="mt-3 text-xs font-medium text-brand-teal underline hover:text-brand-teal-600"
+          >
+            Return to Field Guide
+          </button>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading && <DetailSkeleton />}
+
+      {/* Content */}
+      {!loading && !error && record && (
+        <article>
+          {record.kind === "tree" ? (
+            <TreeDetail data={record.data} />
+          ) : (
+            <SpeciesOrPlantDetail record={record as { kind: "species" | "plant"; data: Species | Plant }} />
+          )}
+        </article>
+      )}
+    </main>
+  );
+}

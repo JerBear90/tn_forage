@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html {
+    --font-nunito-sans: 'Nunito Sans', sans-serif;
     @apply scroll-smooth;
   }
 
@@ -12,7 +15,7 @@
   }
 
   .dark body {
-    @apply bg-brand-charcoal text-brand-sand;
+    @apply bg-dark-surface text-dark-text;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -62,6 +65,40 @@
   color: #F5F0DF; /* brand sand */
   letter-spacing: 0.02em;
   margin: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Map Detail Panel — Slide animations                                */
+/* ------------------------------------------------------------------ */
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.25s ease-out forwards;
+}
+
+@keyframes slide-down {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.25s ease-out forwards;
 }
 
 /* ------------------------------------------------------------------ */

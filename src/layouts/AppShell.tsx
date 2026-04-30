@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import OfflineBadge from "@/components/OfflineBadge";
+import SyncStatusIndicator from "@/components/SyncStatusIndicator";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 
 /** Pages where the app shell header should be hidden (auth screens). */
@@ -19,7 +20,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       {/* Sticky header */}
-      <header className="fixed top-0 inset-x-0 z-40 h-12 flex items-center justify-between px-4 bg-brand-sand/95 dark:bg-brand-charcoal/95 backdrop-blur border-b border-brand-charcoal/10 dark:border-brand-sand/10">
+      <header className="fixed top-0 inset-x-0 z-40 h-12 flex items-center justify-between px-4 bg-brand-sand/95 dark:bg-dark-surface/95 backdrop-blur border-b border-brand-charcoal/10 dark:border-dark-border">
         <Link
           href="/"
           className="flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
@@ -45,8 +46,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </span>
         </Link>
 
-        {/* Offline badge — shows "Offline" pill when navigator.onLine is false */}
-        <OfflineBadge />
+        <div className="flex items-center gap-2">
+          {/* Sync status — Offline / Syncing / Up to date */}
+          <SyncStatusIndicator />
+          {/* Offline badge — shows "Offline" pill when navigator.onLine is false */}
+          <OfflineBadge />
+        </div>
       </header>
 
       {/* Content wrapper — padded for fixed header (top) and bottom nav */}
