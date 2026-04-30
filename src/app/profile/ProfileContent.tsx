@@ -6,7 +6,10 @@ import { useAuth } from "@/auth/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { putRecord, getRecord } from "@/offline/db";
-import type { UserProfileLocal } from "@/types";
+import { getFollowerCount, getFollowingCount } from "@/social/followService";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import ProfileTabs from "@/components/profile/ProfileTabs";
+import type { UserProfileLocal, UserProfileExtended } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -92,6 +95,10 @@ export default function ProfileContent() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteRequested, setDeleteRequested] = useState(false);
 
+  // --- Social profile ---
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+
   // The effective profile: auth user first, then cached
   const profile = user ?? cachedProfile;
   const displayName = profile?.displayName || "Not signed in";
@@ -148,6 +155,31 @@ export default function ProfileContent() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Load follower/following counts for social profile
+  useEffect(() => {
+    let cancelled = false;
+    async function loadSocialCounts() {
+      try {
+        const effectiveId = user?.id || cachedProfile?.id || "local-user";
+        const [followers, following] = await Promise.all([
+          getFollowerCount(effectiveId),
+          getFollowingCount(effectiveId),
+        ]);
+        if (!cancelled) {
+          setFollowerCount(followers);
+          setFollowingCount(following);
+        }
+      } catch {
+        // IndexedDB may not be available
+      }
+    }
+    loadSocialCounts();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, cachedProfile?.id]);
 
   // --- Name editing handlers ---
   const startEditName = useCallback(() => {
@@ -547,6 +579,39 @@ export default function ProfileContent() {
             </button>
           </div>
         </div>
+      </section>
+
+      {/* ── Social Profile Header ── */}
+      <section className="mb-6">
+        <ProfileHeader
+          profile={
+            {
+              ...(profile || {
+                id: "local-user",
+                email: "",
+                displayName: "Not signed in",
+                role: "guest" as const,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              }),
+              bio: "",
+              followerCount,
+              followingCount,
+              completedTripCount: 0,
+              achievementCount: 0,
+              defaultVisibility: "private",
+            } as UserProfileExtended
+          }
+          isOwnProfile={true}
+        />
+      </section>
+
+      {/* ── Profile Tabs ── */}
+      <section className="mb-6">
+        <ProfileTabs
+          userId={profile?.id || "local-user"}
+          isOwnProfile={true}
+        />
       </section>
 
       {/* ── Quick Links ── */}

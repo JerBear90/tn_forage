@@ -14,11 +14,11 @@
  * per Requirement 1.8.
  */
 
-import type { Trail } from '@/types';
+import type { TrailExtended } from '@/types';
 
 const TODAY = new Date().toISOString().split('T')[0];
 
-export const trailsSeed: Trail[] = [
+export const trailsSeed: TrailExtended[] = [
   // =========================================================================
   // EAST TENNESSEE
   // =========================================================================
@@ -42,6 +42,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-big-ridge-lake.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/big-ridge',
     lastUpdated: TODAY,
+    elevationGain: 50,
+    trailType: 'loop',
+    surfaceType: 'dirt',
+    trailheads: [{ name: 'Lake Trailhead', coordinates: { lat: 36.3231, lng: -83.9981 } }],
+    topSights: ['Big Ridge Lake overlook', 'Wildflower meadow'],
   },
   {
     id: 'trail-big-ridge-dark-hollow',
@@ -62,6 +67,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-big-ridge-dark-hollow.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/big-ridge',
     lastUpdated: TODAY,
+    elevationGain: 300,
+    trailType: 'out-and-back',
+    surfaceType: 'dirt',
+    trailheads: [{ name: 'Dark Hollow Trailhead', coordinates: { lat: 36.3240, lng: -83.9990 } }],
+    topSights: ['Dark Hollow Creek', 'Old-growth hemlock grove'],
   },
 
   // --- Cove Lake State Park ---
@@ -123,6 +133,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-cumberland-gap-tri-state.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/cumberland-gap',
     lastUpdated: TODAY,
+    elevationGain: 840,
+    trailType: 'out-and-back',
+    surfaceType: 'rocky',
+    trailheads: [{ name: 'Tri-State Peak Trailhead', coordinates: { lat: 36.6008, lng: -83.6691 } }],
+    topSights: ['Tri-State marker (TN/VA/KY)', 'Pinnacle Overlook'],
   },
   {
     id: 'trail-cumberland-gap-wilderness-road',
@@ -163,6 +178,14 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-cumberland-trail-north-chickamauga.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/cumberland-trail',
     lastUpdated: TODAY,
+    elevationGain: 1200,
+    trailType: 'point-to-point',
+    surfaceType: 'rocky',
+    trailheads: [
+      { name: 'North Chickamauga North Trailhead', coordinates: { lat: 35.8600, lng: -84.8200 } },
+      { name: 'North Chickamauga South Trailhead', coordinates: { lat: 35.8690, lng: -84.8080 } },
+    ],
+    topSights: ['North Chickamauga Creek gorge', 'Sandstone bluffs'],
   },
 
   // --- Davy Crockett Birthplace State Park ---
@@ -226,6 +249,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-frozen-head-panther-branch.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/frozen-head',
     lastUpdated: TODAY,
+    elevationGain: 1200,
+    trailType: 'out-and-back',
+    surfaceType: 'rocky',
+    trailheads: [{ name: 'Panther Branch Trailhead', coordinates: { lat: 36.1200, lng: -84.4289 } }],
+    topSights: ['Panther Branch Falls', 'Mountain laurel thickets'],
   },
   {
     id: 'trail-frozen-head-lookout-tower',
@@ -245,6 +273,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-frozen-head-lookout-tower.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/frozen-head',
     lastUpdated: TODAY,
+    elevationGain: 1724,
+    trailType: 'out-and-back',
+    surfaceType: 'rocky',
+    trailheads: [{ name: 'Lookout Tower Trailhead', coordinates: { lat: 36.1210, lng: -84.4300 } }],
+    topSights: ['Fire tower with 360° views', 'Frozen Head summit'],
   },
 
   // --- Harrison Bay State Park ---
@@ -469,6 +502,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-roan-mountain-cloudland.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/roan-mountain',
     lastUpdated: TODAY,
+    elevationGain: 485,
+    trailType: 'out-and-back',
+    surfaceType: 'dirt',
+    trailheads: [{ name: 'Carvers Gap Trailhead', coordinates: { lat: 36.1614, lng: -82.1035 } }],
+    topSights: ['Rhododendron gardens', 'Grassy bald summit views'],
   },
   {
     id: 'trail-roan-mountain-appalachian',
@@ -697,6 +735,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-burgess-falls-river.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/burgess-falls',
     lastUpdated: TODAY,
+    elevationGain: 200,
+    trailType: 'out-and-back',
+    surfaceType: 'rocky',
+    trailheads: [{ name: 'Burgess Falls Trailhead', coordinates: { lat: 36.0500, lng: -85.6000 } }],
+    topSights: ['Burgess Falls (136 ft)', 'Cascading upper falls'],
   },
 
   // --- Cedars of Lebanon State Park ---
@@ -759,6 +802,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-cummins-falls-gorge.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/cummins-falls',
     lastUpdated: TODAY,
+    elevationGain: 300,
+    trailType: 'out-and-back',
+    surfaceType: 'rocky',
+    trailheads: [{ name: 'Cummins Falls Trailhead', coordinates: { lat: 36.2500, lng: -85.5833 } }],
+    topSights: ['Cummins Falls (75 ft)', 'Swimming hole at base'],
   },
 
   // --- Dunbar Cave State Park ---
@@ -842,6 +890,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-fall-creek-gorge-overlook.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/fall-creek-falls',
     lastUpdated: TODAY,
+    elevationGain: 200,
+    trailType: 'out-and-back',
+    surfaceType: 'mixed',
+    trailheads: [{ name: 'Gorge Overlook Trailhead', coordinates: { lat: 35.6645, lng: -85.3513 } }],
+    topSights: ['Fall Creek Falls overlook', 'Cane Creek Gorge'],
   },
   {
     id: 'trail-fall-creek-woodland',
@@ -1085,6 +1138,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-radnor-lake-trail.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/radnor-lake',
     lastUpdated: TODAY,
+    elevationGain: 50,
+    trailType: 'loop',
+    surfaceType: 'gravel',
+    trailheads: [{ name: 'Otter Creek Road Trailhead', coordinates: { lat: 36.0631, lng: -86.8103 } }],
+    topSights: ['Radnor Lake', 'Great blue heron rookery'],
   },
   {
     id: 'trail-radnor-south-cove',
@@ -1123,6 +1181,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-radnor-ganier-ridge.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/radnor-lake',
     lastUpdated: TODAY,
+    elevationGain: 200,
+    trailType: 'out-and-back',
+    surfaceType: 'dirt',
+    trailheads: [{ name: 'Ganier Ridge Trailhead', coordinates: { lat: 36.0635, lng: -86.8110 } }],
+    topSights: ['Ridge-top views of Radnor Lake', 'Mature hardwood forest'],
   },
 
   // --- Rock Island State Park ---
@@ -1166,6 +1229,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-savage-gulf-stone-door.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/savage-gulf',
     lastUpdated: TODAY,
+    elevationGain: 150,
+    trailType: 'out-and-back',
+    surfaceType: 'rocky',
+    trailheads: [{ name: 'Stone Door Ranger Station', coordinates: { lat: 35.4575, lng: -85.5900 } }],
+    topSights: ['Stone Door rock formation', 'Savage Gulf overlook'],
   },
   {
     id: 'trail-savage-gulf-big-creek',
@@ -1228,6 +1296,14 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-south-cumberland-fiery-gizzard.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/south-cumberland',
     lastUpdated: TODAY,
+    elevationGain: 1500,
+    trailType: 'point-to-point',
+    surfaceType: 'rocky',
+    trailheads: [
+      { name: 'Grundy Forest Trailhead', coordinates: { lat: 35.2406, lng: -85.8900 } },
+      { name: 'Foster Falls Trailhead', coordinates: { lat: 35.2305, lng: -85.8780 } },
+    ],
+    topSights: ['Fiery Gizzard Creek', 'Blue Hole swimming area', 'Raven Point overlook'],
   },
   {
     id: 'trail-south-cumberland-grundy-forest',
@@ -1311,6 +1387,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-virgin-falls-main.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/virgin-falls',
     lastUpdated: TODAY,
+    elevationGain: 1100,
+    trailType: 'out-and-back',
+    surfaceType: 'rocky',
+    trailheads: [{ name: 'Virgin Falls Trailhead', coordinates: { lat: 35.8200, lng: -85.3700 } }],
+    topSights: ['Virgin Falls (110 ft)', 'Big Laurel Falls', 'Sheep Cave'],
   },
 
   // --- David Crockett State Park ---
@@ -1374,6 +1455,14 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-stones-river-greenway-main.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/stones-river-greenway',
     lastUpdated: TODAY,
+    elevationGain: 30,
+    trailType: 'point-to-point',
+    surfaceType: 'paved',
+    trailheads: [
+      { name: 'Two Rivers Trailhead', coordinates: { lat: 36.1500, lng: -86.6200 } },
+      { name: 'Percy Priest Dam Trailhead', coordinates: { lat: 36.1580, lng: -86.6080 } },
+    ],
+    topSights: ['Stones River views', 'Percy Priest Dam'],
   },
 
   // --- Cordell Hull Birthplace State Historic Park ---
@@ -1457,6 +1546,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-big-hill-pond-tuscumbia.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/big-hill-pond',
     lastUpdated: TODAY,
+    elevationGain: 250,
+    trailType: 'loop',
+    surfaceType: 'dirt',
+    trailheads: [{ name: 'Tuscumbia Trailhead', coordinates: { lat: 35.1700, lng: -88.6900 } }],
+    topSights: ['Tuscumbia Creek', 'Dismal Swamp boardwalk'],
   },
   {
     id: 'trail-big-hill-pond-boardwalk',
@@ -1517,6 +1611,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-fort-pillow-chickasaw-bluffs.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/fort-pillow',
     lastUpdated: TODAY,
+    elevationGain: 300,
+    trailType: 'loop',
+    surfaceType: 'dirt',
+    trailheads: [{ name: 'Fort Pillow Visitor Center', coordinates: { lat: 35.6300, lng: -89.8400 } }],
+    topSights: ['Civil War earthworks', 'Mississippi River bluffs'],
   },
 
   // --- Fuller State Park ---
@@ -1559,6 +1658,11 @@ export const trailsSeed: Trail[] = [
     images: ['/images/trails/trail-meeman-shelby-woodland.jpg'],
     sourceUrl: 'https://tnstateparks.com/parks/meeman-shelby',
     lastUpdated: TODAY,
+    elevationGain: 200,
+    trailType: 'loop',
+    surfaceType: 'dirt',
+    trailheads: [{ name: 'Woodland Trail Parking', coordinates: { lat: 35.3400, lng: -90.0400 } }],
+    topSights: ['Chickasaw Bluffs overlook', 'Mississippi River views'],
   },
   {
     id: 'trail-meeman-shelby-pioneer-springs',

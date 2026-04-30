@@ -29,6 +29,12 @@ import type {
   CommunityDraft,
   CommunityFlag,
   Challenge,
+  FollowLocal,
+  ReviewLocal,
+  SocialPhoto,
+  AchievementLocal,
+  FeedItemLocal,
+  ReviewAggregationLocal,
 } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -36,7 +42,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const DB_NAME = 'forageflow';
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 export interface ForageFlowDB extends DBSchema {
   species: {
@@ -190,6 +196,54 @@ export interface ForageFlowDB extends DBSchema {
       'by-completedAt': string;
     };
   };
+  follows: {
+    key: string;
+    value: FollowLocal;
+    indexes: {
+      'by-followerId': string;
+      'by-followedId': string;
+    };
+  };
+  reviews: {
+    key: string;
+    value: ReviewLocal;
+    indexes: {
+      'by-targetType-targetId': [string, string];
+      'by-userId': string;
+      'by-createdAt': string;
+      'by-syncStatus': string;
+    };
+  };
+  socialPhotos: {
+    key: string;
+    value: SocialPhoto;
+    indexes: {
+      'by-targetType-targetId': [string, string];
+      'by-userId': string;
+      'by-createdAt': string;
+      'by-syncStatus': string;
+    };
+  };
+  achievements: {
+    key: string;
+    value: AchievementLocal;
+    indexes: {
+      'by-userId': string;
+      'by-earnedAt': string;
+    };
+  };
+  feedItems: {
+    key: string;
+    value: FeedItemLocal;
+    indexes: {
+      'by-userId': string;
+      'by-createdAt': string;
+    };
+  };
+  reviewAggregations: {
+    key: string;
+    value: ReviewAggregationLocal;
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -215,6 +269,12 @@ export const STORE_NAMES: (keyof ForageFlowDB)[] = [
   'communityDrafts',
   'communityFlags',
   'challenges',
+  'follows',
+  'reviews',
+  'socialPhotos',
+  'achievements',
+  'feedItems',
+  'reviewAggregations',
 ];
 
 // ---------------------------------------------------------------------------
@@ -338,6 +398,41 @@ export function getDB(): Promise<IDBPDatabase<ForageFlowDB>> {
           challengesStore.createIndex('by-category', 'category');
           challengesStore.createIndex('by-completedAt', 'completedAt');
         }
+
+        // ---- Version 3: Add social and park detail stores ----
+        if (oldVersion < 3) {
+          // ---- Follows ----
+          const followsStore = db.createObjectStore('follows', { keyPath: 'id' });
+          followsStore.createIndex('by-followerId', 'followerId');
+          followsStore.createIndex('by-followedId', 'followedId');
+
+          // ---- Reviews ----
+          const reviewsStore = db.createObjectStore('reviews', { keyPath: 'id' });
+          reviewsStore.createIndex('by-targetType-targetId', ['targetType', 'targetId']);
+          reviewsStore.createIndex('by-userId', 'userId');
+          reviewsStore.createIndex('by-createdAt', 'createdAt');
+          reviewsStore.createIndex('by-syncStatus', 'syncStatus');
+
+          // ---- Social Photos ----
+          const socialPhotosStore = db.createObjectStore('socialPhotos', { keyPath: 'id' });
+          socialPhotosStore.createIndex('by-targetType-targetId', ['targetType', 'targetId']);
+          socialPhotosStore.createIndex('by-userId', 'userId');
+          socialPhotosStore.createIndex('by-createdAt', 'createdAt');
+          socialPhotosStore.createIndex('by-syncStatus', 'syncStatus');
+
+          // ---- Achievements ----
+          const achievementsStore = db.createObjectStore('achievements', { keyPath: 'id' });
+          achievementsStore.createIndex('by-userId', 'userId');
+          achievementsStore.createIndex('by-earnedAt', 'earnedAt');
+
+          // ---- Feed Items ----
+          const feedItemsStore = db.createObjectStore('feedItems', { keyPath: 'id' });
+          feedItemsStore.createIndex('by-userId', 'userId');
+          feedItemsStore.createIndex('by-createdAt', 'createdAt');
+
+          // ---- Review Aggregations ----
+          db.createObjectStore('reviewAggregations', { keyPath: 'id' });
+        }
       },
     });
   }
@@ -348,10 +443,12 @@ export function getDB(): Promise<IDBPDatabase<ForageFlowDB>> {
 // Store name type (explicit union for idb compatibility)
 // ---------------------------------------------------------------------------
 
-type StoreName = 'species' | 'plants' | 'trees' | 'parks' | 'trails'
+export type StoreName = 'species' | 'plants' | 'trees' | 'parks' | 'trails'
   | 'routes' | 'trips' | 'expeditionLogs' | 'photos' | 'userProfileLocal'
   | 'membershipLocal' | 'authMetaLocal' | 'syncQueue' | 'settings'
-  | 'cachedMapRegions' | 'communityDrafts' | 'communityFlags' | 'challenges';
+  | 'cachedMapRegions' | 'communityDrafts' | 'communityFlags' | 'challenges'
+  | 'follows' | 'reviews' | 'socialPhotos' | 'achievements' | 'feedItems'
+  | 'reviewAggregations';
 
 // ---------------------------------------------------------------------------
 // Generic CRUD Helpers
@@ -418,4 +515,28 @@ export async function countRecords<S extends StoreName>(
 ): Promise<number> {
   const db = await getDB();
   return db.count(storeName);
+}
+
+/**
+ * Get multiple records by key from a store in a single readonly transaction.
+ *
+ * Opens one transaction and issues all `get` requests within it, which is
+ * more efficient than calling `getRecord` in a loop (each of which opens
+ * its own transaction). Records whose keys are not found are filtered out
+ * of the returned array.
+ */
+export async function batchGetRecords<S extends StoreName>(
+  storeName: S,
+  keys: ForageFlowDB[S]['key'][],
+): Promise<ForageFlowDB[S]['value'][]> {
+  const db = await getDB();
+  const tx = db.transaction(storeName, 'readonly');
+  const store = tx.objectStore(storeName);
+
+  const results = await Promise.all(keys.map((key) => store.get(key)));
+  await tx.done;
+
+  return results.filter(
+    (record): record is ForageFlowDB[S]['value'] => record !== undefined,
+  );
 }

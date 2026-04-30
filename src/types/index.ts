@@ -215,6 +215,15 @@ export interface Park {
   foragingRules: string;
   sourceUrl?: string;
   lastUpdated: string;
+  description?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  parkSize?: string;
+  camping?: string;
+  website?: string;
+  gettingThere?: string;
+  highlights?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -265,6 +274,7 @@ export interface Trip {
   userId: string;
   locationType: LocationType;
   locationId?: string;
+  trailId?: string;
   customLocation?: string;
   date: string;
   notes: string;
@@ -474,4 +484,157 @@ export interface CommunityComment {
   /** If this comment includes a suggested species ID. */
   suggestedSpeciesId?: string;
   createdAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Trailhead & Extended Trail (Social Profile and Park Details)
+// ---------------------------------------------------------------------------
+
+/** A named trailhead with GPS coordinates */
+export interface Trailhead {
+  name: string;
+  coordinates: Coordinates;
+}
+
+/** Trail type classification */
+export type TrailType = 'loop' | 'out-and-back' | 'point-to-point';
+
+/** Trail surface type */
+export type SurfaceType = 'paved' | 'gravel' | 'dirt' | 'rocky' | 'mixed';
+
+/** Extended trail with additional metadata for park detail pages */
+export interface TrailExtended extends Trail {
+  elevationGain?: number;
+  trailType?: TrailType;
+  surfaceType?: SurfaceType;
+  trailheads?: Trailhead[];
+  topSights?: string[];
+}
+
+// ---------------------------------------------------------------------------
+// Reviews (Social Profile and Park Details)
+// ---------------------------------------------------------------------------
+
+/** Target entity types that can receive reviews */
+export type ReviewTargetType = 'park' | 'trail' | 'species';
+
+/** A user-submitted review stored locally in IndexedDB */
+export interface ReviewLocal {
+  id: string;
+  userId: string;
+  authorName: string;
+  targetType: ReviewTargetType;
+  targetId: string;
+  /** Integer rating from 1 to 5 */
+  rating: number;
+  /** Review text body, 10–2000 characters */
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+  syncStatus: SyncStatus;
+}
+
+/** Cached review aggregation for a target entity */
+export interface ReviewAggregationLocal {
+  /** Composite key: "{targetType}-{targetId}" */
+  id: string;
+  targetType: ReviewTargetType;
+  targetId: string;
+  /** Average rating rounded to 1 decimal place */
+  averageRating: number;
+  totalCount: number;
+  lastUpdated: string;
+}
+
+// ---------------------------------------------------------------------------
+// Follows (Social Profile and Park Details)
+// ---------------------------------------------------------------------------
+
+/** A directional follow relationship stored locally in IndexedDB */
+export interface FollowLocal {
+  id: string;
+  followerId: string;
+  followedId: string;
+  createdAt: string;
+  syncStatus: SyncStatus;
+}
+
+// ---------------------------------------------------------------------------
+// Activity Feed (Social Profile and Park Details)
+// ---------------------------------------------------------------------------
+
+/** Action types that appear in the activity feed */
+export type FeedActionType = 'review_posted' | 'photo_shared' | 'trip_completed' | 'achievement_earned';
+
+/** A cached activity feed item stored locally in IndexedDB */
+export interface FeedItemLocal {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  actionType: FeedActionType;
+  targetType: string;
+  targetId: string;
+  targetName: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Achievements (Social Profile and Park Details)
+// ---------------------------------------------------------------------------
+
+/** A user achievement record stored locally in IndexedDB */
+export interface AchievementLocal {
+  id: string;
+  userId: string;
+  achievementId: string;
+  title: string;
+  description: string;
+  earnedAt: string;
+  syncStatus: SyncStatus;
+}
+
+// ---------------------------------------------------------------------------
+// Social Photos (Social Profile and Park Details)
+// ---------------------------------------------------------------------------
+
+/** Target entity types for social photos */
+export type SocialPhotoTargetType = 'park' | 'trail' | 'species';
+
+/** MIME types accepted for social photo uploads */
+export type SocialPhotoMimeType = 'image/jpeg' | 'image/png';
+
+/** A user-shared photo stored locally in IndexedDB */
+export interface SocialPhoto {
+  id: string;
+  userId: string;
+  targetType: SocialPhotoTargetType;
+  targetId: string;
+  blob: Blob;
+  thumbnailBlob?: Blob;
+  caption?: string;
+  hasLocation: boolean;
+  coordinates?: Coordinates;
+  mimeType: SocialPhotoMimeType;
+  createdAt: string;
+  syncStatus: SyncStatus;
+}
+
+// ---------------------------------------------------------------------------
+// Extended User Profile (Social Profile and Park Details)
+// ---------------------------------------------------------------------------
+
+/** Profile visibility setting */
+export type ProfileVisibility = 'private' | 'public';
+
+/** Extended user profile with social fields */
+export interface UserProfileExtended extends UserProfileLocal {
+  bio?: string;
+  followerCount?: number;
+  followingCount?: number;
+  completedTripCount?: number;
+  achievementCount?: number;
+  /** Defaults to 'private' */
+  defaultVisibility: ProfileVisibility;
 }
