@@ -537,6 +537,6 @@ export async function batchGetRecords<S extends StoreName>(
   await tx.done;
 
   return results.filter(
-    (record): record is ForageFlowDB[S]['value'] => record !== undefined,
-  );
+    (record) => record !== undefined,
+  ) as ForageFlowDB[S]['value'][];
 }
