@@ -14,32 +14,32 @@ import { navItems } from '@/components/navItems';
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('Bottom Navigation — Feed Link', () => {
-  it('should include a nav item with href="/feed"', () => {
-    const feedItem = navItems.find((item) => item.href === '/feed');
-    expect(feedItem).toBeDefined();
+describe('Bottom Navigation — Identify Link', () => {
+  it('should include a nav item with href="/identify"', () => {
+    const identifyItem = navItems.find((item) => item.href === '/identify');
+    expect(identifyItem).toBeDefined();
   });
 
-  it('should have a "Feed" label on the feed nav item', () => {
-    const feedItem = navItems.find((item) => item.href === '/feed');
-    expect(feedItem?.label).toBe('Feed');
+  it('should have an "Identify" label on the identify nav item', () => {
+    const identifyItem = navItems.find((item) => item.href === '/identify');
+    expect(identifyItem?.label).toBe('Identify');
   });
 
-  it('should have a feed icon path (non-empty string)', () => {
-    const feedItem = navItems.find((item) => item.href === '/feed');
-    expect(feedItem?.iconPath).toBeTruthy();
-    expect(typeof feedItem?.iconPath).toBe('string');
-    expect(feedItem!.iconPath.length).toBeGreaterThan(0);
+  it('should have an identify icon path (non-empty string)', () => {
+    const identifyItem = navItems.find((item) => item.href === '/identify');
+    expect(identifyItem?.iconPath).toBeTruthy();
+    expect(typeof identifyItem?.iconPath).toBe('string');
+    expect(identifyItem!.iconPath.length).toBeGreaterThan(0);
   });
 
-  it('should still include the original 5 nav items plus Feed (6 total)', () => {
+  it('should have 6 nav items total', () => {
     expect(navItems.length).toBe(6);
   });
 
-  it('should have Feed as the last nav item', () => {
+  it('should have Identify as the last nav item', () => {
     const lastItem = navItems[navItems.length - 1];
-    expect(lastItem.href).toBe('/feed');
-    expect(lastItem.label).toBe('Feed');
+    expect(lastItem.href).toBe('/identify');
+    expect(lastItem.label).toBe('Identify');
   });
 });
 
