@@ -8,10 +8,14 @@
  * 2 columns on tablet+.
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useSpecies, type FieldGuideItem } from "@/hooks/useSpecies";
+import { usePreloadSpecies } from "@/hooks/usePreloadSpecies";
 import RegionalFilter from "@/components/RegionalFilter";
+import SkeletonCard from "@/components/skeletons/SkeletonCard";
+import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
+import VirtualScroller from "@/components/VirtualScroller";
 import type { SpeciesCategory, EdibilityLabel, TnRegion } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -24,6 +28,12 @@ const CATEGORY_FILTERS: { label: string; value: SpeciesCategory | "all" }[] = [
   { label: "Plant", value: "plant" },
   { label: "Tree", value: "tree" },
 ];
+
+/** Item count threshold above which virtual scrolling is used. */
+const VIRTUAL_SCROLL_THRESHOLD = 20;
+
+/** Estimated height (px) for a species card in the grid. */
+const ESTIMATED_CARD_HEIGHT = 280;
 
 const SEASON_OPTIONS = ["Spring", "Summer", "Fall", "Winter"] as const;
 type Season = (typeof SEASON_OPTIONS)[number];
@@ -151,7 +161,7 @@ function FilterPanel({
           </svg>
           Filters
           {activeFilterCount > 0 && (
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-teal text-white text-[10px] font-bold">
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-teal text-white text-xs font-bold">
               {activeFilterCount}
             </span>
           )}
@@ -248,29 +258,27 @@ function FilterPanel({
 // Species Card
 // ---------------------------------------------------------------------------
 
-function SpeciesCard({ item }: { item: FieldGuideItem }) {
+function SpeciesCard({ item, onPreload }: { item: FieldGuideItem; onPreload: (id: string) => void }) {
+  const imageUrl = pickImageUrl(item.images);
+
+  const handlePreload = useCallback(() => {
+    onPreload(item.id);
+  }, [item.id, onPreload]);
+
   return (
     <Link
       href={`/field-guide/${item.id}`}
       className="block rounded-xl border border-brand-charcoal/10 dark:border-dark-border bg-white/80 dark:bg-dark-surface/80 overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+      onMouseEnter={handlePreload}
+      onFocus={handlePreload}
     >
-      {/* Image placeholder */}
-      <div className="aspect-[4/3] bg-brand-sand/60 dark:bg-brand-charcoal/80 flex items-center justify-center">
-        <svg
-          aria-hidden="true"
-          className="w-12 h-12 text-brand-charcoal/20 dark:text-brand-sand/20"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-          />
-        </svg>
-      </div>
+      {/* Species image */}
+      <SpeciesImage
+        src={imageUrl}
+        alt={item.commonName}
+        variant="card"
+        className="aspect-[4/3]"
+      />
 
       {/* Card body */}
       <div className="p-3">
@@ -284,12 +292,12 @@ function SpeciesCard({ item }: { item: FieldGuideItem }) {
         {/* Badges */}
         <div className="flex flex-wrap gap-1.5 mt-2">
           <span
-            className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-medium ${categoryBadgeClasses(item.category)}`}
+            className={`inline-block rounded-full border px-2 py-0.5 text-xs font-medium ${categoryBadgeClasses(item.category)}`}
           >
             {categoryDisplayLabel(item.category)}
           </span>
           <span
-            className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-medium ${edibilityBadgeClasses(item.edibilityLabel)}`}
+            className={`inline-block rounded-full border px-2 py-0.5 text-xs font-medium ${edibilityBadgeClasses(item.edibilityLabel)}`}
           >
             {edibilityDisplayLabel(item.edibilityLabel)}
           </span>
@@ -311,20 +319,7 @@ function LoadingSkeleton() {
       role="status"
     >
       {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-xl border border-brand-charcoal/10 dark:border-dark-border bg-white/80 dark:bg-dark-surface/80 overflow-hidden animate-pulse"
-        >
-          <div className="aspect-[4/3] bg-brand-sand/40 dark:bg-brand-charcoal/40" />
-          <div className="p-3 space-y-2">
-            <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-3/4" />
-            <div className="h-3 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-1/2" />
-            <div className="flex gap-1.5">
-              <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-full w-16" />
-              <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-full w-20" />
-            </div>
-          </div>
-        </div>
+        <SkeletonCard key={i} variant="species" />
       ))}
       <span className="sr-only">Loading species data…</span>
     </div>
@@ -372,6 +367,7 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
 
 export default function FieldGuidePage() {
   const { items, loading, error } = useSpecies();
+  const { preload } = usePreloadSpecies();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<SpeciesCategory | "all">("all");
   const [selectedRegion, setSelectedRegion] = useState<TnRegion | "all">("all");
@@ -443,54 +439,56 @@ export default function FieldGuidePage() {
           <h1 className="text-2xl font-bold text-brand-forest dark:text-brand-moss font-heading">
             Field Guide
           </h1>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/field-guide/spore-print"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-earth/30 bg-brand-earth/10 dark:bg-brand-earth/20 px-3 py-2 text-xs font-medium text-brand-earth dark:text-brand-earth-300 hover:bg-brand-earth/20 dark:hover:bg-brand-earth/30 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-              aria-label="Spore Print Guide"
-            >
-              <svg
-                aria-hidden="true"
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"
-                />
-              </svg>
-              Spore Print
-            </Link>
-            <Link
-              href="/field-guide/compare"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-teal/30 bg-brand-teal/10 dark:bg-brand-teal/20 px-3 py-2 text-xs font-medium text-brand-teal dark:text-brand-teal-300 hover:bg-brand-teal/20 dark:hover:bg-brand-teal/30 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-              aria-label="Compare species side by side"
-            >
-              <svg
-                aria-hidden="true"
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
-                />
-              </svg>
-              Compare
-            </Link>
-          </div>
         </div>
         <p className="text-sm text-brand-charcoal/70 dark:text-dark-text-muted mt-1">
           Offline species reference for Tennessee mushrooms, plants, and trees.
         </p>
+
+        {/* Spore Print & Compare — above search */}
+        <div className="flex items-center gap-2 mt-3">
+          <Link
+            href="/field-guide/spore-print"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-earth/30 bg-brand-earth/10 dark:bg-brand-earth/20 px-3 py-2 text-xs font-medium text-brand-earth dark:text-brand-earth-300 hover:bg-brand-earth/20 dark:hover:bg-brand-earth/30 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+            aria-label="Spore Print Guide"
+          >
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"
+              />
+            </svg>
+            Spore Print
+          </Link>
+          <Link
+            href="/field-guide/compare"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-teal/30 bg-brand-teal/10 dark:bg-brand-teal/20 px-3 py-2 text-xs font-medium text-brand-teal dark:text-brand-teal-300 hover:bg-brand-teal/20 dark:hover:bg-brand-teal/30 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+            aria-label="Compare species side by side"
+          >
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
+              />
+            </svg>
+            Compare
+          </Link>
+        </div>
       </header>
 
       {/* Search bar */}
@@ -572,12 +570,27 @@ export default function FieldGuidePage() {
             {filtered.length} {filtered.length === 1 ? "species" : "species"} found
           </p>
 
-          {/* Species grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {filtered.map((item) => (
-              <SpeciesCard key={item.id} item={item} />
-            ))}
-          </div>
+          {/* Species grid — virtual scroll for large lists, standard grid otherwise */}
+          {filtered.length > VIRTUAL_SCROLL_THRESHOLD ? (
+            <VirtualScroller
+              items={filtered}
+              estimateSize={() => ESTIMATED_CARD_HEIGHT}
+              overscan={5}
+              className="flex-1"
+              style={{ height: "calc(100vh - 320px)", minHeight: 400 }}
+              renderItem={(item) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4">
+                  <SpeciesCard item={item} onPreload={preload} />
+                </div>
+              )}
+            />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {filtered.map((item) => (
+                <SpeciesCard key={item.id} item={item} onPreload={preload} />
+              ))}
+            </div>
+          )}
         </>
       )}
     </main>

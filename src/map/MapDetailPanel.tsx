@@ -43,8 +43,24 @@ function DifficultyBadge({ difficulty }: { difficulty: TrailDifficulty }) {
 // ---------------------------------------------------------------------------
 
 function ParkDetail({ park }: { park: Park }) {
+  const imgSrc = park.image && (park.image.startsWith('/') || park.image.startsWith('http'))
+    ? park.image
+    : '/images/park-placeholder.jpg';
+
   return (
     <div className="space-y-3">
+      {/* Park image */}
+      <div className="w-full aspect-[16/9] rounded-lg overflow-hidden bg-brand-charcoal/5 dark:bg-brand-charcoal/20 -mt-1">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imgSrc}
+          alt={park.name}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onError={(e) => { e.currentTarget.src = '/images/park-placeholder.jpg'; }}
+        />
+      </div>
+
       {/* Region */}
       <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted font-medium uppercase tracking-wide">
         {park.region}

@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getAllRecords } from "@/offline/db";
 import { seedDatabase } from "@/data/seedDatabase";
+import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
 import type { Species } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -184,38 +185,33 @@ function ColorSwatch({ color }: { color: SporePrintColor }) {
   );
 }
 
-function SpeciesExpectationRow({ species }: { species: Species }) {
+function SpeciesExpectationCard({ species }: { species: Species }) {
   return (
     <Link
       href={`/field-guide/${species.id}`}
-      className="flex items-center justify-between gap-3 rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white/60 dark:bg-brand-charcoal/40 px-3 py-3 hover:shadow-sm hover:bg-brand-teal/5 dark:hover:bg-brand-teal/10 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+      className="flex flex-col rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white/80 dark:bg-dark-surface/80 overflow-hidden hover:shadow-md hover:border-brand-teal/30 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
     >
-      <div className="min-w-0">
+      {/* Species image */}
+      <SpeciesImage
+        src={pickImageUrl(species.images)}
+        alt={species.commonName}
+        variant="card"
+        className="w-full aspect-[4/3]"
+      />
+
+      {/* Card body */}
+      <div className="p-3">
         <p className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand truncate">
           {species.commonName}
         </p>
-        <p className="text-xs italic text-brand-charcoal/60 dark:text-brand-sand/60 truncate">
+        <p className="text-xs italic text-brand-charcoal/60 dark:text-brand-sand/60 truncate mt-0.5">
           {species.scientificName}
         </p>
-      </div>
-      <div className="shrink-0 flex items-center gap-2">
-        <span className="inline-block rounded-full border border-brand-earth/30 bg-brand-earth/10 px-2.5 py-0.5 text-xs font-medium text-brand-earth dark:text-brand-earth-300">
-          {species.sporePrint}
-        </span>
-        <svg
-          aria-hidden="true"
-          className="w-4 h-4 text-brand-charcoal/30 dark:text-brand-sand/30"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M8.25 4.5l7.5 7.5-7.5 7.5"
-          />
-        </svg>
+        <div className="mt-2">
+          <span className="inline-block rounded-full border border-brand-earth/30 bg-brand-earth/10 px-2.5 py-0.5 text-xs font-medium text-brand-earth dark:text-brand-earth-300">
+            Spore print: {species.sporePrint}
+          </span>
+        </div>
       </div>
     </Link>
   );
@@ -382,9 +378,9 @@ export default function SporePrintGuidePage() {
             No mushroom species with spore print data found.
           </p>
         ) : (
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3">
             {species.map((s) => (
-              <SpeciesExpectationRow key={s.id} species={s} />
+              <SpeciesExpectationCard key={s.id} species={s} />
             ))}
           </div>
         )}

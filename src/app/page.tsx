@@ -16,21 +16,12 @@ export default function Home() {
       {/* Hero — Logo and tagline */}
       <section className="text-center mb-8 pt-4">
         <h1 className="flex flex-col items-center gap-2 mb-1">
-          {/* Light mode logo */}
           <img
-            src="/branding/logo.svg"
+            src="/branding/mush_logo.png"
             alt="ForageFlow"
             width={72}
             height={72}
-            className="h-[72px] w-[72px] rounded-2xl dark:hidden"
-          />
-          {/* Dark mode logo */}
-          <img
-            src="/branding/logo-dark.svg"
-            alt="ForageFlow"
-            width={72}
-            height={72}
-            className="h-[72px] w-[72px] rounded-2xl hidden dark:block"
+            className="h-[72px] w-[72px] rounded-2xl"
           />
           <span className="text-3xl font-bold text-brand-teal font-heading">
             ForageFlow

@@ -42,44 +42,26 @@ function ImagePlaceholder({
   label: string;
   imageUrl?: string;
 }) {
-  const bgClass =
-    color === 'teal'
-      ? 'bg-brand-teal/10 dark:bg-brand-teal/20'
-      : 'bg-brand-moss/10 dark:bg-brand-moss/20';
-  const iconClass =
-    color === 'teal' ? 'text-brand-teal/40' : 'text-brand-moss/40';
-
-  if (imageUrl) {
-    return (
-      <div className="w-full aspect-[16/9] rounded-t-xl overflow-hidden bg-brand-charcoal/5 dark:bg-brand-charcoal/20">
-        <img
-          src={imageUrl}
-          alt={label}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-      </div>
-    );
-  }
+  // Use the provided image URL, or fall back to a local placeholder
+  const fallback = color === 'teal' ? '/images/park-placeholder.jpg' : '/images/trail-placeholder.jpg';
+  const src = imageUrl && (imageUrl.startsWith('/') || imageUrl.startsWith('http')) ? imageUrl : fallback;
 
   return (
-    <div
-      className={`w-full aspect-[16/9] rounded-t-xl flex items-center justify-center ${bgClass}`}
-      aria-hidden="true"
-    >
-      <svg
-        className={`w-12 h-12 ${iconClass}`}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={1.5}
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-        />
-      </svg>
+    <div className="w-full aspect-[16/9] rounded-t-xl overflow-hidden bg-brand-charcoal/5 dark:bg-brand-charcoal/20">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={label}
+        className="w-full h-full object-cover"
+        loading="lazy"
+        onError={(e) => {
+          // If the external URL fails, swap to local placeholder
+          const target = e.currentTarget;
+          if (target.src !== fallback && !target.src.endsWith(fallback)) {
+            target.src = fallback;
+          }
+        }}
+      />
     </div>
   );
 }

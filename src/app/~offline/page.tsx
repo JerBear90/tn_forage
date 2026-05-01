@@ -24,7 +24,7 @@ export default function OfflinePage() {
         {/* ForageFlow logo */}
         <div className="mb-8 flex justify-center">
           <Image
-            src="/branding/logo.svg"
+            src="/branding/mush_logo.png"
             alt="ForageFlow logo"
             width={96}
             height={96}

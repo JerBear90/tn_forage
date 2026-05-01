@@ -188,7 +188,7 @@ export default function LoginPage() {
         {/* Branding */}
         <div className="mb-8 text-center">
           <Image
-            src="/branding/logo.svg"
+            src="/branding/mush_logo.png"
             alt="ForageFlow logo"
             width={64}
             height={64}

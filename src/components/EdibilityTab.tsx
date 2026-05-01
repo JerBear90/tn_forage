@@ -189,7 +189,7 @@ export default function EdibilityTab({
                       className="rounded border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-2"
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="inline-block rounded-full bg-red-600 text-white text-[10px] font-bold px-2 py-0.5">
+                        <span className="inline-block rounded-full bg-red-600 text-white text-xs font-bold px-2 py-0.5">
                           ⚠ TOXIC
                         </span>
                         <span className="font-semibold text-xs text-brand-charcoal dark:text-dark-text">

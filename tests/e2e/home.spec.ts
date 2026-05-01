@@ -22,14 +22,11 @@ test.describe('Home Page', () => {
   // -------------------------------------------------------------------------
 
   test('should display the ForageFlow logo', async ({ page }) => {
-    // Light mode logo
-    const lightLogo = page.locator('img[src="/branding/logo.svg"]');
-    const darkLogo = page.locator('img[src="/branding/logo-dark.svg"]');
+    const logo = page.locator('img[src="/branding/mush_logo.png"]');
 
-    // At least one logo variant should be present in the DOM
-    const lightCount = await lightLogo.count();
-    const darkCount = await darkLogo.count();
-    expect(lightCount + darkCount).toBeGreaterThan(0);
+    // The logo should be present in the DOM
+    const count = await logo.count();
+    expect(count).toBeGreaterThan(0);
   });
 
   test('should display the ForageFlow name and tagline', async ({ page }) => {

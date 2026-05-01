@@ -27,6 +27,7 @@ import Link from "next/link";
 import { useSpecies, type FieldGuideItem } from "@/hooks/useSpecies";
 import { useCompare, MIN_COMPARE, MAX_COMPARE } from "@/hooks/useCompare";
 import { findRecordById, type SpeciesDetailRecord } from "@/hooks/useSpeciesDetail";
+import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
 import type { Species, Plant, EdibilityLabel, SpeciesCategory } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -160,13 +161,13 @@ function SpeciesPicker({
       />
 
       <div
-        className="max-h-60 overflow-y-auto rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white/60 dark:bg-brand-charcoal/40"
+        className="grid grid-cols-2 gap-3 max-h-[70vh] overflow-y-auto pb-24"
         role="listbox"
         aria-label="Species list for comparison"
         aria-multiselectable="true"
       >
         {filtered.length === 0 ? (
-          <p className="p-4 text-sm text-brand-charcoal/50 dark:text-brand-sand/50 text-center">
+          <p className="col-span-2 p-4 text-sm text-brand-charcoal/50 dark:text-brand-sand/50 text-center">
             No species match your search.
           </p>
         ) : (
@@ -181,46 +182,47 @@ function SpeciesPicker({
                 aria-selected={selected}
                 disabled={disabled}
                 onClick={() => toggle(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left border-b border-brand-charcoal/5 dark:border-brand-sand/5 last:border-b-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-teal ${
+                className={`relative flex flex-col rounded-xl border overflow-hidden text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
                   selected
-                    ? "bg-brand-teal/10 dark:bg-brand-teal/20"
+                    ? "border-brand-teal ring-2 ring-brand-teal/30 shadow-md"
                     : disabled
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-brand-sand/40 dark:hover:bg-brand-charcoal/60"
-                }`}
+                      ? "opacity-50 cursor-not-allowed border-brand-charcoal/10 dark:border-brand-sand/10"
+                      : "border-brand-charcoal/10 dark:border-brand-sand/10 hover:shadow-md hover:border-brand-teal/30 active:scale-[0.98]"
+                } bg-white/80 dark:bg-dark-surface/80`}
               >
-                {/* Checkbox indicator */}
-                <span
-                  className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                    selected
-                      ? "bg-brand-teal border-brand-teal text-white"
-                      : "border-brand-charcoal/30 dark:border-brand-sand/30"
-                  }`}
-                  aria-hidden="true"
-                >
-                  {selected && (
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                {/* Selection check overlay */}
+                {selected && (
+                  <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-brand-teal text-white flex items-center justify-center shadow-sm">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
-                  )}
-                </span>
+                  </div>
+                )}
 
-                {/* Species info */}
-                <div className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand truncate">
+                {/* Image */}
+                <SpeciesImage
+                  src={pickImageUrl(item.images)}
+                  alt={item.commonName}
+                  variant="card"
+                  className="w-full aspect-[4/3]"
+                />
+
+                {/* Card body */}
+                <div className="p-2.5">
+                  <p className="font-semibold text-xs text-brand-charcoal dark:text-dark-text leading-tight truncate">
                     {item.commonName}
-                  </span>
-                  <span className="block text-xs text-brand-charcoal/60 dark:text-brand-sand/60 italic truncate">
+                  </p>
+                  <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted italic truncate mt-0.5">
                     {item.scientificName}
-                  </span>
+                  </p>
+                  <div className="mt-1.5">
+                    <span
+                      className={`inline-block rounded-full border px-2 py-0.5 text-xs font-medium ${edibilityBadgeClasses(item.edibilityLabel)}`}
+                    >
+                      {edibilityDisplayLabel(item.edibilityLabel)}
+                    </span>
+                  </div>
                 </div>
-
-                {/* Edibility badge */}
-                <span
-                  className={`shrink-0 inline-block rounded-full border px-2 py-0.5 text-[10px] font-medium ${edibilityBadgeClasses(item.edibilityLabel)}`}
-                >
-                  {edibilityDisplayLabel(item.edibilityLabel)}
-                </span>
               </button>
             );
           })
@@ -299,10 +301,178 @@ function SelectedChips({
 }
 
 // ---------------------------------------------------------------------------
-// Comparison Table
+// Comparison Card
 // ---------------------------------------------------------------------------
 
-function ComparisonTable({ data }: { data: ComparisonData[] }) {
+function ComparisonCard({ d, remove }: { d: ComparisonData; remove: (id: string) => void }) {
+  return (
+    <article
+      className={`rounded-xl border overflow-hidden ${
+        d.isToxic
+          ? "border-red-300 dark:border-red-700 bg-red-50/30 dark:bg-red-950/20"
+          : "border-brand-charcoal/10 dark:border-dark-border bg-white/80 dark:bg-dark-surface/80"
+      }`}
+    >
+      {/* Image */}
+      <SpeciesImage
+        src={pickImageUrl(d.images)}
+        alt={d.commonName}
+        variant="card"
+        className="w-full aspect-[4/3]"
+      />
+
+      {/* Card body */}
+      <div className="p-4 space-y-3">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <Link
+              href={`/field-guide/${d.id}`}
+              className="font-heading font-semibold text-base text-brand-forest dark:text-brand-moss hover:underline leading-tight block"
+            >
+              {d.isToxic && <span aria-hidden="true" className="mr-1">⚠</span>}
+              {d.commonName}
+            </Link>
+            <p className="text-xs italic text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
+              {d.scientificName}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => remove(d.id)}
+            aria-label={`Remove ${d.commonName}`}
+            className="shrink-0 p-1.5 rounded-lg text-brand-charcoal/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Badges */}
+        <div className="flex flex-wrap gap-1.5">
+          <span className="inline-block rounded-full border border-brand-charcoal/15 bg-brand-charcoal/5 px-2 py-0.5 text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 dark:border-brand-sand/15 dark:bg-brand-sand/5">
+            {categoryDisplayLabel(d.category)}
+          </span>
+          <span
+            className={`inline-block rounded-full border px-2 py-0.5 text-xs font-medium ${edibilityBadgeClasses(d.edibilityLabel)}`}
+          >
+            {edibilityDisplayLabel(d.edibilityLabel)}
+          </span>
+        </div>
+
+        {/* Safety Notes — always shown first for toxic species */}
+        {d.safetyNotes && (
+          <div
+            className={`rounded-lg p-2.5 text-xs leading-relaxed ${
+              d.isToxic
+                ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border border-red-200 dark:border-red-800"
+                : "bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
+            }`}
+          >
+            {d.safetyNotes}
+          </div>
+        )}
+
+        {/* Habitat */}
+        <div>
+          <h3 className="text-xs font-semibold text-brand-charcoal/50 dark:text-brand-sand/50 uppercase tracking-wide mb-1">
+            Habitat
+          </h3>
+          <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
+            {d.habitat}
+          </p>
+        </div>
+
+        {/* Season */}
+        {d.season.length > 0 && (
+          <div>
+            <h3 className="text-xs font-semibold text-brand-charcoal/50 dark:text-brand-sand/50 uppercase tracking-wide mb-1">
+              Season
+            </h3>
+            <div className="flex flex-wrap gap-1">
+              {d.season.map((s) => (
+                <span
+                  key={s}
+                  className="inline-block rounded-full border border-brand-forest/20 bg-brand-forest/5 px-2 py-0.5 text-xs text-brand-forest dark:text-brand-forest-300"
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tree Associations */}
+        {d.treeAssociations.length > 0 && (
+          <div>
+            <h3 className="text-xs font-semibold text-brand-charcoal/50 dark:text-brand-sand/50 uppercase tracking-wide mb-1">
+              Tree Associations
+            </h3>
+            <div className="flex flex-wrap gap-1">
+              {d.treeAssociations.map((t) => (
+                <span
+                  key={t}
+                  className="inline-block rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2 py-0.5 text-xs text-brand-teal dark:text-brand-teal-300"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Key ID Steps */}
+        {d.identificationSteps.length > 0 && (
+          <div>
+            <h3 className="text-xs font-semibold text-brand-charcoal/50 dark:text-brand-sand/50 uppercase tracking-wide mb-1">
+              Key ID Steps
+            </h3>
+            <ul className="list-disc list-inside space-y-0.5">
+              {d.identificationSteps.slice(0, 4).map((step, i) => (
+                <li key={i} className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
+                  {step}
+                </li>
+              ))}
+              {d.identificationSteps.length > 4 && (
+                <li className="text-sm text-brand-teal dark:text-brand-teal-300 list-none mt-1">
+                  <Link href={`/field-guide/${d.id}`} className="hover:underline">
+                    +{d.identificationSteps.length - 4} more →
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
+
+        {/* View full details link */}
+        <Link
+          href={`/field-guide/${d.id}`}
+          className="inline-flex items-center gap-1 text-xs font-medium text-brand-teal hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal pt-1"
+        >
+          View full details
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Comparison Modal
+// ---------------------------------------------------------------------------
+
+function ComparisonModal({
+  data,
+  remove,
+  onClose,
+}: {
+  data: ComparisonData[];
+  remove: (id: string) => void;
+  onClose: () => void;
+}) {
   // Sort: toxic species first for safety
   const sorted = useMemo(() => {
     return [...data].sort((a, b) => {
@@ -312,212 +482,59 @@ function ComparisonTable({ data }: { data: ComparisonData[] }) {
     });
   }, [data]);
 
-  const rows: { label: string; key: string; render: (d: ComparisonData) => React.ReactNode }[] = [
-    {
-      label: "Image",
-      key: "image",
-      render: () => (
-        <div className="w-full h-24 rounded-lg bg-brand-sand/60 dark:bg-brand-charcoal/80 flex items-center justify-center">
-          <svg
-            aria-hidden="true"
-            className="w-8 h-8 text-brand-charcoal/20 dark:text-brand-sand/20"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-            />
-          </svg>
-        </div>
-      ),
-    },
-    {
-      label: "Common Name",
-      key: "commonName",
-      render: (d) => (
-        <Link
-          href={`/field-guide/${d.id}`}
-          className="font-semibold text-sm text-brand-forest dark:text-brand-moss hover:underline"
-        >
-          {d.commonName}
-        </Link>
-      ),
-    },
-    {
-      label: "Scientific Name",
-      key: "scientificName",
-      render: (d) => (
-        <span className="text-xs italic text-brand-charcoal/70 dark:text-brand-sand/70">
-          {d.scientificName}
-        </span>
-      ),
-    },
-    {
-      label: "Category",
-      key: "category",
-      render: (d) => (
-        <span className="text-xs text-brand-charcoal/80 dark:text-brand-sand/80">
-          {categoryDisplayLabel(d.category)}
-        </span>
-      ),
-    },
-    {
-      label: "Habitat",
-      key: "habitat",
-      render: (d) => (
-        <p className="text-xs text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
-          {d.habitat}
-        </p>
-      ),
-    },
-    {
-      label: "Tree Associations",
-      key: "treeAssociations",
-      render: (d) =>
-        d.treeAssociations.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {d.treeAssociations.map((t) => (
-              <span
-                key={t}
-                className="inline-block rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2 py-0.5 text-[10px] text-brand-teal dark:text-brand-teal-300"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <span className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40">—</span>
-        ),
-    },
-    {
-      label: "Season",
-      key: "season",
-      render: (d) =>
-        d.season.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {d.season.map((s) => (
-              <span
-                key={s}
-                className="inline-block rounded-full border border-brand-forest/20 bg-brand-forest/5 px-2 py-0.5 text-[10px] text-brand-forest dark:text-brand-forest-300"
-              >
-                {s}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <span className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40">—</span>
-        ),
-    },
-    {
-      label: "Edibility",
-      key: "edibility",
-      render: (d) => (
-        <span
-          className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-medium ${edibilityBadgeClasses(d.edibilityLabel)}`}
-        >
-          {edibilityDisplayLabel(d.edibilityLabel)}
-        </span>
-      ),
-    },
-    {
-      label: "Safety Notes",
-      key: "safetyNotes",
-      render: (d) =>
-        d.safetyNotes ? (
-          <div
-            className={`rounded-md p-2 text-xs leading-relaxed ${
-              d.isToxic
-                ? "bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300 border border-red-200 dark:border-red-800"
-                : "bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
-            }`}
-          >
-            {d.safetyNotes}
-          </div>
-        ) : (
-          <span className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40">—</span>
-        ),
-    },
-    {
-      label: "Key ID Steps",
-      key: "identificationSteps",
-      render: (d) =>
-        d.identificationSteps.length > 0 ? (
-          <ul className="list-disc list-inside space-y-0.5">
-            {d.identificationSteps.slice(0, 4).map((step, i) => (
-              <li key={i} className="text-[11px] text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
-                {step}
-              </li>
-            ))}
-            {d.identificationSteps.length > 4 && (
-              <li className="text-[11px] text-brand-teal dark:text-brand-teal-300">
-                <Link href={`/field-guide/${d.id}`} className="hover:underline">
-                  +{d.identificationSteps.length - 4} more…
-                </Link>
-              </li>
-            )}
-          </ul>
-        ) : (
-          <span className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40">—</span>
-        ),
-    },
-  ];
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   return (
-    <div className="overflow-x-auto -mx-4 px-4" role="region" aria-label="Species comparison table" tabIndex={0}>
-      <table className="w-full min-w-[600px] border-collapse" aria-label="Side-by-side species comparison">
-        <thead>
-          <tr>
-            <th
-              scope="col"
-              className="sticky left-0 z-10 bg-brand-sand/90 dark:bg-brand-charcoal/90 backdrop-blur-sm text-left text-xs font-semibold text-brand-charcoal/60 dark:text-brand-sand/60 p-3 w-28 min-w-[7rem] border-b border-brand-charcoal/10 dark:border-brand-sand/10"
-            >
-              Attribute
-            </th>
-            {sorted.map((d) => (
-              <th
-                key={d.id}
-                scope="col"
-                className={`text-left text-sm font-semibold p-3 border-b min-w-[10rem] ${
-                  d.isToxic
-                    ? "text-red-700 dark:text-red-400 border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10"
-                    : "text-brand-charcoal dark:text-brand-sand border-brand-charcoal/10 dark:border-brand-sand/10"
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  {d.isToxic && <span aria-hidden="true">⚠</span>}
-                  {d.commonName}
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.key} className="border-b border-brand-charcoal/5 dark:border-brand-sand/5">
-              <th
-                scope="row"
-                className="sticky left-0 z-10 bg-brand-sand/90 dark:bg-brand-charcoal/90 backdrop-blur-sm text-left text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 p-3 align-top"
-              >
-                {row.label}
-              </th>
-              {sorted.map((d) => (
-                <td
-                  key={d.id}
-                  className={`p-3 align-top ${
-                    d.isToxic ? "bg-red-50/30 dark:bg-red-900/5" : ""
-                  }`}
-                >
-                  {row.render(d)}
-                </td>
-              ))}
-            </tr>
+    <div
+      className="fixed inset-0 z-50 flex flex-col bg-brand-sand dark:bg-dark-bg"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Species comparison"
+    >
+      {/* Modal header */}
+      <div className="sticky top-0 z-10 bg-brand-sand/95 dark:bg-dark-bg/95 backdrop-blur-sm border-b border-brand-charcoal/10 dark:border-brand-sand/10 px-4 py-3 flex items-center justify-between">
+        <h2 className="text-lg font-heading font-bold text-brand-forest dark:text-brand-moss">
+          Comparing {sorted.length} Species
+        </h2>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close comparison"
+          className="p-2 rounded-lg text-brand-charcoal/60 hover:text-brand-charcoal hover:bg-brand-charcoal/10 dark:text-brand-sand/60 dark:hover:text-brand-sand dark:hover:bg-brand-sand/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 pb-24">
+        {/* Safety disclaimer */}
+        <div
+          className="rounded-lg border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 p-3 mb-4"
+          role="alert"
+        >
+          <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+            ⚠ Verify with a qualified expert before consuming any wild species. This comparison is for identification assistance only.
+          </p>
+        </div>
+
+        {/* Comparison cards */}
+        <div className="grid grid-cols-1 gap-4" role="list" aria-label="Species comparison cards">
+          {sorted.map((d) => (
+            <div key={d.id} role="listitem">
+              <ComparisonCard d={d} remove={remove} />
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      </div>
     </div>
   );
 }
@@ -531,6 +548,7 @@ function ComparePageContent() {
   const { selectedIds, isSelected, toggle, remove, clearAll, canCompare, isFull, count } = useCompare();
   const [comparisonData, setComparisonData] = useState<ComparisonData[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Load full detail records when selection changes
   useEffect(() => {
@@ -564,8 +582,13 @@ function ComparePageContent() {
     };
   }, [selectedIds]);
 
+  // Close modal if selection drops below minimum
+  useEffect(() => {
+    if (!canCompare) setModalOpen(false);
+  }, [canCompare]);
+
   return (
-    <main className="flex min-h-screen flex-col px-4 py-6 pb-24 max-w-5xl mx-auto">
+    <main className="flex min-h-screen flex-col px-4 py-6 pb-32 max-w-5xl mx-auto">
       {/* Back navigation */}
       <nav aria-label="Breadcrumb" className="mb-4">
         <Link
@@ -593,18 +616,18 @@ function ComparePageContent() {
           Compare Species
         </h1>
         <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mt-1">
-          Select {MIN_COMPARE}–{MAX_COMPARE} species for a side-by-side comparison.
+          Tap {MIN_COMPARE}–{MAX_COMPARE} species to compare them.
         </p>
       </header>
 
       {/* Selected chips */}
       <SelectedChips selectedIds={selectedIds} items={items} remove={remove} clearAll={clearAll} />
 
-      {/* Species picker */}
+      {/* Species picker (always visible — this is the main view) */}
       {speciesLoading ? (
-        <div className="animate-pulse space-y-2 mb-6" role="status">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-12 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-lg" />
+        <div className="animate-pulse grid grid-cols-2 gap-3 mb-6" role="status">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="aspect-[3/4] bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-xl" />
           ))}
           <span className="sr-only">Loading species…</span>
         </div>
@@ -612,59 +635,53 @@ function ComparePageContent() {
         <SpeciesPicker items={items} isSelected={isSelected} toggle={toggle} isFull={isFull} />
       )}
 
-      {/* Status message when not enough selected */}
-      {!canCompare && count > 0 && (
-        <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60 text-center py-4">
-          Select at least {MIN_COMPARE - count} more {MIN_COMPARE - count === 1 ? "species" : "species"} to compare.
-        </p>
-      )}
-
-      {/* Comparison table */}
-      {canCompare && (
-        <>
-          {loadingDetails ? (
-            <div className="animate-pulse py-8" role="status">
-              <div className="h-64 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-lg" />
-              <span className="sr-only">Loading comparison data…</span>
-            </div>
-          ) : comparisonData.length >= MIN_COMPARE ? (
-            <>
-              {/* Safety disclaimer */}
-              <div
-                className="rounded-lg border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 p-3 mb-4"
-                role="alert"
-              >
-                <p className="text-xs font-medium text-amber-900 dark:text-amber-200">
-                  ⚠ Verify with a qualified expert before consuming any wild species. This comparison is for identification assistance only.
-                </p>
-              </div>
-              <ComparisonTable data={comparisonData} />
-            </>
-          ) : null}
-        </>
-      )}
-
       {/* Empty state */}
       {count === 0 && !speciesLoading && (
-        <div className="text-center py-12">
-          <svg
-            aria-hidden="true"
-            className="w-16 h-16 mx-auto text-brand-charcoal/20 dark:text-brand-sand/20 mb-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
-            />
-          </svg>
-          <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60">
-            Search and select species above to start comparing.
+        <div className="text-center py-8">
+          <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50">
+            Tap species cards above to select them for comparison.
           </p>
         </div>
+      )}
+
+      {/* Sticky "Compare" button — appears when ≥2 selected */}
+      {canCompare && (
+        <div className="fixed bottom-20 left-0 right-0 z-40 px-4 pb-2">
+          <div className="max-w-5xl mx-auto">
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              disabled={loadingDetails}
+              className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-base font-semibold bg-brand-teal text-white shadow-lg shadow-brand-teal/25 hover:bg-brand-teal/90 active:scale-[0.98] transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal disabled:opacity-60 min-h-[56px]"
+            >
+              {loadingDetails ? (
+                <>
+                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Loading…
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                  </svg>
+                  Compare {count} Species
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Comparison modal */}
+      {modalOpen && comparisonData.length >= MIN_COMPARE && (
+        <ComparisonModal
+          data={comparisonData}
+          remove={remove}
+          onClose={() => setModalOpen(false)}
+        />
       )}
     </main>
   );

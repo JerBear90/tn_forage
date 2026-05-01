@@ -26,6 +26,7 @@ import type {
 } from "@/types";
 import LookalikeVerificationChecklist from "@/components/LookalikeVerificationChecklist";
 import { requiresVerificationChecklist } from "@/services/verificationChecklist";
+import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
 
 // ---------------------------------------------------------------------------
 // Option data for each step
@@ -472,6 +473,9 @@ function ResultCard({ result }: { result: IdentificationResult }) {
   const needsChecklist = requiresVerificationChecklist(result);
   const [showChecklist, setShowChecklist] = useState(false);
 
+  /** Find the first http(s) image URL from the images array */
+  const imageUrl = pickImageUrl(result.images ?? []);
+
   const handleViewDetails = useCallback(
     (e: React.MouseEvent) => {
       if (needsChecklist) {
@@ -500,6 +504,17 @@ function ResultCard({ result }: { result: IdentificationResult }) {
           : "border-brand-charcoal/10 dark:border-brand-sand/10 bg-white/90 dark:bg-brand-charcoal/70"
       }`}
     >
+      {/* Species image */}
+      {imageUrl && (
+        <SpeciesImage
+          src={imageUrl}
+          alt={result.commonName}
+          variant="result"
+          className="w-full h-32 -mx-4 -mt-4 mb-3 rounded-t-xl"
+          // Override width to fill the card padding
+        />
+      )}
+
       {/* Header row */}
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="min-w-0">
@@ -579,7 +594,7 @@ function ResultCard({ result }: { result: IdentificationResult }) {
           {result.matchedAttributes.map((attr) => (
             <span
               key={attr}
-              className="inline-block px-2 py-0.5 rounded text-[11px] font-medium bg-brand-teal/10 text-brand-teal border border-brand-teal/20"
+              className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-brand-teal/10 text-brand-teal border border-brand-teal/20"
             >
               {attr}
             </span>
@@ -1016,7 +1031,7 @@ export default function IdentifyPage() {
       <div
         ref={stepRef}
         tabIndex={-1}
-        className="flex-1 rounded-2xl bg-white/90 dark:bg-brand-charcoal/70 border border-brand-charcoal/10 dark:border-brand-sand/10 p-5 mb-6 outline-none"
+        className="rounded-2xl bg-white/90 dark:bg-brand-charcoal/70 border border-brand-charcoal/10 dark:border-brand-sand/10 p-5 mb-6 outline-none"
         aria-live="polite"
       >
         <h2 className="text-lg font-heading font-semibold text-brand-charcoal dark:text-brand-sand mb-4">

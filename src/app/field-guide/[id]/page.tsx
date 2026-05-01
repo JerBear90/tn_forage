@@ -20,7 +20,9 @@ import {
   type SpeciesDetailRecord,
 } from "@/hooks/useSpeciesDetail";
 import ImageLightbox from "@/components/ImageLightbox";
+import SpeciesImage from "@/components/SpeciesImage";
 import EdibilityTab from "@/components/EdibilityTab";
+import SkeletonDetail from "@/components/skeletons/SkeletonDetail";
 import AssociatedSpeciesLink from "@/components/AssociatedSpeciesLink";
 import { useAssociatedSpeciesLookup } from "@/hooks/useAssociatedSpeciesLookup";
 import type {
@@ -114,54 +116,43 @@ function ImageGallery({ images }: { images: string[] }) {
 
   if (images.length === 0) return null;
 
-  /** Check if a src looks like a real image URL (not a placeholder path) */
-  const isRealImage = (src: string) =>
-    src.startsWith("http") || src.startsWith("data:") || src.startsWith("blob:");
+  /** Check if a src looks like a usable image (local path or remote URL) */
+  const isUsableImage = (src: string) =>
+    src.startsWith("/") || src.startsWith("http") || src.startsWith("data:") || src.startsWith("blob:");
+
+  const realImages = images.filter(isUsableImage);
+  if (realImages.length === 0) return null;
 
   const lightboxOpen = lightboxIndex !== null;
   const lightboxSrc =
-    lightboxIndex !== null && isRealImage(images[lightboxIndex])
-      ? images[lightboxIndex]
-      : null;
+    lightboxIndex !== null ? realImages[lightboxIndex] : null;
 
   return (
     <div className="mt-4">
-      <div className="flex gap-3 overflow-x-auto pb-2" role="list" aria-label="Species images">
-        {images.map((src, i) => (
-          <button
-            key={i}
-            type="button"
-            role="listitem"
-            aria-label={`View image ${i + 1} of ${images.length}`}
-            onClick={() => setLightboxIndex(i)}
-            className="shrink-0 w-48 h-36 rounded-lg bg-brand-sand/60 dark:bg-dark-surface/80 border border-brand-charcoal/10 dark:border-dark-border flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-shadow"
-          >
-            {isRealImage(src) ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={src}
-                alt={`Species image ${i + 1}`}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <svg
-                aria-hidden="true"
-                className="w-10 h-10 text-brand-charcoal/20 dark:text-brand-sand/20"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-                />
-              </svg>
-            )}
-          </button>
-        ))}
-      </div>
+      {/* First image — full width hero */}
+      <SpeciesImage
+        src={realImages[0]}
+        alt="Species image 1"
+        variant="detail"
+        className="w-full aspect-[4/3] rounded-xl cursor-pointer hover:ring-2 hover:ring-brand-teal/40 transition-shadow"
+        onClick={() => setLightboxIndex(0)}
+      />
+
+      {/* Additional images — horizontal scroll row */}
+      {realImages.length > 1 && (
+        <div className="flex gap-3 overflow-x-auto pb-2 mt-3" role="list" aria-label="Additional species images">
+          {realImages.slice(1).map((src, i) => (
+            <SpeciesImage
+              key={i + 1}
+              src={src}
+              alt={`Species image ${i + 2}`}
+              variant="detail"
+              className="shrink-0 w-32 h-24 rounded-lg border border-brand-charcoal/10 dark:border-dark-border cursor-pointer hover:ring-2 hover:ring-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-shadow"
+              onClick={() => setLightboxIndex(i + 1)}
+            />
+          ))}
+        </div>
+      )}
 
       <ImageLightbox
         isOpen={lightboxOpen}
@@ -169,7 +160,7 @@ function ImageGallery({ images }: { images: string[] }) {
         imageSrc={lightboxSrc}
         imageAlt={
           lightboxIndex !== null
-            ? `Species image ${lightboxIndex + 1} of ${images.length}`
+            ? `Species image ${lightboxIndex + 1} of ${realImages.length}`
             : "Species image"
         }
       />
@@ -196,7 +187,7 @@ function LookalikeCard({
       <div className="flex items-center gap-2 mb-1">
         {isToxicSection && (
           <span
-            className="inline-block rounded-full bg-red-600 text-white text-[10px] font-bold px-2 py-0.5"
+            className="inline-block rounded-full bg-red-600 text-white text-xs font-bold px-2 py-0.5"
             aria-label="Toxic"
           >
             ⚠ TOXIC
@@ -244,6 +235,9 @@ function SpeciesOrPlantDetail({
   const isSpecies = record.kind === "species";
   const speciesData = isSpecies ? (d as Species) : null;
 
+  // Resolve tree association names to IDs for linking
+  const treeAssociationMap = useAssociatedSpeciesLookup(d.treeAssociations);
+
   return (
     <>
       {/* Header */}
@@ -278,10 +272,18 @@ function SpeciesOrPlantDetail({
         </p>
       </Section>
 
-      {/* Tree Associations */}
+      {/* Tree Associations — linked to field guide entries */}
       {d.treeAssociations.length > 0 && (
         <Section title="Tree Associations" id="section-trees">
-          <TagList items={d.treeAssociations} label="Associated trees" />
+          <div className="flex flex-wrap gap-1.5" role="list" aria-label="Associated trees">
+            {d.treeAssociations.map((name) => (
+              <AssociatedSpeciesLink
+                key={name}
+                speciesName={name}
+                speciesId={treeAssociationMap[name] ?? null}
+              />
+            ))}
+          </div>
         </Section>
       )}
 
@@ -517,28 +519,8 @@ function TreeDetail({ data }: { data: Tree }) {
 }
 
 // ---------------------------------------------------------------------------
-// Loading Skeleton
+// Loading Skeleton — uses shared SkeletonDetail component
 // ---------------------------------------------------------------------------
-
-function DetailSkeleton() {
-  return (
-    <div className="animate-pulse space-y-4" role="status">
-      <div className="h-7 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-3/4" />
-      <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-1/2" />
-      <div className="flex gap-2 mt-3">
-        <div className="h-5 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-full w-20" />
-        <div className="h-5 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-full w-28" />
-      </div>
-      <div className="h-36 bg-brand-sand/40 dark:bg-brand-charcoal/40 rounded-lg mt-4" />
-      <div className="space-y-2 mt-6">
-        <div className="h-5 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-24" />
-        <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-full" />
-        <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-5/6" />
-      </div>
-      <span className="sr-only">Loading species details…</span>
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Main Page Component
@@ -595,7 +577,7 @@ export default function SpeciesDetailPage() {
       )}
 
       {/* Loading state */}
-      {loading && <DetailSkeleton />}
+      {loading && <SkeletonDetail />}
 
       {/* Content */}
       {!loading && !error && record && (
