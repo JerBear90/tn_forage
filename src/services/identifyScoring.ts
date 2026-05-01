@@ -30,6 +30,7 @@ export interface IdentificationResult {
   speciesId: string;
   commonName: string;
   scientificName: string;
+  images: string[];
   score: number;
   maxScore: number;
   percentage: number;
@@ -233,6 +234,7 @@ export function scoreSpecies(
       speciesId: species.id,
       commonName: species.commonName,
       scientificName: species.scientificName,
+      images: species.images ?? [],
       score,
       maxScore,
       percentage,

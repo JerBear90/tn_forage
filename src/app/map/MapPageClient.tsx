@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 import { useMapData } from '@/hooks/useMapData';
 import MapDetailPanel from '@/map/MapDetailPanel';
 import MapListView from '@/map/MapListView';
+import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import type { DetailPanelItem } from '@/map/MapDetailPanel';
 
 /**
@@ -260,13 +261,14 @@ export default function MapPageClient() {
         >
           {loading ? (
             <div
-              className="flex items-center justify-center h-full w-full"
+              className="p-4 space-y-3 overflow-y-auto h-full"
               role="status"
               aria-label="Loading list data"
             >
-              <p className="text-sm text-brand-teal/60 font-medium animate-pulse">
-                Loading data…
-              </p>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonCard key={i} variant="park" />
+              ))}
+              <span className="sr-only">Loading park data…</span>
             </div>
           ) : (
             <MapListView

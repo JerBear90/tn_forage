@@ -73,8 +73,7 @@ A mushroom cap combined with a map pin, with a small leaf accent. Represents the
 
 | File | Location | Usage |
 |------|----------|-------|
-| `logo.svg` | `public/branding/logo.svg` | Light mode, primary logo |
-| `logo-dark.svg` | `public/branding/logo-dark.svg` | Dark mode variant |
+| `mush_logo.png` | `public/branding/mush_logo.png` | Primary logo (light and dark mode) |
 | `app-icon.svg` | `public/branding/app-icon.svg` | App icon, favicon base |
 
 ### PWA Icons

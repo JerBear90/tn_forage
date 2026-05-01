@@ -72,7 +72,7 @@ export default function ChallengesCard({
               {challenge.title}
             </h3>
             <span
-              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium leading-tight ${style.bg} ${style.text}`}
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium leading-tight ${style.bg} ${style.text}`}
             >
               {style.label}
             </span>
@@ -110,10 +110,10 @@ export default function ChallengesCard({
       {/* Progress bar */}
       <div className="mt-3">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[11px] font-medium text-brand-charcoal/60 dark:text-dark-text-muted">
+          <span className="text-xs font-medium text-brand-charcoal/60 dark:text-dark-text-muted">
             Progress
           </span>
-          <span className="text-[11px] font-medium text-brand-charcoal/60 dark:text-dark-text-muted">
+          <span className="text-xs font-medium text-brand-charcoal/60 dark:text-dark-text-muted">
             {completedCount} / {totalCount}
           </span>
         </div>

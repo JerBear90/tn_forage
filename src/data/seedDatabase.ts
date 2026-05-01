@@ -2,10 +2,12 @@
  * ForageFlow — Database Seeding
  *
  * Loads local seed data (species, plants, trees) into IndexedDB on first run.
- * Checks if data already exists before seeding to avoid duplicating records.
+ * Uses a seed data version to detect when seed data has been updated and
+ * re-seeds the reference stores (species, plants, trees) accordingly.
+ * User-generated data (trips, logs, etc.) is never overwritten.
  */
 
-import { getDB, countRecords } from '@/offline/db';
+import { getDB, countRecords, clearStore, getRecord, putRecord } from '@/offline/db';
 import { speciesSeed } from '@/data/speciesSeed';
 import { plantsSeed } from '@/data/plantsSeed';
 import { treesSeed } from '@/data/treesSeed';
@@ -15,10 +17,17 @@ import { routesSeed } from '@/data/routesSeed';
 import { challengesSeed } from '@/data/challengesSeed';
 
 /**
+ * Bump this version whenever seed data changes (new images, new entries, etc.).
+ * This triggers a re-seed of reference stores on next app load.
+ */
+const SEED_DATA_VERSION = 8;
+
+/**
  * Seed the IndexedDB database with local species, plant, tree, park, trail, and route data.
  *
- * This function is idempotent — it only seeds a store if it is currently empty.
- * Call this on app startup (e.g., in a layout effect or initialization hook).
+ * Reference stores (species, plants, trees, parks, trails, routes, challenges)
+ * are re-seeded when the seed data version changes. User-generated data is
+ * never touched.
  *
  * @returns An object indicating which stores were seeded and how many records were added.
  */
@@ -41,9 +50,15 @@ export async function seedDatabase(): Promise<{
   let routesSeeded = 0;
   let challengesSeeded = 0;
 
+  // Check if seed data version has changed
+  const storedSettings = await getRecord('settings', 'seedDataVersion');
+  const currentVersion = (storedSettings as { id: string; value: number } | undefined)?.value ?? 0;
+  const needsReseed = currentVersion < SEED_DATA_VERSION;
+
   // --- Seed species (mushrooms) ---
   const speciesCount = await countRecords('species');
-  if (speciesCount === 0) {
+  if (speciesCount === 0 || needsReseed) {
+    if (speciesCount > 0) await clearStore('species');
     const tx = db.transaction('species', 'readwrite');
     for (const species of speciesSeed) {
       await tx.store.put(species);
@@ -54,7 +69,8 @@ export async function seedDatabase(): Promise<{
 
   // --- Seed plants ---
   const plantsCount = await countRecords('plants');
-  if (plantsCount === 0) {
+  if (plantsCount === 0 || needsReseed) {
+    if (plantsCount > 0) await clearStore('plants');
     const tx = db.transaction('plants', 'readwrite');
     for (const plant of plantsSeed) {
       await tx.store.put(plant);
@@ -65,7 +81,8 @@ export async function seedDatabase(): Promise<{
 
   // --- Seed trees ---
   const treesCount = await countRecords('trees');
-  if (treesCount === 0) {
+  if (treesCount === 0 || needsReseed) {
+    if (treesCount > 0) await clearStore('trees');
     const tx = db.transaction('trees', 'readwrite');
     for (const tree of treesSeed) {
       await tx.store.put(tree);
@@ -76,7 +93,8 @@ export async function seedDatabase(): Promise<{
 
   // --- Seed parks ---
   const parksCount = await countRecords('parks');
-  if (parksCount === 0) {
+  if (parksCount === 0 || needsReseed) {
+    if (parksCount > 0) await clearStore('parks');
     const tx = db.transaction('parks', 'readwrite');
     for (const park of parksSeed) {
       await tx.store.put(park);
@@ -87,7 +105,8 @@ export async function seedDatabase(): Promise<{
 
   // --- Seed trails ---
   const trailsCount = await countRecords('trails');
-  if (trailsCount === 0) {
+  if (trailsCount === 0 || needsReseed) {
+    if (trailsCount > 0) await clearStore('trails');
     const tx = db.transaction('trails', 'readwrite');
     for (const trail of trailsSeed) {
       await tx.store.put(trail);
@@ -98,7 +117,8 @@ export async function seedDatabase(): Promise<{
 
   // --- Seed routes ---
   const routesCount = await countRecords('routes');
-  if (routesCount === 0) {
+  if (routesCount === 0 || needsReseed) {
+    if (routesCount > 0) await clearStore('routes');
     const tx = db.transaction('routes', 'readwrite');
     for (const route of routesSeed) {
       await tx.store.put(route);
@@ -109,13 +129,19 @@ export async function seedDatabase(): Promise<{
 
   // --- Seed challenges ---
   const challengesCount = await countRecords('challenges');
-  if (challengesCount === 0) {
+  if (challengesCount === 0 || needsReseed) {
+    if (challengesCount > 0) await clearStore('challenges');
     const tx = db.transaction('challenges', 'readwrite');
     for (const challenge of challengesSeed) {
       await tx.store.put(challenge);
     }
     await tx.done;
     challengesSeeded = challengesSeed.length;
+  }
+
+  // --- Update seed data version ---
+  if (needsReseed) {
+    await putRecord('settings', { id: 'seedDataVersion', value: SEED_DATA_VERSION } as never);
   }
 
   return { speciesSeeded, plantsSeeded, treesSeeded, parksSeeded, trailsSeeded, routesSeeded, challengesSeeded };

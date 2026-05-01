@@ -5,13 +5,18 @@
  *
  * Lists all saved trips from IndexedDB with search/filter, sync status
  * badges, delete with confirmation, loading skeleton, and empty state.
+ * Includes a "Suggested for You" section with park recommendations
+ * based on past trips, recent searches, and popular parks.
  * Mobile-first, accessible, works offline.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTrips, type TripWithLocation } from '@/hooks/useTrips';
-import type { SyncStatus } from '@/types';
+import { getAllRecords } from '@/offline/db';
+import { getRecentSearches } from '@/offline/recentSearches';
+import type { SyncStatus, Park } from '@/types';
 
 // ---------------------------------------------------------------------------
 // Sync status badge config
@@ -51,7 +56,7 @@ function SyncBadge({ status }: { status: SyncStatus }) {
   const config = syncBadgeConfig[status] ?? syncBadgeConfig.pending;
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold leading-tight ${config.className}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold leading-tight ${config.className}`}
       aria-label={`Sync status: ${config.label}`}
     >
       {config.label}
@@ -104,7 +109,7 @@ function TripCard({
           {trip.targetSpecies.map((species) => (
             <span
               key={species}
-              className="inline-block rounded-full bg-brand-teal/10 px-2 py-0.5 text-[11px] font-medium text-brand-teal dark:text-brand-teal"
+              className="inline-block rounded-full bg-brand-teal/10 px-2 py-0.5 text-xs font-medium text-brand-teal dark:text-brand-teal"
             >
               {species}
             </span>
@@ -220,6 +225,168 @@ function EmptyState() {
 }
 
 // ---------------------------------------------------------------------------
+// Suggested Parks Section
+// ---------------------------------------------------------------------------
+
+interface SuggestedPark {
+  id: string;
+  name: string;
+  region: string;
+  image?: string;
+  reason: string; // e.g. "Visited before", "Near your searches", "Popular"
+}
+
+function SuggestedParks({ trips }: { trips: TripWithLocation[] }) {
+  const [suggestions, setSuggestions] = useState<SuggestedPark[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function buildSuggestions() {
+      try {
+        const parks = await getAllRecords('parks');
+        if (cancelled || parks.length === 0) return;
+
+        const result: SuggestedPark[] = [];
+        const usedIds = new Set<string>();
+
+        // 1. Parks from past trips (revisit suggestions)
+        const visitedParkIds = new Set(
+          trips
+            .filter((t) => t.locationType === 'park' && t.locationId)
+            .map((t) => t.locationId!),
+        );
+        for (const park of parks) {
+          if (result.length >= 3) break;
+          if (visitedParkIds.has(park.id) && !usedIds.has(park.id)) {
+            result.push({
+              id: park.id,
+              name: park.name,
+              region: park.region,
+              image: park.image,
+              reason: 'Visited before',
+            });
+            usedIds.add(park.id);
+          }
+        }
+
+        // 2. Parks matching recent searches
+        if (result.length < 3) {
+          const recentSearches = getRecentSearches();
+          for (const query of recentSearches) {
+            if (result.length >= 3) break;
+            const q = query.toLowerCase();
+            const match = parks.find(
+              (p) =>
+                !usedIds.has(p.id) &&
+                (p.name.toLowerCase().includes(q) ||
+                  p.region.toLowerCase().includes(q)),
+            );
+            if (match) {
+              result.push({
+                id: match.id,
+                name: match.name,
+                region: match.region,
+                image: match.image,
+                reason: 'Matches your search',
+              });
+              usedIds.add(match.id);
+            }
+          }
+        }
+
+        // 3. Fill remaining with popular/random parks
+        if (result.length < 3) {
+          // Pick parks with the most amenities as a proxy for "popular"
+          const sorted = [...parks]
+            .filter((p) => !usedIds.has(p.id))
+            .sort((a, b) => b.amenities.length - a.amenities.length);
+          for (const park of sorted) {
+            if (result.length >= 3) break;
+            result.push({
+              id: park.id,
+              name: park.name,
+              region: park.region,
+              image: park.image,
+              reason: 'Popular park',
+            });
+            usedIds.add(park.id);
+          }
+        }
+
+        if (!cancelled) {
+          setSuggestions(result.slice(0, 3));
+          setLoaded(true);
+        }
+      } catch {
+        if (!cancelled) setLoaded(true);
+      }
+    }
+
+    buildSuggestions();
+    return () => { cancelled = true; };
+  }, [trips]);
+
+  if (!loaded || suggestions.length === 0) return null;
+
+  return (
+    <section className="mb-6" aria-label="Suggested parks">
+      <h2 className="font-heading font-semibold text-sm text-brand-charcoal dark:text-brand-sand mb-3">
+        Suggested for You
+      </h2>
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+        {suggestions.map((park) => (
+          <Link
+            key={park.id}
+            href={`/trips/new`}
+            className="shrink-0 w-40 rounded-xl border border-brand-charcoal/10 dark:border-dark-border bg-white dark:bg-dark-surface overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+          >
+            {/* Park image */}
+            <div className="relative w-full h-24 bg-brand-sand/60 dark:bg-dark-surface/80 overflow-hidden">
+              {park.image ? (
+                <Image
+                  src={park.image}
+                  alt={park.name}
+                  width={320}
+                  height={192}
+                  sizes="160px"
+                  quality={65}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full">
+                  <svg
+                    aria-hidden="true"
+                    className="w-8 h-8 text-brand-charcoal/15 dark:text-brand-sand/15"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            {/* Park info */}
+            <div className="p-2.5">
+              <p className="font-semibold text-xs text-brand-charcoal dark:text-dark-text truncate leading-snug">
+                {park.name}
+              </p>
+              <p className="text-[10px] text-brand-teal mt-0.5">
+                {park.reason}
+              </p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
 
@@ -261,6 +428,9 @@ export default function TripsPage() {
           + New Trip
         </Link>
       </header>
+
+      {/* Suggested parks — based on past trips, searches, and popular parks */}
+      {!loading && <SuggestedParks trips={trips} />}
 
       {/* Search — only show when there are trips */}
       {hasTrips && (

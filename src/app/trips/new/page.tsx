@@ -3,8 +3,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { Park, Trail, Route, LocationType, Trip } from '@/types';
-import { getAllRecords, putRecord } from '@/offline/db';
+import type { LocationType, Trip, Species } from '@/types';
+import { putRecord, batchGetRecords } from '@/offline/db';
+import ParkPicker from '@/components/trip/ParkPicker';
+import TrailPicker from '@/components/trip/TrailPicker';
+import LikelySpeciesPanel from '@/components/trip/LikelySpeciesPanel';
 
 /** Generate a UUID v4 (crypto-safe when available, fallback for older browsers). */
 function generateId(): string {
@@ -18,40 +21,32 @@ function generateId(): string {
   });
 }
 
-const LOCATION_TYPES: { value: LocationType; label: string; icon: string }[] = [
-  { value: 'park', label: 'State Park', icon: '🏞️' },
-  { value: 'trail', label: 'Trail', icon: '🥾' },
-  { value: 'route', label: 'Route', icon: '🗺️' },
-  { value: 'custom', label: 'Custom', icon: '📍' },
-];
-
-interface LocationItem {
-  id: string;
-  name: string;
-}
+/** The two top-level location modes for trip creation. */
+type LocationMode = 'park' | 'custom';
 
 export default function CreateTripPage() {
   const router = useRouter();
 
-  // --- Form state ---
-  const [locationType, setLocationType] = useState<LocationType>('park');
-  const [locationId, setLocationId] = useState('');
+  // --- Location mode: park-based or custom ---
+  const [locationMode, setLocationMode] = useState<LocationMode>('park');
+
+  // --- Park-based flow state ---
+  const [selectedParkId, setSelectedParkId] = useState<string | null>(null);
+  const [selectedTrailId, setSelectedTrailId] = useState<string | null>(null);
+
+  // --- Custom location state ---
   const [customLocation, setCustomLocation] = useState('');
+
+  // --- Form state ---
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
+  const [targetSpecies, setTargetSpecies] = useState<string[]>([]);
   const [targetSpeciesInput, setTargetSpeciesInput] = useState('');
   const [companions, setCompanions] = useState('');
   const [safetyNotes, setSafetyNotes] = useState('');
 
-  // --- Location data from IndexedDB ---
-  const [parks, setParks] = useState<LocationItem[]>([]);
-  const [trails, setTrails] = useState<LocationItem[]>([]);
-  const [routes, setRoutes] = useState<LocationItem[]>([]);
-  const [loadingLocations, setLoadingLocations] = useState(true);
-
-  // --- Search filter for location dropdown ---
-  const [locationSearch, setLocationSearch] = useState('');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  // --- Species name lookup for display ---
+  const [speciesNames, setSpeciesNames] = useState<Record<string, string>>({});
 
   // --- Submission state ---
   const [saving, setSaving] = useState(false);
@@ -60,70 +55,75 @@ export default function CreateTripPage() {
   // --- Validation ---
   const [touched, setTouched] = useState(false);
 
-  // Load location data from IndexedDB on mount
+  // --- Planning started (show form only after user clicks "Start Planning") ---
+  const [planningStarted, setPlanningStarted] = useState(false);
+
+  // Current month for LikelySpeciesPanel
+  const currentMonth = useMemo(() => new Date().getMonth(), []);
+
+  // Load species names for displaying added target species
   useEffect(() => {
+    if (targetSpecies.length === 0) return;
+
     let cancelled = false;
-
-    async function loadLocations() {
+    async function loadNames() {
       try {
-        const [parksData, trailsData, routesData] = await Promise.all([
-          getAllRecords('parks'),
-          getAllRecords('trails'),
-          getAllRecords('routes'),
-        ]);
-
+        const records = await batchGetRecords('species', targetSpecies);
         if (!cancelled) {
-          setParks(parksData.map((p: Park) => ({ id: p.id, name: p.name })));
-          setTrails(trailsData.map((t: Trail) => ({ id: t.id, name: t.name })));
-          setRoutes(routesData.map((r: Route) => ({ id: r.id, name: r.name })));
+          const names: Record<string, string> = {};
+          for (const r of records) {
+            const sp = r as Species;
+            names[sp.id] = sp.commonName;
+          }
+          setSpeciesNames((prev) => ({ ...prev, ...names }));
         }
       } catch {
-        // Silently handle — locations may not be seeded yet
-      } finally {
-        if (!cancelled) setLoadingLocations(false);
+        // Silently handle — names are optional display
       }
     }
-
-    loadLocations();
+    loadNames();
     return () => { cancelled = true; };
+  }, [targetSpecies]);
+
+  // Reset park/trail selection when switching modes
+  const handleModeChange = useCallback((mode: LocationMode) => {
+    setLocationMode(mode);
+    setSelectedParkId(null);
+    setSelectedTrailId(null);
+    setCustomLocation('');
+    setTargetSpecies([]);
+    setTargetSpeciesInput('');
   }, []);
 
-  // Get the right location list for the selected type
-  const locationItems = useMemo(() => {
-    switch (locationType) {
-      case 'park': return parks;
-      case 'trail': return trails;
-      case 'route': return routes;
-      default: return [];
-    }
-  }, [locationType, parks, trails, routes]);
+  // Handle park selection
+  const handleSelectPark = useCallback((parkId: string) => {
+    setSelectedParkId(parkId);
+    setSelectedTrailId(null);
+    setTargetSpecies([]);
+  }, []);
 
-  // Filtered items based on search
-  const filteredItems = useMemo(() => {
-    if (!locationSearch.trim()) return locationItems;
-    const q = locationSearch.toLowerCase();
-    return locationItems.filter((item) => item.name.toLowerCase().includes(q));
-  }, [locationItems, locationSearch]);
+  // Handle trail selection
+  const handleSelectTrail = useCallback((trailId: string) => {
+    setSelectedTrailId(trailId);
+  }, []);
 
-  // Selected location name for display
-  const selectedLocationName = useMemo(() => {
-    if (locationType === 'custom') return customLocation;
-    return locationItems.find((item) => item.id === locationId)?.name ?? '';
-  }, [locationType, locationId, locationItems, customLocation]);
+  // Handle adding species from LikelySpeciesPanel
+  const handleAddSpeciesToTrip = useCallback((speciesId: string) => {
+    setTargetSpecies((prev) => {
+      if (prev.includes(speciesId)) return prev;
+      return [...prev, speciesId];
+    });
+  }, []);
 
-  // Reset location selection when type changes
-  const handleLocationTypeChange = useCallback((type: LocationType) => {
-    setLocationType(type);
-    setLocationId('');
-    setCustomLocation('');
-    setLocationSearch('');
-    setDropdownOpen(false);
+  // Remove a species from the target list
+  const handleRemoveSpecies = useCallback((speciesId: string) => {
+    setTargetSpecies((prev) => prev.filter((id) => id !== speciesId));
   }, []);
 
   // Validation
-  const isLocationValid = locationType === 'custom'
+  const isLocationValid = locationMode === 'custom'
     ? customLocation.trim().length > 0
-    : locationId.length > 0;
+    : selectedParkId !== null;
   const isDateValid = date.length > 0;
   const isFormValid = isLocationValid && isDateValid;
 
@@ -138,21 +138,26 @@ export default function CreateTripPage() {
     setError(null);
 
     try {
-      const speciesList = targetSpeciesInput
+      // Merge manually typed species with species added from LikelySpeciesPanel
+      const manualSpecies = targetSpeciesInput
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
+      const allTargetSpecies = [...targetSpecies, ...manualSpecies];
+
+      const locationType: LocationType = locationMode === 'custom' ? 'custom' : 'park';
 
       const trip: Trip = {
         id: generateId(),
         userId: 'local-user', // placeholder until auth is wired
         locationType,
-        ...(locationType === 'custom'
+        ...(locationMode === 'custom'
           ? { customLocation: customLocation.trim() }
-          : { locationId }),
+          : { locationId: selectedParkId! }),
+        ...(selectedTrailId ? { trailId: selectedTrailId } : {}),
         date,
         notes: notes.trim(),
-        targetSpecies: speciesList,
+        targetSpecies: allTargetSpecies,
         companions: companions.trim(),
         safetyNotes: safetyNotes.trim(),
         syncStatus: 'pending',
@@ -183,6 +188,40 @@ export default function CreateTripPage() {
         </p>
       </header>
 
+      {/* Start Planning gate — show a hero CTA before the form */}
+      {!planningStarted ? (
+        <section className="flex flex-col items-center justify-center py-16 text-center">
+          <svg
+            aria-hidden="true"
+            className="w-20 h-20 text-brand-teal/30 mb-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 6.75V15m6-6v8.25m.503-12.713l5.248-2.187A.75.75 0 0121.75 3v14.25a.75.75 0 01-.497.702l-5.253 2.188a.75.75 0 01-.503 0L9.75 17.953a.75.75 0 00-.503 0l-5.248 2.187A.75.75 0 013 19.39V5.14a.75.75 0 01.497-.702l5.253-2.188a.75.75 0 01.503 0L15 5.327"
+            />
+          </svg>
+          <h2 className="font-heading font-bold text-xl text-brand-forest dark:text-brand-moss mb-2">
+            Ready to explore?
+          </h2>
+          <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60 mb-6 max-w-xs">
+            Pick a park, choose a trail, and discover what species you might find along the way.
+          </p>
+          <button
+            type="button"
+            onClick={() => setPlanningStarted(true)}
+            className="rounded-lg bg-brand-teal text-white font-semibold text-base px-8 py-3.5 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] shadow-md"
+          >
+            🌿 Start Planning My Trip
+          </button>
+        </section>
+      ) : (
+      <>
+
       {error && (
         <div
           role="alert"
@@ -193,36 +232,112 @@ export default function CreateTripPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-        {/* ── Location Type ── */}
+        {/* ── Step 1: Location Mode Selector ── */}
         <fieldset>
           <legend className="font-heading font-semibold text-sm text-brand-charcoal dark:text-brand-sand mb-3">
             Where are you going?
           </legend>
           <div className="grid grid-cols-2 gap-2">
-            {LOCATION_TYPES.map((loc) => (
-              <button
-                key={loc.value}
-                type="button"
-                role="radio"
-                aria-checked={locationType === loc.value}
-                onClick={() => handleLocationTypeChange(loc.value)}
-                className={`flex items-center gap-2 rounded-lg border px-3 py-3 text-left transition-colors ${
-                  locationType === loc.value
-                    ? 'border-brand-teal bg-brand-teal/10 ring-2 ring-brand-teal/30'
-                    : 'border-brand-teal/20 bg-white/80 dark:bg-brand-charcoal/60 hover:bg-brand-teal/5'
-                }`}
-              >
-                <span aria-hidden="true" className="text-lg">{loc.icon}</span>
-                <span className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
-                  {loc.label}
-                </span>
-              </button>
-            ))}
+            <button
+              type="button"
+              role="radio"
+              aria-checked={locationMode === 'park'}
+              onClick={() => handleModeChange('park')}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-3 text-left transition-colors ${
+                locationMode === 'park'
+                  ? 'border-brand-teal bg-brand-teal/10 ring-2 ring-brand-teal/30'
+                  : 'border-brand-teal/20 bg-white/80 dark:bg-brand-charcoal/60 hover:bg-brand-teal/5'
+              }`}
+            >
+              <span aria-hidden="true" className="text-lg">🏞️</span>
+              <span className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
+                Select a Park
+              </span>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={locationMode === 'custom'}
+              onClick={() => handleModeChange('custom')}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-3 text-left transition-colors ${
+                locationMode === 'custom'
+                  ? 'border-brand-teal bg-brand-teal/10 ring-2 ring-brand-teal/30'
+                  : 'border-brand-teal/20 bg-white/80 dark:bg-brand-charcoal/60 hover:bg-brand-teal/5'
+              }`}
+            >
+              <span aria-hidden="true" className="text-lg">📍</span>
+              <span className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
+                Custom Location
+              </span>
+            </button>
           </div>
         </fieldset>
 
-        {/* ── Location Selection ── */}
-        {locationType === 'custom' ? (
+        {/* ── Park-based flow ── */}
+        {locationMode === 'park' && (
+          <>
+            {/* Park Picker */}
+            <ParkPicker
+              selectedParkId={selectedParkId}
+              onSelectPark={handleSelectPark}
+            />
+
+            {touched && !isLocationValid && (
+              <p className="text-xs text-red-600 dark:text-red-400" role="alert">
+                Please select a park.
+              </p>
+            )}
+
+            {/* Trail Picker — shown after park selection */}
+            {selectedParkId && (
+              <TrailPicker
+                parkId={selectedParkId}
+                selectedTrailId={selectedTrailId}
+                onSelectTrail={handleSelectTrail}
+              />
+            )}
+
+            {/* Likely Species Panel — shown after park selection */}
+            {selectedParkId && (
+              <LikelySpeciesPanel
+                parkId={selectedParkId}
+                trailId={selectedTrailId ?? undefined}
+                currentMonth={currentMonth}
+                onAddToTrip={handleAddSpeciesToTrip}
+              />
+            )}
+
+            {/* Display added target species */}
+            {targetSpecies.length > 0 && (
+              <div>
+                <p className="font-heading font-semibold text-sm text-brand-charcoal dark:text-brand-sand mb-2">
+                  Target Species
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {targetSpecies.map((id) => (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 text-brand-teal text-xs font-medium px-3 py-1.5"
+                    >
+                      {speciesNames[id] || id}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSpecies(id)}
+                        aria-label={`Remove ${speciesNames[id] || id}`}
+                        className="ml-0.5 hover:text-brand-teal/70 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── Custom location flow ── */}
+        {locationMode === 'custom' && (
           <div>
             <label
               htmlFor="custom-location"
@@ -243,94 +358,6 @@ export default function CreateTripPage() {
             {touched && !isLocationValid && (
               <p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">
                 Please enter a location name.
-              </p>
-            )}
-          </div>
-        ) : (
-          <div className="relative">
-            <label
-              htmlFor="location-search"
-              className="block font-heading font-semibold text-sm text-brand-charcoal dark:text-brand-sand mb-1.5"
-            >
-              Select {locationType === 'park' ? 'Park' : locationType === 'trail' ? 'Trail' : 'Route'}
-            </label>
-
-            {/* Search input that doubles as display */}
-            <div className="relative">
-              <input
-                id="location-search"
-                type="text"
-                value={dropdownOpen ? locationSearch : selectedLocationName}
-                onChange={(e) => {
-                  setLocationSearch(e.target.value);
-                  if (!dropdownOpen) setDropdownOpen(true);
-                }}
-                onFocus={() => {
-                  setDropdownOpen(true);
-                  setLocationSearch('');
-                }}
-                placeholder={loadingLocations ? 'Loading locations…' : `Search ${locationType}s…`}
-                aria-required="true"
-                aria-invalid={touched && !isLocationValid}
-                aria-expanded={dropdownOpen}
-                aria-controls="location-listbox"
-                aria-autocomplete="list"
-                role="combobox"
-                className="w-full rounded-lg border border-brand-teal/20 bg-white/80 dark:bg-brand-charcoal/60 px-4 py-3 pr-10 text-sm text-brand-charcoal dark:text-brand-sand placeholder:text-brand-charcoal/40 dark:placeholder:text-brand-sand/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
-              />
-              <svg
-                aria-hidden="true"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-charcoal/40 dark:text-brand-sand/40 pointer-events-none"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-
-            {/* Dropdown list */}
-            {dropdownOpen && (
-              <ul
-                id="location-listbox"
-                role="listbox"
-                aria-label={`Available ${locationType}s`}
-                className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border border-brand-teal/20 bg-white dark:bg-brand-charcoal shadow-lg"
-              >
-                {filteredItems.length === 0 ? (
-                  <li className="px-4 py-3 text-sm text-brand-charcoal/50 dark:text-brand-sand/50">
-                    {loadingLocations ? 'Loading…' : 'No results found'}
-                  </li>
-                ) : (
-                  filteredItems.map((item) => (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        role="option"
-                        aria-selected={locationId === item.id}
-                        onClick={() => {
-                          setLocationId(item.id);
-                          setLocationSearch('');
-                          setDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm transition-colors ${
-                          locationId === item.id
-                            ? 'bg-brand-teal/10 text-brand-teal font-medium'
-                            : 'text-brand-charcoal dark:text-brand-sand hover:bg-brand-teal/5'
-                        }`}
-                      >
-                        {item.name}
-                      </button>
-                    </li>
-                  ))
-                )}
-              </ul>
-            )}
-
-            {touched && !isLocationValid && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">
-                Please select a location.
               </p>
             )}
           </div>
@@ -360,13 +387,13 @@ export default function CreateTripPage() {
           )}
         </div>
 
-        {/* ── Target Species ── */}
+        {/* ── Additional Target Species (manual input) ── */}
         <div>
           <label
             htmlFor="trip-species"
             className="block font-heading font-semibold text-sm text-brand-charcoal dark:text-brand-sand mb-1.5"
           >
-            Target Species
+            Additional Target Species
             <span className="font-normal text-brand-charcoal/50 dark:text-brand-sand/50 ml-1">
               (comma-separated, optional)
             </span>
@@ -458,6 +485,8 @@ export default function CreateTripPage() {
       <p className="text-xs text-center text-brand-charcoal/50 dark:text-brand-sand/50 mt-6">
         Trips are saved locally first and sync when you&apos;re back online.
       </p>
+      </>
+      )}
     </main>
   );
 }

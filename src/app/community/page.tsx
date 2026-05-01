@@ -11,13 +11,19 @@
  * - Location fuzzing for public posts (task 14.5)
  * - Flagging with reason options (task 14.3)
  * - Comment/suggest ID placeholders (task 14.2)
+ * - Matched species images on sighting cards (task 12.4)
+ * - TrendingSpeciesSection, photo preview, pull-to-refresh (task 12.6)
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import ProtectedRoute from '@/auth/ProtectedRoute';
 import { getAllRecords, putRecord } from '@/offline/db';
 import { applyLocationPrivacy } from '@/services/locationPrivacy';
+import { matchSpeciesImage, type KnownSpeciesRecord } from '@/services/trending';
+import TrendingSpeciesSection from '@/components/community/TrendingSpeciesSection';
+import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import type {
   CommunityDraft,
   CommunityFlag,
@@ -84,17 +90,36 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
   const [locationMode, setLocationMode] = useState<'gps' | 'manual'>('gps');
   const geo = useGeolocation();
 
-  // Photo handling (simplified — stores photo IDs as strings)
-  const [photoFiles, setPhotoFiles] = useState<{ id: string; name: string }[]>([]);
+  // Photo handling — stores photo IDs, names, and preview URLs
+  const [photoFiles, setPhotoFiles] = useState<{ id: string; name: string; previewUrl?: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Clean up object URLs on unmount
+  useEffect(() => {
+    return () => {
+      photoFiles.forEach((p) => {
+        if (p.previewUrl) URL.revokeObjectURL(p.previewUrl);
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFileSelect = useCallback((files: FileList | null) => {
     if (!files) return;
     const newPhotos = Array.from(files).map((f) => ({
       id: generateId(),
       name: f.name,
+      previewUrl: URL.createObjectURL(f),
     }));
     setPhotoFiles((prev) => [...prev, ...newPhotos]);
+  }, []);
+
+  const handleRemovePhoto = useCallback((photoId: string) => {
+    setPhotoFiles((prev) => {
+      const removed = prev.find((p) => p.id === photoId);
+      if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+      return prev.filter((p) => p.id !== photoId);
+    });
   }, []);
 
   async function handleSubmit() {
@@ -181,10 +206,42 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
             </svg>
             <span className="text-sm font-medium">Add Photos</span>
           </button>
+
+          {/* Photo preview thumbnails (Req 9.1) */}
           {photoFiles.length > 0 && (
-            <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mt-1">
-              {photoFiles.length} photo{photoFiles.length !== 1 ? 's' : ''} selected
-            </p>
+            <div className="mt-2 space-y-1.5">
+              <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
+                {photoFiles.length} photo{photoFiles.length !== 1 ? 's' : ''} selected
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Selected photo previews">
+                {photoFiles.map((photo) => (
+                  <div key={photo.id} className="relative shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-brand-teal/20 bg-brand-sand/30 dark:bg-brand-charcoal/40">
+                    {photo.previewUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={photo.previewUrl}
+                        alt={photo.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-full">
+                        <span className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40 text-center px-1 truncate">
+                          {photo.name}
+                        </span>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePhoto(photo.id)}
+                      className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/50 text-white flex items-center justify-center text-xs hover:bg-black/70 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-teal"
+                      aria-label={`Remove photo ${photo.name}`}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 
@@ -433,17 +490,56 @@ function FlagDialog({ sightingId, onClose, onSubmit }: FlagDialogProps) {
 
 interface SightingCardProps {
   sighting: CommunityDraft;
+  knownSpecies: KnownSpeciesRecord[];
   onFlag: (id: string) => void;
 }
 
-function SightingCard({ sighting, onFlag }: SightingCardProps) {
+function SightingCard({ sighting, knownSpecies, onFlag }: SightingCardProps) {
   const [showComments, setShowComments] = useState(false);
+
+  // Match species guess against known species/plants for image (Req 7.1, 7.2)
+  const speciesMatch = sighting.speciesGuess
+    ? matchSpeciesImage(sighting.speciesGuess, knownSpecies)
+    : undefined;
 
   return (
     <article
       className="rounded-xl border border-brand-teal/15 bg-white/80 dark:bg-brand-charcoal/60 p-4"
       aria-label={`Sighting: ${sighting.speciesGuess || 'Unknown species'}`}
     >
+      {/* Species image (Req 7.1, 7.2) */}
+      <div className="relative w-full h-36 rounded-lg overflow-hidden bg-brand-sand/40 dark:bg-brand-charcoal/40 mb-3">
+        {speciesMatch?.image ? (
+          <Image
+            src={speciesMatch.image}
+            alt={sighting.speciesGuess || 'Species image'}
+            width={400}
+            height={200}
+            sizes="(max-width: 512px) 100vw, 512px"
+            quality={70}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full">
+            <svg
+              aria-hidden="true"
+              className="w-10 h-10 text-brand-charcoal/15 dark:text-brand-sand/15"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+              />
+            </svg>
+          </div>
+        )}
+      </div>
+
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="min-w-0">
@@ -486,11 +582,34 @@ function SightingCard({ sighting, onFlag }: SightingCardProps) {
         </p>
       )}
 
-      {/* Photos count */}
+      {/* Photo thumbnails (Req 7.3) */}
       {sighting.photos.length > 0 && (
-        <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mb-3">
-          📷 {sighting.photos.length} photo{sighting.photos.length !== 1 ? 's' : ''}
-        </p>
+        <div className="flex gap-1.5 overflow-x-auto pb-1 mb-3" aria-label="Sighting photos">
+          {sighting.photos.map((photoId) => (
+            <div
+              key={photoId}
+              className="shrink-0 w-14 h-14 rounded-md overflow-hidden bg-brand-sand/30 dark:bg-brand-charcoal/40 border border-brand-teal/10 flex items-center justify-center"
+            >
+              <svg
+                aria-hidden="true"
+                className="w-5 h-5 text-brand-charcoal/20 dark:text-brand-sand/20"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
+                />
+              </svg>
+            </div>
+          ))}
+          <span className="sr-only">
+            {sighting.photos.length} photo{sighting.photos.length !== 1 ? 's' : ''} attached
+          </span>
+        </div>
       )}
 
       {/* Action buttons */}
@@ -557,28 +676,91 @@ function CommunityContent() {
   const [flagTarget, setFlagTarget] = useState<string | null>(null);
   const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set());
 
-  // Load sightings from IndexedDB
+  // Known species/plants for image matching (Req 7.4)
+  const [knownSpecies, setKnownSpecies] = useState<KnownSpeciesRecord[]>([]);
+
+  // Pull-to-refresh state (Req 9.2, 9.3, 9.4, 9.5)
+  const [refreshing, setRefreshing] = useState(false);
+  const touchStartY = useRef<number | null>(null);
+  const [pullDistance, setPullDistance] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const PULL_THRESHOLD = 80;
+
+  // Load sightings and known species from IndexedDB
+  const loadData = useCallback(async () => {
+    try {
+      const [drafts, speciesRecords, plantRecords] = await Promise.all([
+        getAllRecords('communityDrafts'),
+        getAllRecords('species'),
+        getAllRecords('plants'),
+      ]);
+
+      // Sort newest first
+      const sorted = (drafts as CommunityDraft[]).sort(
+        (a, b) => b.createdAt.localeCompare(a.createdAt),
+      );
+      setSightings(sorted);
+
+      // Build known species list for image matching
+      const known: KnownSpeciesRecord[] = [
+        ...speciesRecords.map((s) => ({
+          id: s.id,
+          commonName: s.commonName,
+          images: s.images,
+        })),
+        ...plantRecords.map((p) => ({
+          id: p.id,
+          commonName: p.commonName,
+          images: p.images,
+        })),
+      ];
+      setKnownSpecies(known);
+    } catch {
+      // Store may not exist yet
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      try {
-        const drafts = await getAllRecords('communityDrafts');
-        if (!cancelled) {
-          // Sort newest first
-          const sorted = (drafts as CommunityDraft[]).sort(
-            (a, b) => b.createdAt.localeCompare(a.createdAt),
-          );
-          setSightings(sorted);
-        }
-      } catch {
-        // Store may not exist yet
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+      await loadData();
+      if (!cancelled) setLoading(false);
     }
     load();
     return () => { cancelled = true; };
+  }, [loadData]);
+
+  // Pull-to-refresh touch handlers (Req 9.2, 9.3, 9.4, 9.5)
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    // Only activate when scrolled to top
+    const container = scrollContainerRef.current;
+    if (container && container.scrollTop <= 0) {
+      touchStartY.current = e.touches[0].clientY;
+    }
   }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (touchStartY.current === null || refreshing) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - touchStartY.current;
+    if (diff > 0) {
+      setPullDistance(Math.min(diff, PULL_THRESHOLD * 1.5));
+    }
+  }, [refreshing]);
+
+  const handleTouchEnd = useCallback(async () => {
+    if (touchStartY.current === null) return;
+    touchStartY.current = null;
+
+    if (pullDistance >= PULL_THRESHOLD && !refreshing) {
+      setRefreshing(true);
+      setPullDistance(0);
+      await loadData();
+      setRefreshing(false);
+    } else {
+      setPullDistance(0);
+    }
+  }, [pullDistance, refreshing, loadData]);
 
   const handleSave = useCallback((draft: CommunityDraft) => {
     setSightings((prev) => [draft, ...prev]);
@@ -591,7 +773,31 @@ function CommunityContent() {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col px-4 py-6 max-w-lg mx-auto pb-28">
+    <main
+      ref={scrollContainerRef}
+      className="flex min-h-screen flex-col px-4 py-6 max-w-lg mx-auto pb-28 overflow-y-auto"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Pull-to-refresh indicator (Req 9.2, 9.3) */}
+      {(pullDistance > 0 || refreshing) && (
+        <div
+          className="flex items-center justify-center transition-all duration-200"
+          style={{ height: refreshing ? 48 : pullDistance * 0.5 }}
+          role="status"
+          aria-label={refreshing ? 'Refreshing sightings' : 'Pull to refresh'}
+        >
+          {refreshing ? (
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-brand-teal border-t-transparent" />
+          ) : pullDistance >= PULL_THRESHOLD ? (
+            <p className="text-xs text-brand-teal font-medium">Release to refresh</p>
+          ) : (
+            <p className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40">Pull to refresh</p>
+          )}
+        </div>
+      )}
+
       <header className="mb-6">
         <Link
           href="/"
@@ -635,40 +841,53 @@ function CommunityContent() {
       {/* Sightings list */}
       {loading ? (
         <div
-          className="flex items-center justify-center py-12"
+          className="space-y-4"
           role="status"
           aria-label="Loading sightings"
         >
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-teal-600 border-t-transparent" />
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonCard key={i} variant="sighting" />
+          ))}
           <span className="sr-only">Loading sightings…</span>
         </div>
       ) : sightings.length === 0 ? (
-        <section aria-label="No sightings" className="text-center py-12">
-          <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50">
-            No sightings yet. Be the first to share an observation!
-          </p>
-          <p className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40 mt-1">
-            All sightings save locally and sync when online.
-          </p>
-        </section>
+        <>
+          {/* Trending Species Section (Req 8.1) */}
+          <TrendingSpeciesSection sightings={sightings} />
+
+          <section aria-label="No sightings" className="text-center py-12">
+            <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50">
+              No sightings yet. Be the first to share an observation!
+            </p>
+            <p className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40 mt-1">
+              All sightings save locally and sync when online.
+            </p>
+          </section>
+        </>
       ) : (
-        <div className="space-y-4" aria-label="Sightings list">
-          {sightings.map((s) => (
-            <div key={s.id} className="relative">
-              <SightingCard
-                sighting={s}
-                onFlag={(id) => setFlagTarget(id)}
-              />
-              {flaggedIds.has(s.id) && (
-                <div className="absolute top-2 right-2">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-600 dark:text-red-400">
-                    🚩 Reported
-                  </span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        <>
+          {/* Trending Species Section (Req 8.1) */}
+          <TrendingSpeciesSection sightings={sightings} />
+
+          <div className="space-y-4" aria-label="Sightings list">
+            {sightings.map((s) => (
+              <div key={s.id} className="relative">
+                <SightingCard
+                  sighting={s}
+                  knownSpecies={knownSpecies}
+                  onFlag={(id) => setFlagTarget(id)}
+                />
+                {flaggedIds.has(s.id) && (
+                  <div className="absolute top-2 right-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-600 dark:text-red-400">
+                      🚩 Reported
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Flag dialog */}

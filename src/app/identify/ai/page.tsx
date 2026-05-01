@@ -299,7 +299,7 @@ function AIResultCard({ result }: { result: AIResult }) {
             {result.toxicLookalikes.map((name) => (
               <span
                 key={name}
-                className="inline-block px-2 py-0.5 rounded text-[11px] font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800"
+                className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800"
               >
                 {name}
               </span>
@@ -329,7 +329,7 @@ function AIResultCard({ result }: { result: AIResult }) {
             {result.similarSpecies.map((name) => (
               <span
                 key={name}
-                className="inline-block px-2 py-0.5 rounded text-[11px] font-medium bg-brand-teal/10 text-brand-teal border border-brand-teal/20"
+                className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-brand-teal/10 text-brand-teal border border-brand-teal/20"
               >
                 {name}
               </span>
