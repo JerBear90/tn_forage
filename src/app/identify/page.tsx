@@ -1035,6 +1035,39 @@ export default function IdentifyPage() {
         </p>
       </header>
 
+      {/* Photo shortcut — prominent at top */}
+      <Link
+        href="/identify/ai"
+        className="mb-4 flex items-center gap-3 rounded-xl border border-brand-teal/20 bg-brand-teal/5 dark:bg-brand-teal/10 px-4 py-3 min-h-[48px] hover:bg-brand-teal/10 dark:hover:bg-brand-teal/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal active:scale-[0.98]"
+      >
+        <svg
+          className="w-6 h-6 text-brand-teal shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"
+          />
+        </svg>
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">
+            Have a photo instead?
+          </span>
+          <span className="block text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
+            Use AI-assisted photo recognition →
+          </span>
+        </div>
+      </Link>
+
       {/* Progress */}
       <div className="mb-6">
         <ProgressBar current={wizard.currentStep} total={wizard.totalSteps} />
@@ -1169,53 +1202,6 @@ export default function IdentifyPage() {
           solely on app results. Verify with a qualified expert before consuming.
         </p>
       </div>
-
-      {/* AI Recognition link */}
-      <div className="mt-4 rounded-xl border border-brand-teal/20 bg-brand-teal/5 p-4">
-        <div className="flex items-start gap-3">
-          <svg
-            className="w-6 h-6 text-brand-teal shrink-0 mt-0.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"
-            />
-          </svg>
-          <div className="flex-1">
-            <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">
-              Have a photo instead?
-            </h3>
-            <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
-              Use AI-assisted photo recognition for a second opinion.
-            </p>
-            <Link
-              href="/identify/ai"
-              className="inline-flex items-center gap-1 mt-2 text-sm text-brand-teal font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-            >
-              Try AI Recognition
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Link back */}
       <div className="mt-4 text-center">
         <Link
