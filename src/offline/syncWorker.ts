@@ -8,7 +8,6 @@
  * a service worker, or directly.
  */
 
-import PocketBase from 'pocketbase';
 import {
   dequeue,
   markInProgress,
@@ -29,13 +28,14 @@ const MAX_RETRIES = 3;
 const BATCH_SIZE = 10;
 
 // ---------------------------------------------------------------------------
-// PocketBase Client (singleton for sync operations)
+// PocketBase Client (lazy-loaded singleton for sync operations)
 // ---------------------------------------------------------------------------
 
-let pb: PocketBase | null = null;
+let pb: any = null;
 
-function getPB(): PocketBase {
+async function getPB() {
   if (!pb) {
+    const PocketBase = (await import('pocketbase')).default;
     pb = new PocketBase(PB_URL);
   }
   return pb;
@@ -45,8 +45,8 @@ function getPB(): PocketBase {
  * Set the auth token on the PocketBase client for authenticated sync.
  * Call this before running processQueue if the user has a session.
  */
-export function setSyncAuthToken(token: string): void {
-  const client = getPB();
+export async function setSyncAuthToken(token: string): Promise<void> {
+  const client = await getPB();
   client.authStore.save(token, null);
 }
 
@@ -61,7 +61,7 @@ export function setSyncAuthToken(token: string): void {
  * @returns The server-generated ID (for creates) or undefined
  */
 async function processItem(item: SyncQueueItem): Promise<string | undefined> {
-  const client = getPB();
+  const client = await getPB();
   const { collection, operation, payload, serverId } = item;
 
   switch (operation) {

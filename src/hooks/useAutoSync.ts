@@ -7,8 +7,8 @@ import {
   processQueue,
   hasPendingSync,
   setSyncAuthToken,
-  type SyncResult,
 } from "@/offline/syncWorker";
+import type { SyncResult } from "@/offline/syncWorker";
 
 /**
  * Automatically processes the sync queue when the device comes online.
@@ -49,7 +49,7 @@ export function useAutoSync() {
         // In a real implementation, this would come from the PocketBase auth store
         // For now, we use the user ID as a placeholder token
         if (user?.id) {
-          setSyncAuthToken(user.id);
+          await setSyncAuthToken(user.id);
         }
 
         const result = await processQueue();
