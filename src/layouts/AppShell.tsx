@@ -66,8 +66,28 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <>
       {/* Sticky header */}
       <header className="fixed top-0 inset-x-0 z-40 h-12 flex items-center justify-between px-4 bg-brand-sand/95 dark:bg-dark-surface/95 backdrop-blur border-b border-brand-charcoal/10 dark:border-dark-border">
-        {/* Left: spacer for layout balance */}
-        <div className="shrink-0" />
+        {/* Left: Home link */}
+        <Link
+          href="/"
+          aria-label="Home"
+          className="shrink-0 flex items-center gap-1.5 text-brand-forest dark:text-brand-moss hover:text-brand-teal transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+        >
+          <svg
+            aria-hidden="true"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+            />
+          </svg>
+          <span className="text-sm font-heading font-semibold hidden sm:inline">ForageFlow</span>
+        </Link>
 
         {/* Right: Search + Offline badge + Profile — grouped together */}
         <div className="flex items-center gap-1.5">
