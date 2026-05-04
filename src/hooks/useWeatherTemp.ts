@@ -5,21 +5,42 @@ import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 interface WeatherState {
   temp: number | null;
+  icon: string | null;
   loading: boolean;
 }
 
 /**
- * Fetches current temperature from weather.gov based on user's geolocation.
+ * Map weather.gov shortForecast text to an emoji icon.
+ */
+function getWeatherIcon(shortForecast: string): string {
+  const f = shortForecast.toLowerCase();
+
+  if (f.includes("thunder") || f.includes("storm")) return "⛈️";
+  if (f.includes("rain") || f.includes("shower") || f.includes("drizzle")) return "🌧️";
+  if (f.includes("snow") || f.includes("sleet") || f.includes("ice")) return "🌨️";
+  if (f.includes("fog") || f.includes("mist") || f.includes("haze")) return "🌫️";
+  if (f.includes("wind")) return "💨";
+  if (f.includes("partly cloudy") || f.includes("partly sunny")) return "⛅";
+  if (f.includes("mostly cloudy") || f.includes("overcast")) return "☁️";
+  if (f.includes("cloud")) return "☁️";
+  if (f.includes("clear") || f.includes("sunny")) return "☀️";
+  if (f.includes("night") || f.includes("tonight")) return "🌙";
+
+  return "🌤️"; // default: mostly clear
+}
+
+/**
+ * Fetches current temperature and condition from weather.gov based on user's geolocation.
  * Returns null when offline or if location/weather is unavailable.
  * Caches result for 30 minutes to avoid excessive API calls.
  */
 export function useWeatherTemp(): WeatherState {
   const isOnline = useOnlineStatus();
-  const [state, setState] = useState<WeatherState>({ temp: null, loading: false });
+  const [state, setState] = useState<WeatherState>({ temp: null, icon: null, loading: false });
 
   useEffect(() => {
     if (!isOnline) {
-      setState({ temp: null, loading: false });
+      setState({ temp: null, icon: null, loading: false });
       return;
     }
 
@@ -27,10 +48,10 @@ export function useWeatherTemp(): WeatherState {
     const cached = sessionStorage.getItem("ff-weather-cache");
     if (cached) {
       try {
-        const { temp, timestamp } = JSON.parse(cached);
+        const { temp, icon, timestamp } = JSON.parse(cached);
         const age = Date.now() - timestamp;
         if (age < 30 * 60 * 1000) {
-          setState({ temp, loading: false });
+          setState({ temp, icon: icon || null, loading: false });
           return;
         }
       } catch {
@@ -82,18 +103,20 @@ export function useWeatherTemp(): WeatherState {
         if (!currentPeriod) throw new Error("No forecast period");
 
         const temp = currentPeriod.temperature;
+        const shortForecast = currentPeriod.shortForecast || "";
+        const icon = getWeatherIcon(shortForecast);
 
         if (!cancelled) {
-          setState({ temp, loading: false });
+          setState({ temp, icon, loading: false });
           // Cache for 30 minutes
           sessionStorage.setItem(
             "ff-weather-cache",
-            JSON.stringify({ temp, timestamp: Date.now() })
+            JSON.stringify({ temp, icon, timestamp: Date.now() })
           );
         }
       } catch {
         if (!cancelled) {
-          setState({ temp: null, loading: false });
+          setState({ temp: null, icon: null, loading: false });
         }
       }
     }

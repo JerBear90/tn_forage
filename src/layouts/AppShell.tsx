@@ -36,7 +36,7 @@ function ProfileIcon() {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = hiddenPaths.includes(pathname);
-  const { temp } = useWeatherTemp();
+  const { temp, icon } = useWeatherTemp();
   const { syncing, pendingCount } = useAutoSync();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
@@ -97,9 +97,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-1.5">
           {temp !== null && (
             <span
-              className="text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 tabular-nums"
+              className="text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 tabular-nums flex items-center gap-0.5"
               aria-label={`Current temperature: ${temp}°F`}
             >
+              {icon && <span aria-hidden="true">{icon}</span>}
               {temp}°F
             </span>
           )}
