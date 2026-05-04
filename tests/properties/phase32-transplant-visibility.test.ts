@@ -31,7 +31,7 @@ describe('Phase 3.2 Property P4: Transplant guide visibility', () => {
         fc.record({
           isProtected: fc.constant(true),
           isInvasive: fc.boolean(),
-          transplantGuide: fc.option(fc.record({ disclaimer: fc.string() })),
+          transplantGuide: fc.option(fc.record({ disclaimer: fc.string() }), { nil: undefined }),
         }),
         (plant) => {
           expect(shouldShowTransplantGuide(plant)).toBe(false);
@@ -47,7 +47,7 @@ describe('Phase 3.2 Property P4: Transplant guide visibility', () => {
         fc.record({
           isProtected: fc.boolean(),
           isInvasive: fc.constant(true),
-          transplantGuide: fc.option(fc.record({ disclaimer: fc.string() })),
+          transplantGuide: fc.option(fc.record({ disclaimer: fc.string() }), { nil: undefined }),
         }),
         (plant) => {
           expect(shouldShowTransplantGuide(plant)).toBe(false);

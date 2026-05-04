@@ -97,7 +97,7 @@ describe('Phase 3.2 Property P6: Trail condition aggregation', () => {
 
             // The displayed category should be the most frequent
             let maxCount = 0;
-            for (const count of counts.values()) {
+            for (const count of Array.from(counts.values())) {
               if (count > maxCount) maxCount = count;
             }
 

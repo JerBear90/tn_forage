@@ -131,7 +131,7 @@ describe('batchGetRecords', () => {
     // Spy on the transaction method to confirm it's called once
     let txCount = 0;
     const originalTransaction = db.transaction.bind(db);
-    db.transaction = (...args: Parameters<typeof db.transaction>) => {
+    (db as any).transaction = (...args: Parameters<typeof db.transaction>) => {
       txCount++;
       return originalTransaction(...args);
     };

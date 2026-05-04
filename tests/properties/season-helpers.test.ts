@@ -76,10 +76,10 @@ describe('Feature: season-charts-voice-map, Property 1: Season-to-month mapping 
 
         // Result should equal the expected union exactly
         expect(result.size).toBe(expected.size);
-        for (const month of expected) {
+        for (const month of Array.from(expected)) {
           expect(result.has(month)).toBe(true);
         }
-        for (const month of result) {
+        for (const month of Array.from(result)) {
           expect(expected.has(month)).toBe(true);
         }
       }),
@@ -92,7 +92,7 @@ describe('Feature: season-charts-voice-map, Property 1: Season-to-month mapping 
       fc.property(arbSeasonSubset, (seasons) => {
         const result = getMonthsForSeasons(seasons);
 
-        for (const month of result) {
+        for (const month of Array.from(result)) {
           // There must be at least one season in the input whose
           // SEASON_MONTHS entry contains this month
           const hasCoveringSeason = seasons.some((s) =>
@@ -113,10 +113,10 @@ describe('Feature: season-charts-voice-map, Property 1: Season-to-month mapping 
 
         // Should match the expected union (invalid strings contribute nothing)
         expect(result.size).toBe(expected.size);
-        for (const month of expected) {
+        for (const month of Array.from(expected)) {
           expect(result.has(month)).toBe(true);
         }
-        for (const month of result) {
+        for (const month of Array.from(result)) {
           expect(expected.has(month)).toBe(true);
         }
       }),
@@ -176,7 +176,7 @@ function groupSpeciesByMonth(
   }
   for (const sp of species) {
     const months = getMonthsForSeasons(sp.seasons);
-    for (const month of months) {
+    for (const month of Array.from(months)) {
       grouped.get(month)!.push(sp);
     }
   }

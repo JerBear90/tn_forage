@@ -58,7 +58,7 @@ export async function registerPushSubscription(
         applicationServerKey: urlBase64ToUint8Array(
           // Placeholder VAPID key — replace with actual key in production
           "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkOs-N0y-qdHB_A-CkVMHIxJjEhqWRWHzI6EHWiGJg",
-        ),
+        ) as unknown as BufferSource,
       });
     }
 

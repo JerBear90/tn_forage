@@ -112,7 +112,7 @@ async function getCachedWeather(): Promise<WeatherSnapshot | null> {
   try {
     const forecasts = await getAllRecords('fruitingForecasts');
     const cached = forecasts.find(
-      (f) => (f as { id: string }).id === 'weather-cache-latest',
+      (f) => (f as unknown as { id: string }).id === 'weather-cache-latest',
     );
 
     if (!cached) return null;

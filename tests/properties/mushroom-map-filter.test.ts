@@ -246,7 +246,7 @@ describe('Feature: season-charts-voice-map, Property 5: Mushroom location filter
           }
 
           // Every qualifying park that exists in the parks array should have a marker
-          for (const parkId of qualifyingParkIds) {
+          for (const parkId of Array.from(qualifyingParkIds)) {
             const parkExists = parks.some((p) => p.id === parkId);
             if (parkExists) {
               expect(parkMarkers.some((m) => m.id === `park-${parkId}`)).toBe(true);
@@ -277,15 +277,15 @@ describe('Feature: season-charts-voice-map, Property 5: Mushroom location filter
           }
 
           // No trail marker should correspond to a trail that lacks mushroom species
-          const nonMushroomTrailIds = new Set(
+          const nonMushroomTrailIds = Array.from(new Set(
             (trails as Trail[])
               .filter((t) => !t.likelySpecies.some((id) => mushroomSet.has(id)))
               .map((t) => t.id),
-          );
+          ));
 
           for (const marker of trailMarkers) {
             const trailId = marker.id.replace('trail-', '');
-            expect(nonMushroomTrailIds.has(trailId)).toBe(false);
+            expect(nonMushroomTrailIds.includes(trailId)).toBe(false);
           }
         },
       ),

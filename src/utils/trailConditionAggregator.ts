@@ -104,7 +104,7 @@ export function aggregateTrailConditions(
   let maxCount = 0;
   let displayedCategory: TrailConditionCategory | null = null;
 
-  for (const [category, count] of categoryCounts.entries()) {
+  for (const [category, count] of Array.from(categoryCounts.entries())) {
     if (count > maxCount) {
       maxCount = count;
       displayedCategory = category;

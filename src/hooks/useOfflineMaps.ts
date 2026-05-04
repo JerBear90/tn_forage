@@ -120,7 +120,7 @@ export function useOfflineMaps() {
 
       // Download tiles in batches
       const BATCH_SIZE = 10;
-      const tileUrls = [...generateTileUrls(bounds, MIN_ZOOM, MAX_ZOOM)];
+      const tileUrls = Array.from(generateTileUrls(bounds, MIN_ZOOM, MAX_ZOOM));
 
       for (let i = 0; i < tileUrls.length; i += BATCH_SIZE) {
         const batch = tileUrls.slice(i, i + BATCH_SIZE);

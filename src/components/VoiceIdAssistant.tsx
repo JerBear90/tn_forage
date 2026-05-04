@@ -23,11 +23,11 @@ export default function VoiceIdAssistant({ onResults }: VoiceIdAssistantProps) {
       return;
     }
 
-    const SpeechRecognition = (window as unknown as { SpeechRecognition?: new () => SpeechRecognition; webkitSpeechRecognition?: new () => SpeechRecognition }).SpeechRecognition
-      ?? (window as unknown as { webkitSpeechRecognition?: new () => SpeechRecognition }).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognitionCtor = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) return;
 
-    const recognition = new SpeechRecognition();
+    const recognition = new SpeechRecognitionCtor() as any;
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = "en-US";
@@ -35,8 +35,9 @@ export default function VoiceIdAssistant({ onResults }: VoiceIdAssistantProps) {
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const text = event.results[0]?.[0]?.transcript ?? "";
+    recognition.onresult = (event: Event) => {
+      const srEvent = event as unknown as { results: { [index: number]: { [index: number]: { transcript: string } } } };
+      const text = srEvent.results[0]?.[0]?.transcript ?? "";
       setTranscript(text);
       processTranscript(text);
     };

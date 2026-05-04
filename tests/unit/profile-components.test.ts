@@ -116,19 +116,19 @@ describe('ProfileHeader logic', () => {
   describe('follower/following count display', () => {
     it('uses singular "follower" for count of 1', () => {
       const count = 1;
-      const label = count === 1 ? 'follower' : 'followers';
+      const label = (count as number) === 1 ? 'follower' : 'followers';
       expect(label).toBe('follower');
     });
 
     it('uses plural "followers" for count of 0', () => {
       const count = 0;
-      const label = count === 1 ? 'follower' : 'followers';
+      const label = (count as number) === 1 ? 'follower' : 'followers';
       expect(label).toBe('followers');
     });
 
     it('uses plural "followers" for count > 1', () => {
       const count = 5;
-      const label = count === 1 ? 'follower' : 'followers';
+      const label = (count as number) === 1 ? 'follower' : 'followers';
       expect(label).toBe('followers');
     });
   });

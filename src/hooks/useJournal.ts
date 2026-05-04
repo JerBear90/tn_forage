@@ -155,17 +155,17 @@ export function useJournal(userId: string) {
       findCount: number;
     }> = [];
 
-    for (const [species, speciesEntries] of bySpecies.entries()) {
+    for (const [species, speciesEntries] of Array.from(bySpecies.entries())) {
       if (speciesEntries.length < 2) continue;
 
       const avgTempF =
-        speciesEntries.reduce((sum, e) => sum + e.weather.temperatureF, 0) /
+        speciesEntries.reduce((sum: number, e: JournalEntry) => sum + e.weather.temperatureF, 0) /
         speciesEntries.length;
       const avgHumidity =
-        speciesEntries.reduce((sum, e) => sum + e.weather.humidity, 0) /
+        speciesEntries.reduce((sum: number, e: JournalEntry) => sum + e.weather.humidity, 0) /
         speciesEntries.length;
       const avgRainfall =
-        speciesEntries.reduce((sum, e) => sum + e.weather.recentRainfallInches, 0) /
+        speciesEntries.reduce((sum: number, e: JournalEntry) => sum + e.weather.recentRainfallInches, 0) /
         speciesEntries.length;
 
       patterns.push({
