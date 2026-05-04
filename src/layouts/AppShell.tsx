@@ -6,6 +6,7 @@ import Link from "next/link";
 import OfflineBadge from "@/components/OfflineBadge";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
+import { useWeatherTemp } from "@/hooks/useWeatherTemp";
 import { getAllRecords } from "@/offline/db";
 
 /** Pages where the app shell header should be hidden (auth screens). */
@@ -34,6 +35,7 @@ function ProfileIcon() {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = hiddenPaths.includes(pathname);
+  const { temp } = useWeatherTemp();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
 
@@ -89,8 +91,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <span className="text-sm font-heading font-semibold hidden sm:inline">ForageFlow</span>
         </Link>
 
-        {/* Right: Search + Offline badge + Profile — grouped together */}
+        {/* Right: Weather + Search + Offline badge + Profile */}
         <div className="flex items-center gap-1.5">
+          {temp !== null && (
+            <span
+              className="text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 tabular-nums"
+              aria-label={`Current temperature: ${temp}°F`}
+            >
+              {temp}°F
+            </span>
+          )}
           <OfflineBadge />
           <GlobalSearchBar />
           {/* Profile link — avatar if available, profile icon fallback */}
