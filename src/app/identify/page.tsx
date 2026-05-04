@@ -27,6 +27,14 @@ import type {
 import LookalikeVerificationChecklist from "@/components/LookalikeVerificationChecklist";
 import { requiresVerificationChecklist } from "@/services/verificationChecklist";
 import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
+import WizardExampleHint from "@/components/WizardExampleHint";
+import {
+  UNDERSIDE_EXAMPLES,
+  GROWTH_EXAMPLES,
+  CAP_SHAPE_EXAMPLES,
+  STEM_EXAMPLES,
+  BRUISING_EXAMPLES,
+} from "@/data/wizardExamples";
 
 // ---------------------------------------------------------------------------
 // Option data for each step
@@ -807,6 +815,7 @@ export default function IdentifyPage() {
                 />
               ))}
             </div>
+            <WizardExampleHint examples={UNDERSIDE_EXAMPLES} selectedOption={wizard.answers.undersideType} />
           </fieldset>
         );
 
@@ -824,6 +833,7 @@ export default function IdentifyPage() {
                 />
               ))}
             </div>
+            <WizardExampleHint examples={GROWTH_EXAMPLES} selectedOption={wizard.answers.growthLocation} />
           </fieldset>
         );
 
@@ -898,6 +908,7 @@ export default function IdentifyPage() {
                 />
               ))}
             </div>
+            <WizardExampleHint examples={CAP_SHAPE_EXAMPLES} selectedOption={wizard.answers.capShape} />
           </fieldset>
         );
 
@@ -918,6 +929,7 @@ export default function IdentifyPage() {
                 />
               ))}
             </div>
+            <WizardExampleHint examples={STEM_EXAMPLES} selectedOption={wizard.answers.stemFeatures[wizard.answers.stemFeatures.length - 1] ?? null} />
           </fieldset>
         );
 
@@ -935,6 +947,7 @@ export default function IdentifyPage() {
                 />
               ))}
             </div>
+            <WizardExampleHint examples={BRUISING_EXAMPLES} selectedOption={wizard.answers.bruisingReaction} />
           </fieldset>
         );
 
