@@ -6,6 +6,8 @@ import Link from "next/link";
 import OfflineBadge from "@/components/OfflineBadge";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
+import { useWeatherTemp } from "@/hooks/useWeatherTemp";
+import { useAutoSync } from "@/hooks/useAutoSync";
 import { getAllRecords } from "@/offline/db";
 
 /** Pages where the app shell header should be hidden (auth screens). */
@@ -34,6 +36,8 @@ function ProfileIcon() {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = hiddenPaths.includes(pathname);
+  const { temp, icon } = useWeatherTemp();
+  const { syncing, pendingCount } = useAutoSync();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
 
@@ -66,11 +70,47 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <>
       {/* Sticky header */}
       <header className="fixed top-0 inset-x-0 z-40 h-12 flex items-center justify-between px-4 bg-brand-sand/95 dark:bg-dark-surface/95 backdrop-blur border-b border-brand-charcoal/10 dark:border-dark-border">
-        {/* Left: spacer for layout balance */}
-        <div className="shrink-0" />
+        {/* Left: Home link */}
+        <Link
+          href="/"
+          aria-label="Home"
+          className="shrink-0 flex items-center gap-1.5 text-brand-forest dark:text-brand-moss hover:text-brand-teal transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+        >
+          <svg
+            aria-hidden="true"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+            />
+          </svg>
+          <span className="text-sm font-heading font-semibold hidden sm:inline">ForageFlow</span>
+        </Link>
 
-        {/* Right: Search + Offline badge + Profile — grouped together */}
+        {/* Right: Weather + Search + Offline badge + Profile */}
         <div className="flex items-center gap-1.5">
+          {temp !== null && (
+            <span
+              className="text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 tabular-nums flex items-center gap-0.5"
+              aria-label={`Current temperature: ${temp}°F`}
+            >
+              {icon && <span aria-hidden="true">{icon}</span>}
+              {temp}°F
+            </span>
+          )}
+          {pendingCount > 0 && (
+            <span
+              className={`w-2 h-2 rounded-full ${syncing ? 'bg-amber-400 animate-pulse' : 'bg-brand-teal'}`}
+              aria-label={`${pendingCount} items pending sync${syncing ? ', syncing now' : ''}`}
+              title={`${pendingCount} pending sync`}
+            />
+          )}
           <OfflineBadge />
           <GlobalSearchBar />
           {/* Profile link — avatar if available, profile icon fallback */}

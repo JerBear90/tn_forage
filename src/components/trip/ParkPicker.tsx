@@ -12,7 +12,7 @@
  * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { getAllRecords } from "@/offline/db";
 import type { Park, TnRegion } from "@/types";
@@ -77,6 +77,7 @@ export default function ParkPicker({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<TnRegion | "all">("all");
+  const selectedRef = useRef<HTMLButtonElement>(null);
 
   // Load parks from IndexedDB on mount
   useEffect(() => {
@@ -103,6 +104,16 @@ export default function ParkPicker({
       cancelled = true;
     };
   }, []);
+
+  // Auto-scroll to the pre-selected park card after parks load
+  useEffect(() => {
+    if (!loading && selectedParkId && selectedRef.current) {
+      // Small delay to let the grid render
+      requestAnimationFrame(() => {
+        selectedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+  }, [loading, selectedParkId]);
 
   const filteredParks = filterParksByRegion(parks, selectedRegion);
 
@@ -164,11 +175,36 @@ export default function ParkPicker({
     );
   }
 
+  const selectedPark = selectedParkId ? parks.find((p) => p.id === selectedParkId) : null;
+
   return (
     <section aria-label="Park picker" className="space-y-4">
       <h2 className="font-heading font-semibold text-lg text-brand-forest dark:text-brand-moss">
         Select a Park
       </h2>
+
+      {/* Selected park confirmation */}
+      {selectedPark && (
+        <div className="flex items-center gap-3 rounded-lg border border-brand-teal/30 bg-brand-teal/5 dark:bg-brand-teal/10 px-3 py-2.5">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-teal text-white shrink-0">
+            <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-brand-teal truncate">{selectedPark.name}</p>
+            <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted">{selectedPark.region}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onSelectPark('')}
+            className="text-xs text-brand-teal/60 hover:text-brand-teal underline"
+            aria-label="Change park selection"
+          >
+            Change
+          </button>
+        </div>
+      )}
 
       {/* Region filter chips */}
       <div
@@ -219,6 +255,7 @@ export default function ParkPicker({
             return (
               <button
                 key={park.id}
+                ref={isSelected ? selectedRef : undefined}
                 type="button"
                 role="option"
                 aria-selected={isSelected}

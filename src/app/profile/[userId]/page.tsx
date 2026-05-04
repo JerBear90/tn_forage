@@ -13,6 +13,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/auth/useAuth';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import {
   followUser,
@@ -28,6 +29,8 @@ import type { UserProfileExtended } from '@/types';
 export default function OtherUserProfilePage() {
   const params = useParams<{ userId: string }>();
   const userId = params.userId ?? '';
+  const { user } = useAuth();
+  const currentUserId = user?.id ?? 'guest';
   const isOnline = useOnlineStatus();
 
   const [profile, setProfile] = useState<UserProfileExtended | null>(null);
@@ -94,8 +97,6 @@ export default function OtherUserProfilePage() {
 
     async function checkFollow() {
       try {
-        // Use a placeholder current user ID — in production this comes from auth
-        const currentUserId = 'current-user';
         const result = await checkIsFollowing(currentUserId, userId);
         if (!cancelled) setFollowing(result);
       } catch {
@@ -110,10 +111,9 @@ export default function OtherUserProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, currentUserId]);
 
   const handleFollow = useCallback(async () => {
-    const currentUserId = 'current-user';
     const success = await followUser(currentUserId, userId);
     if (success) {
       setFollowing(true);
@@ -122,10 +122,9 @@ export default function OtherUserProfilePage() {
         prev ? { ...prev, followerCount: (prev.followerCount ?? 0) + 1 } : prev,
       );
     }
-  }, [userId]);
+  }, [userId, currentUserId]);
 
   const handleUnfollow = useCallback(async () => {
-    const currentUserId = 'current-user';
     const success = await unfollowUser(currentUserId, userId);
     if (success) {
       setFollowing(false);
@@ -136,7 +135,7 @@ export default function OtherUserProfilePage() {
           : prev,
       );
     }
-  }, [userId]);
+  }, [userId, currentUserId]);
 
   // Loading state
   if (loading) {

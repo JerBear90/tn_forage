@@ -160,3 +160,124 @@ describe('Feature: phase3-enhancements, Property 4: Safety language compliance',
     });
   });
 });
+
+
+// ---------------------------------------------------------------------------
+// Feature: season-charts-voice-map, Property 3: Banned phrase detection
+// ---------------------------------------------------------------------------
+
+/**
+ * Feature: season-charts-voice-map, Property 3: Banned phrase detection
+ *
+ * For any string that contains one of the banned phrases ("safe to eat",
+ * "definitely edible", "confirmed edible", "ai verified") as a
+ * case-insensitive substring, `containsBannedPhrase(text)` SHALL return
+ * a non-null result. For any string that does not contain any banned phrase
+ * as a substring, `containsBannedPhrase(text)` SHALL return null.
+ *
+ * **Validates: Requirements 3.4, 6.5, 8.3, 10.1**
+ */
+
+import {
+  containsBannedPhrase,
+  BANNED_PHRASES,
+} from '@/utils/safetyLanguage';
+
+// ---------------------------------------------------------------------------
+// Arbitraries for Property 3
+// ---------------------------------------------------------------------------
+
+/**
+ * Arbitrary that picks one banned phrase and applies random casing to each
+ * character, then wraps it with random surrounding text.
+ */
+const arbStringWithBannedPhrase: fc.Arbitrary<{ text: string; phrase: string }> =
+  fc
+    .record({
+      phrase: fc.constantFrom(...BANNED_PHRASES),
+      prefix: fc.string({ minLength: 0, maxLength: 30 }),
+      suffix: fc.string({ minLength: 0, maxLength: 30 }),
+    })
+    .chain(({ phrase, prefix, suffix }) =>
+      // Randomize casing of each character in the phrase
+      fc
+        .array(fc.boolean(), {
+          minLength: phrase.length,
+          maxLength: phrase.length,
+        })
+        .map((uppercaseFlags) => {
+          const randomCased = phrase
+            .split('')
+            .map((ch, i) => (uppercaseFlags[i] ? ch.toUpperCase() : ch.toLowerCase()))
+            .join('');
+          return {
+            text: prefix + randomCased + suffix,
+            phrase,
+          };
+        }),
+    );
+
+/**
+ * Safe alphabet that cannot accidentally form any banned phrase substring.
+ * We use digits and a few punctuation characters only — no letters at all,
+ * so no combination can produce "safe to eat", "definitely edible", etc.
+ */
+const SAFE_CHARS = '0123456789!@#$%^&*()-_=+[]{}|;:,.<>?/~`';
+
+const arbSafeString: fc.Arbitrary<string> = fc
+  .array(
+    fc.integer({ min: 0, max: SAFE_CHARS.length - 1 }).map((i) => SAFE_CHARS[i]),
+    { minLength: 0, maxLength: 60 },
+  )
+  .map((chars) => chars.join(''));
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+describe('Feature: season-charts-voice-map, Property 3: Banned phrase detection', () => {
+  it('returns non-null for any string containing a banned phrase with random casing and surrounding text', () => {
+    fc.assert(
+      fc.property(arbStringWithBannedPhrase, ({ text, phrase }) => {
+        const result = containsBannedPhrase(text);
+        expect(
+          result,
+          `Expected non-null for text containing "${phrase}", got null. Text: "${text.substring(0, 80)}"`,
+        ).not.toBeNull();
+        // The returned phrase should be one of the banned phrases
+        expect(BANNED_PHRASES).toContain(result);
+      }),
+      { numRuns: 100 },
+    );
+  });
+
+  it('returns null for any string that does not contain any banned phrase', () => {
+    fc.assert(
+      fc.property(arbSafeString, (text) => {
+        const result = containsBannedPhrase(text);
+        expect(
+          result,
+          `Expected null for safe text, got "${result}". Text: "${text.substring(0, 80)}"`,
+        ).toBeNull();
+      }),
+      { numRuns: 100 },
+    );
+  });
+
+  it('detects each specific banned phrase individually', () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...BANNED_PHRASES),
+        fc.string({ minLength: 0, maxLength: 20 }),
+        fc.string({ minLength: 0, maxLength: 20 }),
+        (phrase, prefix, suffix) => {
+          const text = prefix + phrase + suffix;
+          const result = containsBannedPhrase(text);
+          expect(result).not.toBeNull();
+          expect(BANNED_PHRASES).toContain(result);
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+});

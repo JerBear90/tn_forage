@@ -8,13 +8,15 @@ const withPWA = withPWAInit({
   cacheOnFrontEndNav: true,
   cacheStartUrl: true,
   reloadOnOnline: true,
+  customWorkerSrc: "worker",
   fallbacks: {
     // Serve the offline page when a navigation request fails both network and cache
     document: "/~offline",
   },
   workboxOptions: {
-    // Exclude middleware manifest and source maps from precache
-    exclude: [/middleware-manifest\.json$/, /\.map$/],
+    // Exclude middleware manifest, source maps, and marker-icon (avoids
+    // duplicate-revision precache conflict from leaflet's static import)
+    exclude: [/middleware-manifest\.json$/, /\.map$/, /marker-icon.*\.png$/],
     skipWaiting: true,
     clientsClaim: true,
     cleanupOutdatedCaches: true,

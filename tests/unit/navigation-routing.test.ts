@@ -1,8 +1,8 @@
 /**
  * ForageFlow — Navigation and Routing Tests
  *
- * Tests that the bottom navigation includes a feed link and that
- * the other-user profile route pattern is correctly structured.
+ * Tests that the bottom navigation has the correct items in the right order:
+ * Field Guide / Map / ID / Community / Plan
  *
  * Requirements: 2.1, 13.1
  */
@@ -11,79 +11,64 @@ import { describe, it, expect } from 'vitest';
 import { navItems } from '@/components/navItems';
 
 // ---------------------------------------------------------------------------
-// Tests
+// Bottom Navigation Structure
 // ---------------------------------------------------------------------------
 
-describe('Bottom Navigation — Identify Link', () => {
-  it('should include a nav item with href="/identify"', () => {
-    const identifyItem = navItems.find((item) => item.href === '/identify');
-    expect(identifyItem).toBeDefined();
+describe('Bottom Navigation — Structure', () => {
+  it('should have exactly 5 nav items', () => {
+    expect(navItems.length).toBe(5);
   });
 
-  it('should have an "Identify" label on the identify nav item', () => {
-    const identifyItem = navItems.find((item) => item.href === '/identify');
-    expect(identifyItem?.label).toBe('Identify');
+  it('should have items in correct order: Field Guide, Map, ID, Community, Plan', () => {
+    expect(navItems[0].label).toBe('Field Guide');
+    expect(navItems[1].label).toBe('Map');
+    expect(navItems[2].label).toBe('ID');
+    expect(navItems[3].label).toBe('Community');
+    expect(navItems[4].label).toBe('Plan');
   });
 
-  it('should have an identify icon path (non-empty string)', () => {
-    const identifyItem = navItems.find((item) => item.href === '/identify');
-    expect(identifyItem?.iconPath).toBeTruthy();
-    expect(typeof identifyItem?.iconPath).toBe('string');
-    expect(identifyItem!.iconPath.length).toBeGreaterThan(0);
-  });
-
-  it('should have 6 nav items total', () => {
-    expect(navItems.length).toBe(6);
-  });
-
-  it('should have Identify as the last nav item', () => {
-    const lastItem = navItems[navItems.length - 1];
-    expect(lastItem.href).toBe('/identify');
-    expect(lastItem.label).toBe('Identify');
+  it('should not include Home in bottom nav', () => {
+    const home = navItems.find((item) => item.href === '/');
+    expect(home).toBeUndefined();
   });
 });
 
-describe('Navigation Links — Correct Construction', () => {
-  it('should have Home at "/"', () => {
-    const home = navItems.find((item) => item.label === 'Home');
-    expect(home?.href).toBe('/');
+describe('Bottom Navigation — Links', () => {
+  it('Field Guide links to /field-guide', () => {
+    expect(navItems[0].href).toBe('/field-guide');
   });
 
-  it('should have Field Guide at "/field-guide"', () => {
-    const fg = navItems.find((item) => item.label === 'Field Guide');
-    expect(fg?.href).toBe('/field-guide');
+  it('Map links to /map', () => {
+    expect(navItems[1].href).toBe('/map');
   });
 
-  it('should have Map at "/map"', () => {
-    const map = navItems.find((item) => item.label === 'Map');
-    expect(map?.href).toBe('/map');
+  it('ID links to /identify', () => {
+    expect(navItems[2].href).toBe('/identify');
   });
 
-  it('should have Plan a Visit at "/parks"', () => {
-    const parks = navItems.find((item) => item.label === 'Plan a Visit');
-    expect(parks?.href).toBe('/parks');
+  it('Community links to /community', () => {
+    expect(navItems[3].href).toBe('/community');
   });
 
-  it('should have Community at "/community"', () => {
-    const community = navItems.find((item) => item.label === 'Community');
-    expect(community?.href).toBe('/community');
+  it('Plan links to /parks', () => {
+    expect(navItems[4].href).toBe('/parks');
   });
 
-  it('all nav items should have non-empty href starting with "/"', () => {
+  it('all nav items have non-empty href starting with "/"', () => {
     for (const item of navItems) {
       expect(item.href).toBeTruthy();
       expect(item.href.startsWith('/')).toBe(true);
     }
   });
 
-  it('all nav items should have non-empty labels', () => {
+  it('all nav items have non-empty labels', () => {
     for (const item of navItems) {
       expect(item.label).toBeTruthy();
       expect(item.label.length).toBeGreaterThan(0);
     }
   });
 
-  it('all nav items should have non-empty icon paths', () => {
+  it('all nav items have non-empty icon paths', () => {
     for (const item of navItems) {
       expect(item.iconPath).toBeTruthy();
       expect(item.iconPath.length).toBeGreaterThan(0);
@@ -110,12 +95,5 @@ describe('Other-User Profile Route Pattern', () => {
     const userId = 'test-user';
     const route = `/profile/${userId}`;
     expect(route.startsWith('/profile/')).toBe(true);
-  });
-
-  it('should include the userId as the last path segment', () => {
-    const userId = 'my-user-id';
-    const route = `/profile/${userId}`;
-    const segments = route.split('/').filter(Boolean);
-    expect(segments).toEqual(['profile', 'my-user-id']);
   });
 });

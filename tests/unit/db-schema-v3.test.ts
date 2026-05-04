@@ -1,9 +1,8 @@
 /**
- * IndexedDB Schema v3 Upgrade — Unit Tests
+ * IndexedDB Schema v4 Upgrade — Unit Tests
  *
- * Verifies that the version 3 database schema creates all 6 new social/park
- * detail stores with the correct indexes, while preserving all 18 original
- * stores from versions 1 and 2.
+ * Verifies that the version 4 database schema creates all stores from
+ * versions 1–4 with the correct indexes.
  *
  * **Validates: Requirements 14.1**
  */
@@ -29,12 +28,12 @@ beforeAll(async () => {
 // ---------------------------------------------------------------------------
 
 describe('DB version', () => {
-  it('DB_VERSION is 3', () => {
-    expect(DB_VERSION).toBe(3);
+  it('DB_VERSION is 4', () => {
+    expect(DB_VERSION).toBe(4);
   });
 
-  it('opened database reports version 3', () => {
-    expect(db.version).toBe(3);
+  it('opened database reports version 4', () => {
+    expect(db.version).toBe(4);
   });
 });
 
@@ -148,11 +147,11 @@ describe('Original stores preserved', () => {
 // ---------------------------------------------------------------------------
 
 describe('STORE_NAMES array', () => {
-  it('contains all 24 stores', () => {
-    expect(STORE_NAMES).toHaveLength(24);
+  it('contains all 44 stores', () => {
+    expect(STORE_NAMES).toHaveLength(44);
   });
 
-  it('includes all 6 new v3 stores', () => {
+  it('includes all 6 v3 stores', () => {
     const newStores = [
       'follows',
       'reviews',
@@ -162,6 +161,34 @@ describe('STORE_NAMES array', () => {
       'reviewAggregations',
     ];
     for (const name of newStores) {
+      expect(STORE_NAMES).toContain(name);
+    }
+  });
+
+  it('includes all 20 v4 stores', () => {
+    const v4Stores = [
+      'blogArticles',
+      'customRoutes',
+      'eventEntries',
+      'trailConditionReports',
+      'checkIns',
+      'guidedTours',
+      'journalEntries',
+      'harvestEntries',
+      'microhabitatPins',
+      'foragingProfiles',
+      'outingInvitations',
+      'usageEvents',
+      'beaconSessions',
+      'locationSharingSessions',
+      'downloadedMapRegions',
+      'mapTiles',
+      'fruitingForecasts',
+      'emergencyContacts',
+      'featureFlags',
+      'pushSubscriptions',
+    ];
+    for (const name of v4Stores) {
       expect(STORE_NAMES).toContain(name);
     }
   });

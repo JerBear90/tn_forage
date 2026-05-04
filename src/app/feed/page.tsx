@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useAuth } from "@/auth/useAuth";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { getFeed, getCachedFeed } from "@/social/activityFeedService";
 import {
@@ -14,17 +15,13 @@ import {
 import type { FeedItemLocal } from "@/types";
 
 // ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const PLACEHOLDER_USER_ID = "current-user";
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export default function FeedPage() {
+  const { user } = useAuth();
   const isOnline = useOnlineStatus();
+  const currentUserId = user?.id ?? 'guest';
 
   const [feedItems, setFeedItems] = useState<FeedItemLocal[]>([]);
   const [page, setPage] = useState(1);
@@ -41,10 +38,10 @@ export default function FeedPage() {
       try {
         let items: FeedItemLocal[];
         if (isOnline) {
-          items = await getFeed(PLACEHOLDER_USER_ID, 1, FEED_PAGE_SIZE);
+          items = await getFeed(currentUserId, 1, FEED_PAGE_SIZE);
           setUsingCache(false);
         } else {
-          items = await getCachedFeed(PLACEHOLDER_USER_ID);
+          items = await getCachedFeed(currentUserId);
           setUsingCache(true);
         }
         if (!cancelled) {
@@ -55,7 +52,7 @@ export default function FeedPage() {
       } catch {
         // Fall back to cached feed on error
         try {
-          const cached = await getCachedFeed(PLACEHOLDER_USER_ID);
+          const cached = await getCachedFeed(currentUserId);
           if (!cancelled) {
             setFeedItems(sortFeedItems(cached));
             setHasMore(false);
@@ -73,7 +70,7 @@ export default function FeedPage() {
     return () => {
       cancelled = true;
     };
-  }, [isOnline]);
+  }, [isOnline, currentUserId]);
 
   // Load more handler
   const loadMore = useCallback(async () => {
@@ -81,7 +78,7 @@ export default function FeedPage() {
     const nextPage = page + 1;
     setLoading(true);
     try {
-      const items = await getFeed(PLACEHOLDER_USER_ID, nextPage, FEED_PAGE_SIZE);
+      const items = await getFeed(currentUserId, nextPage, FEED_PAGE_SIZE);
       setFeedItems((prev) => sortFeedItems([...prev, ...items]));
       setHasMore(computeHasMore(items.length));
       setPage(nextPage);
@@ -90,7 +87,7 @@ export default function FeedPage() {
     } finally {
       setLoading(false);
     }
-  }, [isOnline, loading, page]);
+  }, [isOnline, loading, page, currentUserId]);
 
   return (
     <main className="flex min-h-screen flex-col px-4 py-6 max-w-lg mx-auto pb-28">

@@ -13,6 +13,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { ReviewTargetType, ReviewLocal, ReviewAggregationLocal } from '@/types';
 import { getReviews, getAggregation, submitReview, validateReviewText } from '@/social/reviewService';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useAuth } from '@/auth/useAuth';
 
 // ---------------------------------------------------------------------------
 // Props
@@ -116,6 +117,9 @@ export default function ReviewsSection({
   isAuthenticated,
 }: ReviewsSectionProps) {
   const isOnline = useOnlineStatus();
+  const { user } = useAuth();
+  const currentUserId = user?.id ?? 'guest';
+  const displayName = user?.displayName ?? 'Anonymous';
 
   // Aggregation state
   const [aggregation, setAggregation] = useState<ReviewAggregationLocal | null>(null);
@@ -194,8 +198,8 @@ export default function ReviewsSection({
 
     try {
       const saved = await submitReview({
-        userId: 'current-user', // Placeholder — real app would use auth context
-        authorName: 'You',
+        userId: currentUserId,
+        authorName: displayName,
         targetType,
         targetId,
         rating: formRating,
@@ -222,7 +226,7 @@ export default function ReviewsSection({
     } finally {
       setSubmitting(false);
     }
-  }, [formRating, formText, targetType, targetId]);
+  }, [formRating, formText, targetType, targetId, currentUserId, displayName]);
 
   // Format date for display
   const formatDate = (dateStr: string) => {

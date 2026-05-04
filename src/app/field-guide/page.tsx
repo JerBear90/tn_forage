@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useSpecies, type FieldGuideItem } from "@/hooks/useSpecies";
 import { usePreloadSpecies } from "@/hooks/usePreloadSpecies";
 import RegionalFilter from "@/components/RegionalFilter";
+import SeasonHeatmap, { type HeatmapItem } from "@/components/SeasonHeatmap";
 import SkeletonCard from "@/components/skeletons/SkeletonCard";
 import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
 import VirtualScroller from "@/components/VirtualScroller";
@@ -373,6 +374,20 @@ export default function FieldGuidePage() {
   const [selectedRegion, setSelectedRegion] = useState<TnRegion | "all">("all");
   const [selectedSeasons, setSelectedSeasons] = useState<Set<Season>>(new Set());
   const [selectedEdibility, setSelectedEdibility] = useState<Set<EdibilityLabel>>(new Set());
+  const [heatmapCategoryFilter, setHeatmapCategoryFilter] = useState<"all" | "mushroom" | "plant" | "tree">("all");
+  const [showHeatmap, setShowHeatmap] = useState(false);
+
+  // Map species data to HeatmapItem format for SeasonHeatmap
+  const heatmapItems: HeatmapItem[] = useMemo(
+    () =>
+      items.map((item) => ({
+        id: item.id,
+        commonName: item.commonName,
+        seasons: item.season,
+        category: item.category,
+      })),
+    [items],
+  );
 
   // Count of active advanced filters (season + edibility selections)
   const activeFilterCount = selectedSeasons.size + selectedEdibility.size;
@@ -444,8 +459,8 @@ export default function FieldGuidePage() {
           Offline species reference for Tennessee mushrooms, plants, and trees.
         </p>
 
-        {/* Spore Print & Compare — above search */}
-        <div className="flex items-center gap-2 mt-3">
+        {/* Spore Print, Compare & Calendar — above search */}
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
           <Link
             href="/field-guide/spore-print"
             className="inline-flex items-center gap-1.5 rounded-lg border border-brand-earth/30 bg-brand-earth/10 dark:bg-brand-earth/20 px-3 py-2 text-xs font-medium text-brand-earth dark:text-brand-earth-300 hover:bg-brand-earth/20 dark:hover:bg-brand-earth/30 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
@@ -487,6 +502,27 @@ export default function FieldGuidePage() {
               />
             </svg>
             Compare
+          </Link>
+          <Link
+            href="/mushroom-calendar"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-moss/30 bg-brand-moss/10 dark:bg-brand-moss/20 px-3 py-2 text-xs font-medium text-brand-moss dark:text-brand-moss hover:bg-brand-moss/20 dark:hover:bg-brand-moss/30 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+            aria-label="Mushroom Calendar"
+          >
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
+              />
+            </svg>
+            Calendar
           </Link>
         </div>
       </header>
@@ -547,6 +583,65 @@ export default function FieldGuidePage() {
         activeFilterCount={activeFilterCount}
         onClearAll={handleClearAllFilters}
       />
+
+      {/* Season Heatmap — collapsible section */}
+      {!loading && items.length > 0 && (
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={() => setShowHeatmap((prev) => !prev)}
+            aria-expanded={showHeatmap}
+            aria-controls="season-heatmap-section"
+            className="flex items-center gap-1.5 rounded-lg border border-brand-moss/20 bg-white/60 dark:bg-dark-surface/60 px-3 py-2 text-xs font-medium text-brand-charcoal dark:text-dark-text hover:bg-brand-moss/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+          >
+            {/* Calendar/grid icon */}
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 6A2.25 2.25 0 016 3.75h12A2.25 2.25 0 0120.25 6v12A2.25 2.25 0 0118 20.25H6A2.25 2.25 0 013.75 18V6z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 10.5h16.5M8.25 3.75v3M15.75 3.75v3"
+              />
+            </svg>
+            Season Heatmap
+            {/* Chevron */}
+            <svg
+              aria-hidden="true"
+              className={`w-3.5 h-3.5 transition-transform ${showHeatmap ? "rotate-180" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {showHeatmap && (
+            <div
+              id="season-heatmap-section"
+              className="mt-3 rounded-lg border border-brand-moss/10 bg-white/60 dark:bg-dark-surface/60 p-4"
+            >
+              <SeasonHeatmap
+                items={heatmapItems}
+                categoryFilter={heatmapCategoryFilter}
+                onCategoryFilterChange={setHeatmapCategoryFilter}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Error state */}
       {error && (

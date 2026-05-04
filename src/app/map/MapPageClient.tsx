@@ -1,10 +1,15 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useMapData } from '@/hooks/useMapData';
+import { useMushroomMapData } from '@/hooks/useMushroomMapData';
+import { useSpecies } from '@/hooks/useSpecies';
+import { useForagingConditions } from '@/hooks/useForagingConditions';
 import MapDetailPanel from '@/map/MapDetailPanel';
-import MapListView from '@/map/MapListView';
+import MapListView, { type ConditionFilter } from '@/map/MapListView';
+import SeasonHeatmap, { type HeatmapItem } from '@/components/SeasonHeatmap';
 import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import type { DetailPanelItem } from '@/map/MapDetailPanel';
 
@@ -48,8 +53,36 @@ export type MapViewMode = 'map' | 'list';
 
 export default function MapPageClient() {
   const { parks, trails, routes, loading, error } = useMapData();
+  const { markers: mushroomMarkers } = useMushroomMapData();
+  const { items: speciesItems } = useSpecies();
+  const { conditions: foragingConditions } = useForagingConditions(parks);
+  const router = useRouter();
   const [panelItem, setPanelItem] = useState<DetailPanelItem | null>(null);
   const [viewMode, setViewMode] = useState<MapViewMode>('map');
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [heatmapCategoryFilter, setHeatmapCategoryFilter] = useState<'all' | 'mushroom' | 'plant' | 'tree'>('all');
+  const [conditionFilter, setConditionFilter] = useState<ConditionFilter>('all');
+
+  // Map species data to HeatmapItem format
+  const heatmapItems: HeatmapItem[] = useMemo(
+    () =>
+      speciesItems.map((item) => ({
+        id: item.id,
+        commonName: item.commonName,
+        seasons: item.season,
+        category: item.category,
+      })),
+    [speciesItems],
+  );
+
+  // Build a lookup map of parkId → ParkCondition for detail panel and list view
+  const conditionsMap = useMemo(() => {
+    const map: Record<string, (typeof foragingConditions)[number]> = {};
+    for (const c of foragingConditions) {
+      map[c.parkId] = c;
+    }
+    return map;
+  }, [foragingConditions]);
 
   /**
    * Look up the park name for a given parkId.
@@ -118,6 +151,16 @@ export default function MapPageClient() {
   const handleClosePanel = useCallback(() => {
     setPanelItem(null);
   }, []);
+
+  /**
+   * Navigate to the field guide detail page for a mushroom species.
+   */
+  const handleMushroomSpeciesClick = useCallback(
+    (speciesId: string) => {
+      router.push(`/field-guide/${speciesId}`);
+    },
+    [router]
+  );
 
   return (
     <main className="flex flex-col">
@@ -215,9 +258,108 @@ export default function MapPageClient() {
               />
               Routes
             </span>
+            <span className="flex items-center gap-1.5">
+              <span
+                className="inline-block w-3 h-3 rounded-full bg-green-500/40 border border-green-500"
+                aria-hidden="true"
+              />
+              Foraging Conditions
+            </span>
           </div>
         </div>
       )}
+
+      {/* Season Heatmap — collapsible overlay */}
+      <div className="px-4 pb-2 shrink-0">
+        <button
+          type="button"
+          onClick={() => setShowHeatmap((prev) => !prev)}
+          aria-expanded={showHeatmap}
+          aria-controls="map-season-heatmap"
+          className="flex items-center gap-1.5 rounded-lg border border-brand-moss/20 bg-white/60 dark:bg-dark-surface/60 px-3 py-2 text-xs font-medium text-brand-charcoal dark:text-dark-text hover:bg-brand-moss/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+        >
+          <svg
+            aria-hidden="true"
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6A2.25 2.25 0 016 3.75h12A2.25 2.25 0 0120.25 6v12A2.25 2.25 0 0118 20.25H6A2.25 2.25 0 013.75 18V6z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 10.5h16.5M8.25 3.75v3M15.75 3.75v3"
+            />
+          </svg>
+          Season Heatmap
+          <svg
+            aria-hidden="true"
+            className={`w-3.5 h-3.5 transition-transform ${showHeatmap ? 'rotate-180' : ''}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {showHeatmap && (
+          <div
+            id="map-season-heatmap"
+            className="mt-2 rounded-lg border border-brand-moss/10 bg-white/80 dark:bg-dark-surface/80 p-3 space-y-4"
+          >
+            {/* Weather-based top picks */}
+            {foragingConditions.length > 0 && (
+              <div>
+                <h3 className="text-xs font-semibold text-brand-charcoal dark:text-dark-text mb-2">
+                  🌤️ Top Picks — Based on Current Weather
+                </h3>
+                <div className="flex gap-2 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+                  {foragingConditions
+                    .filter((c) => c.rating === 'excellent' || c.rating === 'good')
+                    .slice(0, 5)
+                    .map((c) => {
+                      const ratingColor =
+                        c.rating === 'excellent' ? 'bg-green-100 text-green-800 border-green-300'
+                        : 'bg-lime-100 text-lime-800 border-lime-300';
+                      return (
+                        <div
+                          key={c.parkId}
+                          className={`shrink-0 rounded-lg border px-3 py-2 text-xs ${ratingColor}`}
+                        >
+                          <p className="font-semibold">{c.parkName}</p>
+                          <div className="flex gap-2 mt-1 opacity-80">
+                            <span title="Mushroom">🍄{c.mushroom.score}</span>
+                            <span title="Plant">🌿{c.plant.score}</span>
+                            <span title="Tree">🌳{c.tree.score}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  {foragingConditions.filter((c) => c.rating === 'excellent' || c.rating === 'good').length === 0 && (
+                    <p className="text-xs text-brand-charcoal/50 dark:text-dark-text-muted italic">
+                      No parks with good conditions right now. Check back after rain.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <SeasonHeatmap
+              items={heatmapItems}
+              categoryFilter={heatmapCategoryFilter}
+              onCategoryFilterChange={setHeatmapCategoryFilter}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Map view — hidden with CSS when in list mode to preserve Leaflet state */}
       <div
@@ -244,11 +386,14 @@ export default function MapPageClient() {
             trails={trails}
             routes={routes}
             onMarkerClick={handleMarkerClick}
+            mushroomMarkers={mushroomMarkers}
+            onMushroomSpeciesClick={handleMushroomSpeciesClick}
+            foragingConditions={foragingConditions}
           />
         )}
 
         {/* Detail panel overlays the map — positioned at top */}
-        <MapDetailPanel item={panelItem} onClose={handleClosePanel} />
+        <MapDetailPanel item={panelItem} onClose={handleClosePanel} conditionsMap={conditionsMap} />
       </div>
 
       {/* List view — shown when in list mode */}
@@ -276,11 +421,14 @@ export default function MapPageClient() {
               trails={trails}
               getParkName={getParkName}
               onItemClick={handleListItemClick}
+              conditionsMap={conditionsMap}
+              conditionFilter={conditionFilter}
+              onConditionFilterChange={setConditionFilter}
             />
           )}
 
           {/* Detail panel overlays the list view too */}
-          <MapDetailPanel item={panelItem} onClose={handleClosePanel} />
+          <MapDetailPanel item={panelItem} onClose={handleClosePanel} conditionsMap={conditionsMap} />
         </div>
       )}
     </main>

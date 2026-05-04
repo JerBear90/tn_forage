@@ -53,7 +53,7 @@ const arbDistinctTimestamps = fc
     fc.integer({ min: 1_700_000_000_000, max: 1_800_000_000_000 }),
     { minLength: 1, maxLength: 10 },
   )
-  .map((arr) => [...new Set(arr)])
+  .map((arr) => Array.from(new Set(arr)))
   .filter((arr) => arr.length >= 1)
   .map((arr) => arr.map((ms) => new Date(ms).toISOString()));
 

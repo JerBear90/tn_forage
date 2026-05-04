@@ -103,19 +103,19 @@ describe("Signup page confirm password validation", () => {
   it("detects password mismatch", () => {
     const password = "mypassword";
     const confirm = "different";
-    expect(password !== confirm).toBe(true);
+    expect((password as string) !== (confirm as string)).toBe(true);
   });
 
   it("passes when passwords match", () => {
     const password = "mypassword";
     const confirm = "mypassword";
-    expect(password === confirm).toBe(true);
+    expect((password as string) === (confirm as string)).toBe(true);
   });
 
   it("detects mismatch with extra whitespace", () => {
     const password = "mypassword";
     const confirm = "mypassword ";
-    expect(password !== confirm).toBe(true);
+    expect((password as string) !== (confirm as string)).toBe(true);
   });
 });
 
@@ -154,8 +154,8 @@ describe("Signup page offline behavior expectations", () => {
 
   it("form busy state combines submitting and syncing", () => {
     // Pattern: const isFormBusy = submitting || authState === "syncing"
-    expect(true || "guest" === "syncing").toBe(true);
-    expect(false || "syncing" === "syncing").toBe(true);
-    expect(false || "guest" === "syncing").toBe(false);
+    expect(true || ("guest" as string) === "syncing").toBe(true);
+    expect(false || ("syncing" as string) === "syncing").toBe(true);
+    expect(false || ("guest" as string) === "syncing").toBe(false);
   });
 });

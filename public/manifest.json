@@ -3,10 +3,38 @@
   "short_name": "ForageFlow",
   "description": "Offline-first field app for mushroom, plant, tree, park, trail, and expedition discovery in Tennessee.",
   "start_url": "/",
+  "scope": "/",
+  "id": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#0F766E",
   "background_color": "#F5F0DF",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["health", "lifestyle", "education"],
+  "screenshots": [
+    {
+      "src": "/screenshots/field-guide.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Field Guide with species search and filters"
+    },
+    {
+      "src": "/screenshots/map-view.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Interactive map of Tennessee parks and trails"
+    },
+    {
+      "src": "/screenshots/species-detail.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Species detail with season chart and safety info"
+    }
+  ],
   "icons": [
     {
       "src": "/branding/app-icon.svg",
@@ -37,6 +65,32 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Field Guide",
+      "short_name": "Guide",
+      "url": "/field-guide",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Map",
+      "short_name": "Map",
+      "url": "/map",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Identify",
+      "short_name": "ID",
+      "url": "/identify",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
   ]
 }

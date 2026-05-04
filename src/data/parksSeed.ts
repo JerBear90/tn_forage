@@ -61,6 +61,10 @@ export const parksSeed: Park[] = [
       'Dark Hollow Trail loop',
       'Excellent spring wildflower displays',
     ],
+    entryFees: [
+      { type: 'free', currency: 'USD', notes: 'No entrance fee. Camping and cabin fees vary.' },
+    ],
+    plants: ['pl-ramps', 'pl-wild-ginger', 'pl-mayapple', 'pl-wild-violet', 'pl-spicebush'],
   },
   {
     id: 'park-cove-lake',
@@ -948,6 +952,10 @@ export const parksSeed: Park[] = [
       'Gorge overlooks and suspension bridge',
       'Nature center and inn',
     ],
+    entryFees: [
+      { type: 'free', currency: 'USD', notes: 'No entrance fee. Camping, cabin, and inn fees vary.' },
+    ],
+    plants: ['pl-ramps', 'pl-pawpaw', 'pl-wild-ginger', 'pl-mayapple', 'pl-spicebush', 'pl-black-cohosh'],
   },
   {
     id: 'park-henry-horton',

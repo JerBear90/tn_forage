@@ -152,6 +152,9 @@ export interface Species {
   safetyNotes: string;
   sources: string[];
   lastUpdated: string;
+  // Phase 3.2 — Spore print color and fruiting triggers
+  sporePrintColor?: string;
+  fruitingTriggers?: FruitingTrigger;
 }
 
 // ---------------------------------------------------------------------------
@@ -176,6 +179,11 @@ export interface Plant {
   safetyNotes: string;
   sources: string[];
   lastUpdated: string;
+  // Phase 3.2 — Medicinal and transplant info
+  medicinalUses?: MedicinalInfo;
+  transplantGuide?: TransplantInfo;
+  isProtected?: boolean;
+  isInvasive?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -224,6 +232,9 @@ export interface Park {
   website?: string;
   gettingThere?: string;
   highlights?: string[];
+  // Phase 3.2 — Entry fees and plants
+  entryFees?: ParkEntryFee[];
+  plants?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -637,4 +648,431 @@ export interface UserProfileExtended extends UserProfileLocal {
   achievementCount?: number;
   /** Defaults to 'private' */
   defaultVisibility: ProfileVisibility;
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3.2 Enhancements
+// ---------------------------------------------------------------------------
+
+// --- Trail Condition ---
+export type TrailConditionCategory = 'clear' | 'issues' | 'bad-closed' | 'dry' | 'muddy' | 'snowy';
+
+export interface TrailConditionReport {
+  id: string;
+  userId: string;
+  trailId: string;
+  categories: TrailConditionCategory[];
+  details?: string;
+  photoId?: string;
+  reportedAt: string;
+  syncStatus: SyncStatus;
+}
+
+// --- Challenge Badge ---
+export interface ChallengeBadge {
+  id: string;
+  challengeId: string;
+  title: string;
+  description: string;
+  icon: string;
+  earnedAt?: string;
+  isEarned: boolean;
+}
+
+// --- Feature Flags ---
+export type FeatureAccessTier = 'free' | 'member' | 'admin';
+
+export interface FeatureFlag {
+  featureKey: string;
+  accessTier: FeatureAccessTier;
+  label: string;
+  description?: string;
+}
+
+// --- Park Entry Fees ---
+export type FeeType = 'per-vehicle' | 'per-person' | 'annual-pass' | 'free';
+
+export interface ParkEntryFee {
+  type: FeeType;
+  amount?: number;
+  currency: string;
+  notes?: string;
+}
+
+// --- Medicinal Info ---
+export interface MedicinalInfo {
+  uses: string[];
+  partsUsed: string[];
+  preparation: string[];
+  disclaimer: string;
+}
+
+export interface TransplantInfo {
+  methods: string[];
+  bestSeason: string;
+  soilRequirements: string;
+  disclaimer: string;
+}
+
+// --- Fruiting Triggers ---
+export interface FruitingTrigger {
+  minRainfallInches: number;
+  rainfallWindowDays: number;
+  minTempF: number;
+  minHumidity: number;
+  minSoilTempF?: number;
+}
+
+// --- Blog ---
+export interface ArticleSource {
+  name: string;
+  author?: string;
+  publication?: string;
+  url: string;
+}
+
+export interface BlogArticle {
+  id: string;
+  title: string;
+  author: string;
+  publishedAt: string;
+  summary: string;
+  body: string;
+  coverImage?: string;
+  tags: string[];
+  sources: ArticleSource[];
+  lastUpdated: string;
+}
+
+// --- Custom Routes ---
+export interface RouteWaypoint {
+  id: string;
+  order: number;
+  type: 'park' | 'trail' | 'custom';
+  referenceId?: string;
+  label: string;
+  coordinates: Coordinates;
+  notes?: string;
+}
+
+export interface CustomRoute {
+  id: string;
+  userId: string;
+  name: string;
+  date?: string;
+  waypoints: RouteWaypoint[];
+  totalDistanceKm: number;
+  estimatedDriveMinutes: number;
+  createdAt: string;
+  updatedAt: string;
+  syncStatus: SyncStatus;
+}
+
+// --- Events ---
+export type EventType = 'festival' | 'workshop' | 'outing' | 'other';
+
+export interface EventEntry {
+  id: string;
+  title: string;
+  date: string;
+  endDate?: string;
+  location: string;
+  coordinates?: Coordinates;
+  description: string;
+  type: EventType;
+  sourceUrl: string;
+  registrationUrl?: string;
+  lastUpdated: string;
+}
+
+// --- Weather ---
+export interface WeatherSnapshot {
+  temperatureF: number;
+  humidity: number;
+  recentRainfallInches: number;
+  conditions: string;
+  soilTempEstimateF?: number;
+  fetchedAt: string;
+}
+
+// --- Foraging Journal ---
+export type JournalVisibility = 'private' | 'public';
+
+export interface JournalEntry {
+  id: string;
+  userId: string;
+  speciesId?: string;
+  speciesGuess?: string;
+  coordinates: Coordinates;
+  date: string;
+  time: string;
+  weather: WeatherSnapshot;
+  photos: string[];
+  notes: string;
+  visibility: JournalVisibility;
+  syncStatus: SyncStatus;
+  createdAt: string;
+}
+
+// --- Fruiting Forecast ---
+export type FruitingLikelihood = 'high' | 'medium' | 'low';
+
+export interface FruitingPrediction {
+  speciesId: string;
+  commonName: string;
+  image?: string;
+  likelihood: FruitingLikelihood;
+  triggers: string[];
+  lastUpdated: string;
+}
+
+// --- Spore Print Scanner ---
+export interface SporePrintMatch {
+  speciesId: string;
+  commonName: string;
+  expectedColor: string;
+  extractedColor: string;
+  colorDistance: number;
+  confidencePercent: number;
+}
+
+// --- Harvest Log ---
+export type SustainabilityLevel = 'green' | 'yellow' | 'red';
+
+export interface HarvestEntry {
+  id: string;
+  userId: string;
+  speciesId?: string;
+  speciesGuess?: string;
+  quantity: string;
+  coordinates: Coordinates;
+  locationHash: string;
+  date: string;
+  season: string;
+  notes?: string;
+  syncStatus: SyncStatus;
+}
+
+// --- Microhabitat Mapping ---
+export type SlopeAspect = 'north' | 'south' | 'east' | 'west';
+export type SubstrateType = 'soil' | 'dead-wood' | 'moss' | 'leaf-litter' | 'rock';
+export type MicrohabitatSyncPreference = 'local-only' | 'sync';
+
+export interface MicrohabitatVisit {
+  date: string;
+  weather?: WeatherSnapshot;
+  speciesFound: boolean;
+  notes?: string;
+}
+
+export interface MicrohabitatPinRecord {
+  id: string;
+  userId: string;
+  coordinates: Coordinates;
+  slopeAspect?: SlopeAspect;
+  nearWater: boolean;
+  dominantTrees: string[];
+  substrate: SubstrateType;
+  notes: string;
+  photos: string[];
+  associatedSpeciesId?: string;
+  visits: MicrohabitatVisit[];
+  syncPreference: MicrohabitatSyncPreference;
+  syncStatus: SyncStatus;
+  createdAt: string;
+}
+
+// --- Location Sharing ---
+export interface SharingRecipient {
+  id: string;
+  name: string;
+  identifier: string;
+}
+
+export interface SharingSession {
+  id: string;
+  userId: string;
+  durationMinutes: number;
+  recipients: SharingRecipient[];
+  shareLink: string;
+  startedAt: string;
+  expiresAt: string;
+  isActive: boolean;
+  syncStatus: SyncStatus;
+}
+
+// --- Beacon / Safety ---
+export interface EmergencyContact {
+  id: string;
+  userId: string;
+  name: string;
+  phone?: string;
+  email?: string;
+}
+
+export interface BeaconSession {
+  id: string;
+  userId: string;
+  durationMinutes: number;
+  contacts: string[];
+  lastActivityAt: string;
+  startedAt: string;
+  expiresAt: string;
+  isActive: boolean;
+  alertTriggered: boolean;
+  lastKnownCoordinates?: Coordinates;
+  syncStatus: SyncStatus;
+}
+
+// --- Check-In ---
+export interface CheckInTodo {
+  id: string;
+  text: string;
+  completed: boolean;
+  completedAt?: string;
+}
+
+export interface CheckInRecord {
+  id: string;
+  userId: string;
+  parkId: string;
+  checkedInAt: string;
+  rating?: number;
+  todos: CheckInTodo[];
+  notes?: string;
+  syncStatus: SyncStatus;
+}
+
+// --- Guided Tours ---
+export interface TourWaypoint {
+  id: string;
+  order: number;
+  coordinates: Coordinates;
+  title: string;
+  description: string;
+  speciesRefs: string[];
+  plantRefs: string[];
+  ecologicalContext: string;
+}
+
+export interface GuidedTour {
+  id: string;
+  trailId: string;
+  title: string;
+  safetyReminder: string;
+  waypoints: TourWaypoint[];
+  lastUpdated: string;
+}
+
+// --- Buddy Matching ---
+export type ExperienceLevel = 'beginner' | 'intermediate' | 'experienced';
+export type ForagingInterest = 'mushrooms' | 'plants' | 'trees' | 'medicinal';
+export type OutingStatus = 'pending' | 'accepted' | 'declined';
+
+export interface ForagingProfile {
+  id: string;
+  userId: string;
+  experienceLevel: ExperienceLevel;
+  interests: ForagingInterest[];
+  preferredParks: string[];
+  preferredRegions: TnRegion[];
+  availability: ('weekdays' | 'weekends')[];
+  optedIn: boolean;
+  createdAt: string;
+  updatedAt: string;
+  syncStatus: SyncStatus;
+}
+
+export interface OutingInvitation {
+  id: string;
+  fromUserId: string;
+  toUserId: string;
+  date: string;
+  parkId?: string;
+  description: string;
+  status: OutingStatus;
+  createdAt: string;
+  syncStatus: SyncStatus;
+}
+
+// --- Usage Analytics ---
+export interface UsageEvent {
+  id: string;
+  featureKey: string;
+  timestamp: string;
+  userId?: string;
+  sessionId: string;
+}
+
+// --- Offline Maps ---
+export interface DownloadedMapRegion {
+  id: string;
+  name: string;
+  bounds: { north: number; south: number; east: number; west: number };
+  zoomLevels: { min: number; max: number };
+  tileCount: number;
+  sizeBytes: number;
+  downloadedAt: string;
+  parkIds: string[];
+  trailIds: string[];
+}
+
+export interface MapTile {
+  url: string;
+  regionId: string;
+  blob: Blob;
+  cachedAt: string;
+}
+
+// --- Seasonal Countdown ---
+export interface CountdownEntry {
+  speciesId: string;
+  commonName: string;
+  image?: string;
+  estimatedStartDate: string;
+  daysRemaining: number;
+  isInSeason: boolean;
+  adjustmentNote?: string;
+}
+
+// --- Voice ID ---
+export interface VoiceIdResult {
+  transcript: string;
+  extractedFeatures: Partial<IdentificationWizardAnswers>;
+  matches: Array<{ speciesId: string; commonName: string; score: number }>;
+}
+
+// --- Onboarding ---
+export interface OnboardingScreen {
+  icon: string;
+  headline: string;
+  description: string;
+}
+
+// --- Push Notifications ---
+export interface PushSubscriptionRecord {
+  id: string;
+  userId: string;
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+  createdAt: string;
+}
+
+// --- Feedback ---
+export type FeedbackType = 'bug' | 'suggestion' | 'other';
+
+export interface FeedbackSubmission {
+  id: string;
+  userId?: string;
+  type: FeedbackType;
+  description: string;
+  screenshotBlob?: Blob;
+  deviceInfo: {
+    browser: string;
+    os: string;
+    screenSize: string;
+    appVersion: string;
+  };
+  createdAt: string;
+  syncStatus: SyncStatus;
 }

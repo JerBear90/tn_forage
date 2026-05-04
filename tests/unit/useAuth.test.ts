@@ -66,7 +66,7 @@ describe("AuthContext", () => {
   it("AuthContext is exported and has a null default value", () => {
     expect(AuthContext).toBeDefined();
     // React context default is null (no provider)
-    expect(AuthContext._currentValue).toBeNull();
+    expect((AuthContext as any)._currentValue).toBeNull();
   });
 });
 

@@ -12,7 +12,11 @@ import {
 } from 'react-leaflet';
 import L from 'leaflet';
 import type { Park, Trail, Route, Coordinates } from '@/types';
+import type { MushroomLocationMarker } from '@/hooks/useMushroomMapData';
+import type { ParkCondition } from '@/hooks/useForagingConditions';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import MushroomMapLayer from '@/map/MushroomMapLayer';
+import ForagingConditionsLayer from '@/map/ForagingConditionsLayer';
 
 import MarkerClusterGroup from 'react-leaflet-cluster';
 
@@ -253,6 +257,10 @@ export interface ForageFlowMapProps {
   trails: Trail[];
   routes: Route[];
   onMarkerClick?: (type: 'park' | 'trail' | 'route', id: string) => void;
+  mushroomMarkers?: MushroomLocationMarker[];
+  onMushroomSpeciesClick?: (speciesId: string) => void;
+  /** Park foraging conditions for the weather overlay */
+  foragingConditions?: ParkCondition[];
 }
 
 // ---------------------------------------------------------------------------
@@ -264,6 +272,9 @@ export default function ForageFlowMap({
   trails,
   routes,
   onMarkerClick,
+  mushroomMarkers,
+  onMushroomSpeciesClick,
+  foragingConditions,
 }: ForageFlowMapProps) {
   return (
     <MapContainer
@@ -296,6 +307,21 @@ export default function ForageFlowMap({
         <LayersControl.Overlay checked name="Routes">
           <RoutePolylines routes={routes} onMarkerClick={onMarkerClick} />
         </LayersControl.Overlay>
+
+        {/* Mushroom Spots layer — unchecked (hidden) by default */}
+        <LayersControl.Overlay checked={false} name="Mushroom Spots">
+          <MushroomMapLayer
+            markers={mushroomMarkers ?? []}
+            onSpeciesClick={onMushroomSpeciesClick ?? (() => {})}
+          />
+        </LayersControl.Overlay>
+
+        {/* Foraging Conditions overlay — weather-based park recommendations */}
+        {foragingConditions && foragingConditions.length > 0 && (
+          <LayersControl.Overlay checked={false} name="Foraging Conditions">
+            <ForagingConditionsLayer conditions={foragingConditions} />
+          </LayersControl.Overlay>
+        )}
       </LayersControl>
     </MapContainer>
   );

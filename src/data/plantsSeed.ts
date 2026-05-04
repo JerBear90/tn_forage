@@ -65,6 +65,20 @@ export const plantsSeed: Plant[] = [
       'Thayer, S. (2006). The Forager\'s Harvest. Forager\'s Harvest Press.',
     ],
     lastUpdated: '2024-01-15',
+    medicinalUses: {
+      uses: ['Traditional digestive aid', 'Antimicrobial properties attributed to allicin compounds', 'Historical use as a spring tonic in Appalachian folk medicine'],
+      partsUsed: ['Leaves', 'Bulbs'],
+      preparation: ['Fresh leaves consumed raw or lightly cooked', 'Bulbs used similarly to garlic or leeks', 'Dried leaves used in teas'],
+      disclaimer: 'This information is for educational purposes only. Consult a qualified healthcare professional before using any plant medicinally. Do not self-diagnose or self-treat.',
+    },
+    transplantGuide: {
+      methods: ['Divide established colonies in early spring before leaves fully emerge', 'Transplant bulbs 5–8 cm deep in rich, moist soil with heavy leaf mulch', 'Maintain shade and consistent moisture during establishment'],
+      bestSeason: 'Early spring (March)',
+      soilRequirements: 'Rich, moist, well-drained soil with high organic matter. pH 5.5–6.5. Heavy leaf litter mulch.',
+      disclaimer: 'Check local and state regulations before transplanting any plant. Only transplant species that are legal to collect and are not listed as threatened, endangered, or invasive.',
+    },
+    isProtected: false,
+    isInvasive: false,
   },
   {
     id: 'pl-pawpaw',
@@ -282,6 +296,20 @@ export const plantsSeed: Plant[] = [
       'Thayer, S. (2010). Nature\'s Garden. Forager\'s Harvest Press.',
     ],
     lastUpdated: '2024-01-15',
+    medicinalUses: {
+      uses: ['Traditional remedy for cold and flu symptoms', 'Historical use as an immune system support', 'Folk medicine applications for fever reduction'],
+      partsUsed: ['Ripe berries (cooked)', 'Flowers'],
+      preparation: ['Berries cooked into syrup or tea', 'Flowers dried for elderflower tea or cordial', 'Never consume raw berries, leaves, stems, or bark'],
+      disclaimer: 'This information is for educational purposes only. Consult a qualified healthcare professional before using any plant medicinally. Do not self-diagnose or self-treat.',
+    },
+    transplantGuide: {
+      methods: ['Take hardwood cuttings in late winter (20–25 cm long)', 'Root cuttings in moist potting mix', 'Transplant rooted cuttings to permanent location in spring after last frost'],
+      bestSeason: 'Late winter for cuttings; spring for transplanting',
+      soilRequirements: 'Rich, moist, well-drained soil. pH 5.5–6.5. Full sun to partial shade. Tolerates wet feet.',
+      disclaimer: 'Check local and state regulations before transplanting any plant. Only transplant species that are legal to collect and are not listed as threatened, endangered, or invasive.',
+    },
+    isProtected: false,
+    isInvasive: false,
   },
   {
     id: 'pl-stinging-nettle',
@@ -324,6 +352,14 @@ export const plantsSeed: Plant[] = [
       'Peterson, L. (2010). A Field Guide to Edible Wild Plants. Houghton Mifflin.',
     ],
     lastUpdated: '2024-01-15',
+    medicinalUses: {
+      uses: ['Traditional anti-inflammatory for joint pain', 'Historical use for seasonal allergy relief', 'Folk remedy as a nutritive tonic rich in iron and vitamins'],
+      partsUsed: ['Young leaves and stems (cooked or dried)', 'Root'],
+      preparation: ['Leaves steamed or boiled as a cooked green (neutralizes stinging)', 'Dried leaves used for tea', 'Root prepared as tincture or decoction'],
+      disclaimer: 'This information is for educational purposes only. Consult a qualified healthcare professional before using any plant medicinally. Do not self-diagnose or self-treat.',
+    },
+    isProtected: false,
+    isInvasive: false,
   },
   {
     id: 'pl-virginia-creeper',
@@ -411,6 +447,14 @@ export const plantsSeed: Plant[] = [
       'Peterson, L. (2010). A Field Guide to Edible Wild Plants. Houghton Mifflin.',
     ],
     lastUpdated: '2024-01-15',
+    medicinalUses: {
+      uses: ['Historical use for menstrual discomfort and menopausal symptoms', 'Traditional anti-inflammatory applications', 'Appalachian folk remedy for joint pain and rheumatism'],
+      partsUsed: ['Rhizome (root)'],
+      preparation: ['Dried rhizome prepared as decoction or tincture', 'Commercially available as standardized extract'],
+      disclaimer: 'This information is for educational purposes only. Consult a qualified healthcare professional before using any plant medicinally. Do not self-diagnose or self-treat.',
+    },
+    isProtected: false,
+    isInvasive: false,
   },
   {
     id: 'pl-wild-violet',
@@ -498,6 +542,20 @@ export const plantsSeed: Plant[] = [
       'Peterson, L. (2010). A Field Guide to Edible Wild Plants. Houghton Mifflin.',
     ],
     lastUpdated: '2024-01-15',
+    medicinalUses: {
+      uses: ['Traditional fever reducer in Appalachian folk medicine', 'Historical use as a warming circulatory stimulant', 'Folk remedy for colds and congestion'],
+      partsUsed: ['Twigs', 'Leaves', 'Berries'],
+      preparation: ['Twigs and leaves steeped as tea', 'Dried berries ground as a spice', 'Bark decoction used historically for fever'],
+      disclaimer: 'This information is for educational purposes only. Consult a qualified healthcare professional before using any plant medicinally. Do not self-diagnose or self-treat.',
+    },
+    transplantGuide: {
+      methods: ['Collect ripe berries in fall and cold-stratify seeds for 3 months', 'Take softwood cuttings in early summer', 'Transplant seedlings to shaded, moist location'],
+      bestSeason: 'Fall (seed collection) or early spring (transplanting)',
+      soilRequirements: 'Rich, moist, well-drained soil. pH 5.0–6.5. Partial to full shade. Consistent moisture.',
+      disclaimer: 'Check local and state regulations before transplanting any plant. Only transplant species that are legal to collect and are not listed as threatened, endangered, or invasive.',
+    },
+    isProtected: false,
+    isInvasive: false,
   },
   {
     id: 'pl-poison-hemlock',
@@ -548,6 +606,8 @@ export const plantsSeed: Plant[] = [
       'Foster, S., & Duke, J. A. (2000). A Field Guide to Medicinal Plants and Herbs. Houghton Mifflin.',
     ],
     lastUpdated: '2024-01-15',
+    isProtected: false,
+    isInvasive: true,
   },
   {
     id: 'pl-wild-bergamot',
@@ -577,6 +637,20 @@ export const plantsSeed: Plant[] = [
       'Peterson, L. (2010). A Field Guide to Edible Wild Plants. Houghton Mifflin.',
     ],
     lastUpdated: '2024-01-15',
+    medicinalUses: {
+      uses: ['Traditional remedy for respiratory congestion', 'Historical antiseptic and antimicrobial applications', 'Folk medicine use for digestive discomfort'],
+      partsUsed: ['Leaves', 'Flowers'],
+      preparation: ['Fresh or dried leaves steeped as tea', 'Leaves used as poultice for minor skin irritations', 'Essential oil extracted from leaves (external use only)'],
+      disclaimer: 'This information is for educational purposes only. Consult a qualified healthcare professional before using any plant medicinally. Do not self-diagnose or self-treat.',
+    },
+    transplantGuide: {
+      methods: ['Divide established clumps in early spring', 'Sow seeds in fall for natural cold stratification', 'Transplant divisions to well-drained soil in full sun'],
+      bestSeason: 'Early spring (division) or fall (seed)',
+      soilRequirements: 'Well-drained, average to dry soil. pH 6.0–7.0. Full sun to light shade. Drought-tolerant once established.',
+      disclaimer: 'Check local and state regulations before transplanting any plant. Only transplant species that are legal to collect and are not listed as threatened, endangered, or invasive.',
+    },
+    isProtected: false,
+    isInvasive: false,
   },
   {
     id: 'pl-jerusalem-artichoke',

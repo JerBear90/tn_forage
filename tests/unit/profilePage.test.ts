@@ -262,13 +262,13 @@ describe("Profile dark mode toggle", () => {
 
   it("isDark is true when theme is dark", () => {
     const theme = "dark";
-    const isDark = theme === "dark";
+    const isDark = (theme as string) === "dark";
     expect(isDark).toBe(true);
   });
 
   it("isDark is false when theme is light", () => {
     const theme = "light";
-    const isDark = theme === "dark";
+    const isDark = (theme as string) === "dark";
     expect(isDark).toBe(false);
   });
 });
