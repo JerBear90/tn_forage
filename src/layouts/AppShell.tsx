@@ -7,6 +7,7 @@ import OfflineBadge from "@/components/OfflineBadge";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
 import { useWeatherTemp } from "@/hooks/useWeatherTemp";
+import { useAutoSync } from "@/hooks/useAutoSync";
 import { getAllRecords } from "@/offline/db";
 
 /** Pages where the app shell header should be hidden (auth screens). */
@@ -36,6 +37,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = hiddenPaths.includes(pathname);
   const { temp } = useWeatherTemp();
+  const { syncing, pendingCount } = useAutoSync();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
 
@@ -100,6 +102,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             >
               {temp}°F
             </span>
+          )}
+          {pendingCount > 0 && (
+            <span
+              className={`w-2 h-2 rounded-full ${syncing ? 'bg-amber-400 animate-pulse' : 'bg-brand-teal'}`}
+              aria-label={`${pendingCount} items pending sync${syncing ? ', syncing now' : ''}`}
+              title={`${pendingCount} pending sync`}
+            />
           )}
           <OfflineBadge />
           <GlobalSearchBar />
