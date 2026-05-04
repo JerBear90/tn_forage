@@ -28,6 +28,7 @@ import { useSpecies, type FieldGuideItem } from "@/hooks/useSpecies";
 import { useCompare, MIN_COMPARE, MAX_COMPARE } from "@/hooks/useCompare";
 import { findRecordById, type SpeciesDetailRecord } from "@/hooks/useSpeciesDetail";
 import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
+import DismissibleDisclaimer from "@/components/DismissibleDisclaimer";
 import type { Species, Plant, EdibilityLabel, SpeciesCategory } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -516,15 +517,12 @@ function ComparisonModal({
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 py-4 pb-24">
-        {/* Safety disclaimer */}
-        <div
-          className="rounded-lg border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 p-3 mb-4"
-          role="alert"
-        >
-          <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+        {/* Safety disclaimer (dismissible) */}
+        <DismissibleDisclaimer storageKey="forageflow-compare-disclaimer-ack">
+          <p className="font-medium">
             ⚠ Verify with a qualified expert before consuming any wild species. This comparison is for identification assistance only.
           </p>
-        </div>
+        </DismissibleDisclaimer>
 
         {/* Comparison cards */}
         <div className="grid grid-cols-1 gap-4" role="list" aria-label="Species comparison cards">

@@ -10,27 +10,128 @@ ForageFlow is an offline-first, mobile-ready Progressive Web App for mushroom, p
 4. **Reliable field tools** — Map, trip planner, expedition log, and species identification
 5. **Secure auth and membership** — SSO, Stripe webhooks, server-side role validation
 
-## Features
-
-- Offline Field Guide with mushrooms, plants, and trees
-- Side-by-side lookalike comparisons
-- Spore Print Guide
-- Guided ID Wizard (manual step-by-step identification)
-- AI photo recognition (possible-match only, never confirms edibility)
-- Leaflet map with Tennessee State Parks, trails, and routes
-- Trip Planner with offline save
-- Expedition Log with photo capture and GPS
-- Community sightings with location privacy (GPS fuzzing)
-- Profile editing with avatar upload
-- Membership tiers via Stripe (Free, Monthly, Yearly)
-- Super User admin tools (moderation, safety notices)
-- SSO with Google, Apple, and Microsoft (redirect-based OAuth)
-- Dark/light mode
-- PWA install with splash screen and app icons
-
 ## Safety Disclaimer
 
 Mushroom and plant identification is for educational purposes only. Do not consume any wild mushroom or plant based solely on this app. Verify with a qualified expert before consuming and follow all local regulations.
+
+---
+
+## Feature Tree
+
+### Field Guide (`/field-guide`)
+- **Species List** — Searchable, filterable list of all mushrooms, plants, and trees
+  - Category filter chips (All, Mushroom, Plant, Tree)
+  - Regional filter (East, Middle, West Tennessee)
+  - Advanced filters: Season (Spring/Summer/Fall/Winter), Edibility
+  - Full-text search by common or scientific name
+  - Virtual scrolling for large lists
+- **Species Detail** (`/field-guide/[id]`) — Full detail for any species, plant, or tree
+  - Image gallery with tap-to-enlarge lightbox
+  - Season chart (12-month grid showing in-season months)
+  - Foraging tips (contextual, season-aware)
+  - Voice pronunciation for common and scientific names
+  - Habitat, region, identification steps
+  - **Tree Associations** — Linked to tree detail pages in the field guide
+  - **Associated Species** (on trees) — Linked to mushroom/plant detail pages
+  - Toxic lookalikes (always shown before edibility notes)
+  - Non-toxic lookalikes
+  - Edibility tab with safety notes
+  - Spore print info (mushrooms only)
+  - Bruising notes (mushrooms only)
+  - Sources and last-updated date
+  - Breadcrumb navigation back to Field Guide
+- **Season Heatmap** — Collapsible multi-species seasonality grid
+  - Species on Y-axis, months on X-axis
+  - Months ordered starting from previous month (touch-scrollable)
+  - Current month column highlighted
+  - Category filter tabs (All, Mushroom, Plant, Tree)
+  - Trees shown as year-round (🌳 icon in every month)
+  - In-season cells use color + filled dot for accessibility
+  - ARIA table roles for screen reader navigation
+- **Lookalike Comparison** (`/field-guide/compare`) — Side-by-side 2–4 species
+  - Species picker with search/filter
+  - Comparison grid with key identification features
+  - Toxic species visually highlighted
+  - Breadcrumb navigation back to Field Guide
+- **Spore Print Guide** (`/field-guide/spore-print`) — Step-by-step instructions
+  - Color reference with visual swatches
+  - Species-linked spore print expectations
+  - Safety warning
+  - Breadcrumb navigation back to Field Guide
+
+### Mushroom Calendar (`/mushroom-calendar`)
+- Monthly view of mushroom species in season
+- **Current month shown first** — months ordered starting from current month
+- Species image thumbnails with links to detail pages
+- Monthly foraging tips
+- Current month highlighted with visual indicator
+- Safety disclaimer
+- Breadcrumb navigation back to Field Guide
+
+### Identification
+- **Guided ID Wizard** (`/identify`) — Step-by-step manual identification
+  - Multi-step form with progressive narrowing
+  - Works offline
+- **AI Photo Recognition** (`/identify/ai`) — Camera/gallery upload
+  - Possible-match results only (never confirms edibility)
+  - Requires internet connection
+
+### Map (`/map`)
+- Interactive Leaflet map of Tennessee
+- Park markers with clustering
+- Trail polylines
+- Route polylines (dashed)
+- Map/List view toggle
+- Detail panels for parks, trails, and routes
+- Mushroom species markers on map
+- Find Me (geolocation)
+- Cached tiles for offline viewing of previously browsed areas
+- Map legend
+
+### Trips (`/trips`)
+- **Trip List** — Saved trips with search/filter and sync indicator
+- **Create Trip** (`/trips/new`) — Park/trail/route/custom, date, notes, target species
+- Offline save with background sync
+
+### Expedition Log (`/expedition`)
+- Quick log entry with photo capture and GPS
+- Private/public toggle
+- Offline-first with sync queue
+
+### Community (`/community`)
+- Sightings feed with comments
+- Suggested IDs from other users
+- Content flagging
+- Location privacy (GPS fuzzing ~1 km offset)
+
+### Profile (`/profile`)
+- Edit name, email, avatar upload
+- Theme settings (dark/light mode)
+- Cached profile data for offline access
+
+### Membership (`/membership`)
+- Plan display (Free, Monthly, Yearly)
+- Upgrade via Stripe Checkout
+- Server-authoritative membership via Stripe webhooks
+
+### Authentication
+- **Login** (`/login`) — Email/password + SSO buttons
+- **Signup** (`/signup`) — Email/password registration
+- **SSO** — Google, Apple, Microsoft (redirect-based OAuth via PocketBase)
+- **OAuth Callback** (`/auth/callback`) — Processes SSO redirect response
+
+### Admin (`/admin`) — Super User only
+- **Content Moderation** (`/admin/moderation`) — Flag review, community post management
+- **Safety Notices** (`/admin/safety-notices`) — Create/edit safety notices
+
+### PWA & Offline
+- Service Worker with Workbox (generated by `@ducanh2912/next-pwa`)
+- Background Sync for offline operations
+- IndexedDB with 17 typed stores
+- Cached app shell, species images, and map tiles
+- Offline fallback page (`/~offline`)
+- PWA install with splash screen and app icons
+- Dark/light mode with system preference detection
 
 ---
 
@@ -39,7 +140,7 @@ Mushroom and plant identification is for educational purposes only. Do not consu
 ```
 forageflow/
 ├── .github/workflows/     # CI pipeline (lint, typecheck, test, build, E2E)
-├── .kiro/specs/forageflow/ # Spec files (requirements, design, tasks)
+├── .kiro/specs/           # Spec files (requirements, design, tasks)
 ├── docs/                  # Documentation (wiki, security, brand, stripe)
 ├── public/
 │   ├── branding/          # SVG logos (logo.svg, logo-dark.svg, app-icon.svg)
@@ -58,6 +159,7 @@ forageflow/
 │   │   ├── login/         # Login page
 │   │   ├── map/           # Leaflet map with parks/trails/routes
 │   │   ├── membership/    # Membership plans + Stripe checkout
+│   │   ├── mushroom-calendar/ # Monthly mushroom season calendar
 │   │   ├── profile/       # Profile editing + settings
 │   │   ├── signup/        # Signup page
 │   │   ├── trips/         # Trip list + create trip

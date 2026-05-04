@@ -2,12 +2,16 @@
 
 import { useState, useCallback } from 'react';
 import type { Park, Trail, TrailDifficulty } from '@/types';
+import type { ParkCondition, ConditionRating } from '@/hooks/useForagingConditions';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 export type ListTab = 'parks' | 'trails';
+
+/** Filter for foraging condition rating — 'all' shows everything */
+export type ConditionFilter = 'all' | ConditionRating;
 
 export interface MapListViewProps {
   parks: Park[];
@@ -16,6 +20,12 @@ export interface MapListViewProps {
   getParkName: (parkId: string) => string | undefined;
   /** Called when a card is tapped — opens the detail panel */
   onItemClick: (type: 'park' | 'trail', id: string) => void;
+  /** Foraging conditions lookup — keyed by parkId */
+  conditionsMap?: Record<string, ParkCondition>;
+  /** Active condition filter */
+  conditionFilter?: ConditionFilter;
+  /** Callback when condition filter changes */
+  onConditionFilterChange?: (filter: ConditionFilter) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -28,6 +38,21 @@ const DIFFICULTY_COLORS: Record<TrailDifficulty, string> = {
   hard: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   expert: 'bg-red-200 text-red-800 dark:bg-red-900/40 dark:text-red-300',
 };
+
+const CONDITION_BADGE: Record<ConditionRating, { bg: string; icon: string; label: string }> = {
+  excellent: { bg: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300', icon: '🟢', label: 'Excellent' },
+  good:      { bg: 'bg-lime-100 text-lime-800 dark:bg-lime-900/30 dark:text-lime-300', icon: '🟡', label: 'Good' },
+  fair:      { bg: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300', icon: '🟠', label: 'Fair' },
+  poor:      { bg: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', icon: '⚪', label: 'Poor' },
+};
+
+const CONDITION_FILTER_TABS: { label: string; value: ConditionFilter }[] = [
+  { label: 'All', value: 'all' },
+  { label: '🟢 Excellent', value: 'excellent' },
+  { label: '🟡 Good', value: 'good' },
+  { label: '🟠 Fair', value: 'fair' },
+  { label: '⚪ Poor', value: 'poor' },
+];
 
 // ---------------------------------------------------------------------------
 // Image Placeholder (shared between park and trail cards)
@@ -73,10 +98,14 @@ function ImagePlaceholder({
 function ParkCard({
   park,
   onClick,
+  condition,
 }: {
   park: Park;
   onClick: () => void;
+  condition?: ParkCondition;
 }) {
+  const badge = condition ? CONDITION_BADGE[condition.rating] : null;
+
   return (
     <li>
       <button
@@ -86,7 +115,7 @@ function ParkCard({
         style={{ minHeight: '44px', minWidth: '44px' }}
         aria-label={`View details for ${park.name}`}
       >
-        {/* Image area — occupies ~40%+ of card height via aspect ratio */}
+        {/* Image area */}
         <ImagePlaceholder
           color="teal"
           label={park.name}
@@ -95,12 +124,24 @@ function ParkCard({
 
         {/* Content area */}
         <div className="px-3 py-3">
-          <h3 className="text-base font-bold text-brand-forest dark:text-brand-moss font-heading truncate">
-            {park.name}
-          </h3>
-          <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted mt-0.5">
-            {park.region}
-          </p>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-bold text-brand-forest dark:text-brand-moss font-heading truncate">
+                {park.name}
+              </h3>
+              <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted mt-0.5">
+                {park.region}
+              </p>
+            </div>
+            {/* Condition badge */}
+            {badge && condition && (
+              <div className="shrink-0 flex items-center gap-1">
+                <span className="text-[10px]" title={`Mushroom: ${condition.mushroom.score}`}>🍄{condition.mushroom.score}</span>
+                <span className="text-[10px]" title={`Plant: ${condition.plant.score}`}>🌿{condition.plant.score}</span>
+                <span className="text-[10px]" title={`Tree: ${condition.tree.score}`}>🌳{condition.tree.score}</span>
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-3 mt-2 text-xs text-brand-charcoal/70 dark:text-dark-text-muted">
             <span className="flex items-center gap-1">
               <svg
@@ -210,6 +251,9 @@ export default function MapListView({
   trails,
   getParkName,
   onItemClick,
+  conditionsMap,
+  conditionFilter = 'all',
+  onConditionFilterChange,
 }: MapListViewProps) {
   const [activeTab, setActiveTab] = useState<ListTab>('parks');
 
@@ -222,6 +266,16 @@ export default function MapListView({
     (trailId: string) => onItemClick('trail', trailId),
     [onItemClick]
   );
+
+  // Filter parks by condition rating
+  const filteredParks = conditionFilter === 'all'
+    ? parks
+    : parks.filter((p) => conditionsMap?.[p.id]?.rating === conditionFilter);
+
+  // Sort filtered parks by score (best first) when a filter is active
+  const sortedParks = conditionFilter !== 'all' && conditionsMap
+    ? [...filteredParks].sort((a, b) => (conditionsMap[b.id]?.score ?? 0) - (conditionsMap[a.id]?.score ?? 0))
+    : filteredParks;
 
   return (
     <div className="flex flex-col h-full">
@@ -272,17 +326,56 @@ export default function MapListView({
         aria-labelledby="tab-parks"
         className={`flex-1 overflow-y-auto overscroll-contain ${activeTab === 'parks' ? '' : 'hidden'}`}
       >
-        {parks.length === 0 ? (
+        {/* Condition filter chips */}
+        {conditionsMap && Object.keys(conditionsMap).length > 0 && onConditionFilterChange && (
+          <div className="sticky top-0 z-10 bg-brand-sand/90 dark:bg-dark-surface/90 backdrop-blur-sm px-3 pt-3 pb-2 border-b border-brand-forest/5 dark:border-dark-border">
+            <div
+              className="flex gap-1.5 overflow-x-auto pb-1"
+              role="group"
+              aria-label="Foraging condition filters"
+            >
+              {CONDITION_FILTER_TABS.map((tab) => {
+                const isActive = conditionFilter === tab.value;
+                return (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => onConditionFilterChange(tab.value)}
+                    className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal touch-manipulation ${
+                      isActive
+                        ? 'bg-brand-teal text-white border-brand-teal'
+                        : 'bg-white/60 dark:bg-dark-surface/60 text-brand-charcoal dark:text-dark-text border-brand-teal/20 hover:bg-brand-teal/10'
+                    }`}
+                    style={{ minHeight: '32px' }}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+            {conditionFilter !== 'all' && (
+              <p className="text-[11px] text-brand-charcoal/50 dark:text-dark-text-muted mt-1">
+                {sortedParks.length} of {parks.length} parks
+              </p>
+            )}
+          </div>
+        )}
+
+        {sortedParks.length === 0 ? (
           <p className="text-sm text-brand-charcoal/50 dark:text-dark-text-muted text-center py-8">
-            No parks available.
+            {conditionFilter !== 'all'
+              ? `No parks with "${conditionFilter}" foraging conditions.`
+              : 'No parks available.'}
           </p>
         ) : (
           <ul className="flex flex-col gap-3 p-3" aria-label="Parks list">
-            {parks.map((park) => (
+            {sortedParks.map((park) => (
               <ParkCard
                 key={park.id}
                 park={park}
                 onClick={() => handleParkClick(park.id)}
+                condition={conditionsMap?.[park.id]}
               />
             ))}
           </ul>

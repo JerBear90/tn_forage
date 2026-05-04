@@ -18,7 +18,12 @@ export type AssociatedSpeciesMap = Record<string, string | null>;
 
 /**
  * Pure function that resolves associated species names to IDs by searching
- * across species, plants, and trees records by commonName (case-insensitive).
+ * across species, plants, and trees records by commonName.
+ *
+ * Uses exact match first (case-insensitive), then falls back to partial
+ * matching where the association name appears as a word in the commonName
+ * (e.g. "Oak" matches "White Oak", "Northern Red Oak", etc.).
+ * When multiple partial matches exist, returns the first match found.
  *
  * Exported for testing.
  */
@@ -31,21 +36,43 @@ export function resolveAssociatedSpecies(
   const result: AssociatedSpeciesMap = Object.create(null);
 
   // Build a lookup map of lowercase commonName → id across all stores
-  const lookupMap = new Map<string, string>();
+  const exactMap = new Map<string, string>();
+  // Also keep the full records for partial matching
+  const allRecords: Array<{ commonName: string; id: string }> = [];
 
   for (const s of speciesRecords) {
-    lookupMap.set(s.commonName.toLowerCase(), s.id);
+    exactMap.set(s.commonName.toLowerCase(), s.id);
+    allRecords.push({ commonName: s.commonName, id: s.id });
   }
   for (const p of plantRecords) {
-    lookupMap.set(p.commonName.toLowerCase(), p.id);
+    exactMap.set(p.commonName.toLowerCase(), p.id);
+    allRecords.push({ commonName: p.commonName, id: p.id });
   }
   for (const t of treeRecords) {
-    lookupMap.set(t.commonName.toLowerCase(), t.id);
+    exactMap.set(t.commonName.toLowerCase(), t.id);
+    allRecords.push({ commonName: t.commonName, id: t.id });
   }
 
   for (const name of names) {
     const key = name.toLowerCase();
-    result[name] = lookupMap.get(key) ?? null;
+
+    // 1. Exact match
+    const exactId = exactMap.get(key);
+    if (exactId) {
+      result[name] = exactId;
+      continue;
+    }
+
+    // 2. Partial match — association name appears as a word boundary in commonName
+    //    e.g. "Oak" matches "White Oak", "Northern Red Oak", "Black Oak"
+    const partialMatch = allRecords.find((r) => {
+      const cn = r.commonName.toLowerCase();
+      // Check if the name appears as a whole word in the commonName
+      const regex = new RegExp(`\\b${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      return regex.test(cn);
+    });
+
+    result[name] = partialMatch?.id ?? null;
   }
 
   return result;

@@ -27,6 +27,7 @@ import type {
 import LookalikeVerificationChecklist from "@/components/LookalikeVerificationChecklist";
 import { requiresVerificationChecklist } from "@/services/verificationChecklist";
 import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
+import DismissibleDisclaimer from "@/components/DismissibleDisclaimer";
 import WizardExampleHint from "@/components/WizardExampleHint";
 import {
   UNDERSIDE_EXAMPLES,
@@ -653,37 +654,17 @@ function ResultsDisplay({
 }) {
   return (
     <div className="space-y-4">
-      {/* Safety disclaimer — always shown at top */}
-      <div
-        className="rounded-lg bg-brand-earth/10 border border-brand-earth/20 p-3"
-        role="alert"
-      >
-        <div className="flex items-start gap-2">
-          <svg
-            className="w-5 h-5 text-brand-earth shrink-0 mt-0.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-            />
-          </svg>
-          <div>
-            <p className="text-xs font-semibold text-brand-earth">
-              Important Safety Notice
-            </p>
-            <p className="text-xs text-brand-earth/90 leading-relaxed mt-0.5">
-              These are <strong>possible matches only</strong>, not
-              confirmations. Never consume a wild species based solely on app
-              results. Always verify with a qualified expert before consuming.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Safety disclaimer — dismissible */}
+      <DismissibleDisclaimer storageKey="forageflow-identify-disclaimer-ack" variant="earth">
+        <p className="text-xs font-semibold">
+          Important Safety Notice
+        </p>
+        <p className="text-xs leading-relaxed mt-0.5">
+          These are <strong>possible matches only</strong>, not
+          confirmations. Never consume a wild species based solely on app
+          results. Always verify with a qualified expert before consuming.
+        </p>
+      </DismissibleDisclaimer>
 
       {/* Results count */}
       <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70">
@@ -1195,13 +1176,13 @@ export default function IdentifyPage() {
         </div>
       )}
 
-      {/* Safety reminder */}
-      <div className="mt-6 rounded-lg bg-brand-earth/10 border border-brand-earth/20 p-3">
-        <p className="text-xs text-brand-earth font-medium leading-relaxed">
+      {/* Safety reminder (dismissible) */}
+      <DismissibleDisclaimer storageKey="forageflow-identify-disclaimer-ack" variant="earth">
+        <p className="text-xs font-medium leading-relaxed">
           Results are possible matches only. Never consume a wild species based
           solely on app results. Verify with a qualified expert before consuming.
         </p>
-      </div>
+      </DismissibleDisclaimer>
       {/* Link back */}
       <div className="mt-4 text-center">
         <Link

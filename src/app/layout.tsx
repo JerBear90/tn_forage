@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   description:
     "Offline-first field app for mushroom, plant, tree, park, trail, and expedition discovery in Tennessee.",
   manifest: "/manifest.json",
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

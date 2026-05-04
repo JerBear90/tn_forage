@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import type { LocationType, Trip, Species } from '@/types';
 import { putRecord, batchGetRecords } from '@/offline/db';
@@ -25,13 +25,24 @@ function generateId(): string {
 type LocationMode = 'park' | 'custom';
 
 export default function CreateTripPage() {
+  return (
+    <Suspense fallback={null}>
+      <CreateTripPageInner />
+    </Suspense>
+  );
+}
+
+function CreateTripPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // --- Location mode: park-based or custom ---
   const [locationMode, setLocationMode] = useState<LocationMode>('park');
 
   // --- Park-based flow state ---
-  const [selectedParkId, setSelectedParkId] = useState<string | null>(null);
+  // Pre-select park from URL query param (e.g. /trips/new?parkId=park-big-ridge)
+  const initialParkId = searchParams.get('parkId');
+  const [selectedParkId, setSelectedParkId] = useState<string | null>(initialParkId);
   const [selectedTrailId, setSelectedTrailId] = useState<string | null>(null);
 
   // --- Custom location state ---
@@ -56,7 +67,8 @@ export default function CreateTripPage() {
   const [touched, setTouched] = useState(false);
 
   // --- Planning started (show form only after user clicks "Start Planning") ---
-  const [planningStarted, setPlanningStarted] = useState(false);
+  // Auto-start if a parkId was passed from the map page
+  const [planningStarted, setPlanningStarted] = useState(!!initialParkId);
 
   // Current month for LikelySpeciesPanel
   const currentMonth = useMemo(() => new Date().getMonth(), []);

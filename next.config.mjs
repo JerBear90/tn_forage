@@ -14,8 +14,9 @@ const withPWA = withPWAInit({
     document: "/~offline",
   },
   workboxOptions: {
-    // Exclude middleware manifest and source maps from precache
-    exclude: [/middleware-manifest\.json$/, /\.map$/],
+    // Exclude middleware manifest, source maps, and marker-icon (avoids
+    // duplicate-revision precache conflict from leaflet's static import)
+    exclude: [/middleware-manifest\.json$/, /\.map$/, /marker-icon.*\.png$/],
     skipWaiting: true,
     clientsClaim: true,
     cleanupOutdatedCaches: true,

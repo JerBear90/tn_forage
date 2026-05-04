@@ -15,6 +15,7 @@ import Link from "next/link";
 import { getAllRecords } from "@/offline/db";
 import { seedDatabase } from "@/data/seedDatabase";
 import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
+import DismissibleDisclaimer from "@/components/DismissibleDisclaimer";
 import type { Species } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -276,40 +277,16 @@ export default function SporePrintGuidePage() {
         </p>
       </header>
 
-      {/* Safety warning — prominent, appears first */}
-      <div
-        className="rounded-lg border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 p-4 mb-8"
-        role="alert"
-        aria-label="Safety warning"
-      >
-        <div className="flex items-start gap-2">
-          <svg
-            aria-hidden="true"
-            className="shrink-0 w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-            />
-          </svg>
-          <div>
-            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-              Important Safety Notice
-            </p>
-            <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed mt-1">
-              A spore print is one identification tool among many. It is NOT
-              sufficient on its own to determine if a mushroom is edible. Always
-              use multiple identification methods and verify with a qualified
-              expert before consuming any wild mushroom.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Safety warning — dismissible */}
+      <DismissibleDisclaimer storageKey="forageflow-sporeprint-disclaimer-ack">
+        <p className="font-semibold">Important Safety Notice</p>
+        <p className="leading-relaxed mt-1">
+          A spore print is one identification tool among many. It is NOT
+          sufficient on its own to determine if a mushroom is edible. Always
+          use multiple identification methods and verify with a qualified
+          expert before consuming any wild mushroom.
+        </p>
+      </DismissibleDisclaimer>
 
       {/* Step-by-step instructions */}
       <section aria-labelledby="steps-heading" className="mb-8">
@@ -386,18 +363,14 @@ export default function SporePrintGuidePage() {
         )}
       </section>
 
-      {/* Repeated safety reminder at bottom */}
-      <div
-        className="rounded-lg border border-amber-300 bg-amber-50/50 dark:bg-amber-900/10 dark:border-amber-700 p-3"
-        role="note"
-        aria-label="Safety reminder"
-      >
-        <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed font-medium">
+      {/* Repeated safety reminder at bottom (dismissible) */}
+      <DismissibleDisclaimer storageKey="forageflow-sporeprint-disclaimer-ack">
+        <p className="text-xs font-medium leading-relaxed">
           Remember: A spore print is one identification tool among many. It is
           NOT sufficient on its own to determine if a mushroom is edible. Verify
           with a qualified expert before consuming any wild species.
         </p>
-      </div>
+      </DismissibleDisclaimer>
     </main>
   );
 }

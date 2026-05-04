@@ -52,7 +52,7 @@ export default function BottomNav() {
                     d={item.iconPath}
                   />
                 </svg>
-                <span className="text-[10px] font-medium leading-tight">
+                <span className="text-[10px] font-medium leading-tight text-center">
                   {item.label}
                 </span>
               </Link>

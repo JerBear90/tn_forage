@@ -15,6 +15,9 @@ import { parksSeed } from '@/data/parksSeed';
 import { trailsSeed } from '@/data/trailsSeed';
 import { routesSeed } from '@/data/routesSeed';
 import { challengesSeed } from '@/data/challengesSeed';
+import { blogSeed } from '@/data/blogSeed';
+import { tourSeed } from '@/data/tourSeed';
+import { featureFlagsSeed } from '@/data/featureFlagsSeed';
 
 /**
  * Bump this version whenever seed data changes (new images, new entries, etc.).
@@ -39,6 +42,9 @@ export async function seedDatabase(): Promise<{
   trailsSeeded: number;
   routesSeeded: number;
   challengesSeeded: number;
+  blogArticlesSeeded: number;
+  guidedToursSeeded: number;
+  featureFlagsSeeded: number;
 }> {
   const db = await getDB();
 
@@ -49,6 +55,9 @@ export async function seedDatabase(): Promise<{
   let trailsSeeded = 0;
   let routesSeeded = 0;
   let challengesSeeded = 0;
+  let blogArticlesSeeded = 0;
+  let guidedToursSeeded = 0;
+  let featureFlagsSeeded = 0;
 
   // Check if seed data version has changed
   const storedSettings = await getRecord('settings', 'seedDataVersion');
@@ -139,10 +148,57 @@ export async function seedDatabase(): Promise<{
     challengesSeeded = challengesSeed.length;
   }
 
+  // --- Seed blog articles ---
+  const blogCount = await countRecords('blogArticles');
+  if (blogCount === 0 || needsReseed) {
+    if (blogCount > 0) await clearStore('blogArticles');
+    const tx = db.transaction('blogArticles', 'readwrite');
+    for (const article of blogSeed) {
+      await tx.store.put(article);
+    }
+    await tx.done;
+    blogArticlesSeeded = blogSeed.length;
+  }
+
+  // --- Seed guided tours ---
+  const toursCount = await countRecords('guidedTours');
+  if (toursCount === 0 || needsReseed) {
+    if (toursCount > 0) await clearStore('guidedTours');
+    const tx = db.transaction('guidedTours', 'readwrite');
+    for (const tour of tourSeed) {
+      await tx.store.put(tour);
+    }
+    await tx.done;
+    guidedToursSeeded = tourSeed.length;
+  }
+
+  // --- Seed feature flags ---
+  const flagsCount = await countRecords('featureFlags');
+  if (flagsCount === 0 || needsReseed) {
+    if (flagsCount > 0) await clearStore('featureFlags');
+    const tx = db.transaction('featureFlags', 'readwrite');
+    for (const flag of featureFlagsSeed) {
+      await tx.store.put(flag);
+    }
+    await tx.done;
+    featureFlagsSeeded = featureFlagsSeed.length;
+  }
+
   // --- Update seed data version ---
   if (needsReseed) {
     await putRecord('settings', { id: 'seedDataVersion', value: SEED_DATA_VERSION } as never);
   }
 
-  return { speciesSeeded, plantsSeeded, treesSeeded, parksSeeded, trailsSeeded, routesSeeded, challengesSeeded };
+  return {
+    speciesSeeded,
+    plantsSeeded,
+    treesSeeded,
+    parksSeeded,
+    trailsSeeded,
+    routesSeeded,
+    challengesSeeded,
+    blogArticlesSeeded,
+    guidedToursSeeded,
+    featureFlagsSeeded,
+  };
 }

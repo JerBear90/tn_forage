@@ -24,6 +24,9 @@ import SpeciesImage from "@/components/SpeciesImage";
 import EdibilityTab from "@/components/EdibilityTab";
 import SkeletonDetail from "@/components/skeletons/SkeletonDetail";
 import AssociatedSpeciesLink from "@/components/AssociatedSpeciesLink";
+import SeasonChart from "@/components/SeasonChart";
+import ForagingTipSection from "@/components/ForagingTipSection";
+import VoicePronunciationButton from "@/components/VoicePronunciationButton";
 import { useAssociatedSpeciesLookup } from "@/hooks/useAssociatedSpeciesLookup";
 import type {
   Species,
@@ -242,9 +245,15 @@ function SpeciesOrPlantDetail({
     <>
       {/* Header */}
       <header>
-        <h1 className="text-2xl font-bold font-heading text-brand-forest dark:text-brand-moss leading-tight">
-          {d.commonName}
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold font-heading text-brand-forest dark:text-brand-moss leading-tight">
+            {d.commonName}
+          </h1>
+          <VoicePronunciationButton
+            commonName={d.commonName}
+            scientificName={d.scientificName}
+          />
+        </div>
         <p className="text-sm italic text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
           {d.scientificName}
         </p>
@@ -261,6 +270,18 @@ function SpeciesOrPlantDetail({
           </span>
         </div>
       </header>
+
+      {/* Season Chart */}
+      <Section title="Season Chart" id="section-season-chart">
+        <SeasonChart seasons={d.season} />
+      </Section>
+
+      {/* Foraging Tip */}
+      <ForagingTipSection
+        speciesId={d.id}
+        seasons={d.season}
+        commonName={d.commonName}
+      />
 
       {/* Image gallery */}
       <ImageGallery images={d.images} />
@@ -440,9 +461,15 @@ function TreeDetail({ data }: { data: Tree }) {
     <>
       {/* Header */}
       <header>
-        <h1 className="text-2xl font-bold font-heading text-brand-forest dark:text-brand-moss leading-tight">
-          {data.commonName}
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold font-heading text-brand-forest dark:text-brand-moss leading-tight">
+            {data.commonName}
+          </h1>
+          <VoicePronunciationButton
+            commonName={data.commonName}
+            scientificName={data.scientificName}
+          />
+        </div>
         <p className="text-sm italic text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
           {data.scientificName}
         </p>

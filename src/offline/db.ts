@@ -35,6 +35,26 @@ import type {
   AchievementLocal,
   FeedItemLocal,
   ReviewAggregationLocal,
+  BlogArticle,
+  CustomRoute,
+  EventEntry,
+  TrailConditionReport,
+  CheckInRecord,
+  GuidedTour,
+  JournalEntry,
+  HarvestEntry,
+  MicrohabitatPinRecord,
+  ForagingProfile,
+  OutingInvitation,
+  UsageEvent,
+  BeaconSession,
+  SharingSession,
+  DownloadedMapRegion,
+  MapTile,
+  FruitingPrediction,
+  EmergencyContact,
+  FeatureFlag,
+  PushSubscriptionRecord,
 } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -42,7 +62,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const DB_NAME = 'forageflow';
-export const DB_VERSION = 3;
+export const DB_VERSION = 4;
 
 export interface ForageFlowDB extends DBSchema {
   species: {
@@ -244,6 +264,161 @@ export interface ForageFlowDB extends DBSchema {
     key: string;
     value: ReviewAggregationLocal;
   };
+  blogArticles: {
+    key: string;
+    value: BlogArticle;
+    indexes: {
+      'by-publishedAt': string;
+      'by-tag': string;
+    };
+  };
+  customRoutes: {
+    key: string;
+    value: CustomRoute;
+    indexes: {
+      'by-userId': string;
+      'by-createdAt': string;
+    };
+  };
+  eventEntries: {
+    key: string;
+    value: EventEntry;
+    indexes: {
+      'by-date': string;
+      'by-type': string;
+    };
+  };
+  trailConditionReports: {
+    key: string;
+    value: TrailConditionReport;
+    indexes: {
+      'by-trailId': string;
+      'by-reportedAt': string;
+      'by-userId': string;
+    };
+  };
+  checkIns: {
+    key: string;
+    value: CheckInRecord;
+    indexes: {
+      'by-userId': string;
+      'by-parkId': string;
+      'by-checkedInAt': string;
+    };
+  };
+  guidedTours: {
+    key: string;
+    value: GuidedTour;
+    indexes: {
+      'by-trailId': string;
+    };
+  };
+  journalEntries: {
+    key: string;
+    value: JournalEntry;
+    indexes: {
+      'by-userId': string;
+      'by-date': string;
+      'by-speciesId': string;
+    };
+  };
+  harvestEntries: {
+    key: string;
+    value: HarvestEntry;
+    indexes: {
+      'by-userId': string;
+      'by-locationHash': string;
+      'by-date': string;
+    };
+  };
+  microhabitatPins: {
+    key: string;
+    value: MicrohabitatPinRecord;
+    indexes: {
+      'by-userId': string;
+      'by-associatedSpeciesId': string;
+    };
+  };
+  foragingProfiles: {
+    key: string;
+    value: ForagingProfile;
+    indexes: {
+      'by-userId': string;
+    };
+  };
+  outingInvitations: {
+    key: string;
+    value: OutingInvitation;
+    indexes: {
+      'by-fromUserId': string;
+      'by-toUserId': string;
+      'by-status': string;
+    };
+  };
+  usageEvents: {
+    key: string;
+    value: UsageEvent;
+    indexes: {
+      'by-featureKey': string;
+      'by-timestamp': string;
+    };
+  };
+  beaconSessions: {
+    key: string;
+    value: BeaconSession;
+    indexes: {
+      'by-userId': string;
+      'by-isActive': string;
+    };
+  };
+  locationSharingSessions: {
+    key: string;
+    value: SharingSession;
+    indexes: {
+      'by-userId': string;
+      'by-isActive': string;
+    };
+  };
+  downloadedMapRegions: {
+    key: string;
+    value: DownloadedMapRegion;
+    indexes: {
+      'by-downloadedAt': string;
+    };
+  };
+  mapTiles: {
+    key: string;
+    value: MapTile;
+    indexes: {
+      'by-regionId': string;
+    };
+  };
+  fruitingForecasts: {
+    key: string;
+    value: FruitingPrediction;
+    indexes: {
+      'by-speciesId': string;
+      'by-lastUpdated': string;
+    };
+  };
+  emergencyContacts: {
+    key: string;
+    value: EmergencyContact;
+    indexes: {
+      'by-userId': string;
+    };
+  };
+  featureFlags: {
+    key: string;
+    value: FeatureFlag;
+  };
+  pushSubscriptions: {
+    key: string;
+    value: PushSubscriptionRecord;
+    indexes: {
+      'by-userId': string;
+    };
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -275,6 +450,26 @@ export const STORE_NAMES: (keyof ForageFlowDB)[] = [
   'achievements',
   'feedItems',
   'reviewAggregations',
+  'blogArticles',
+  'customRoutes',
+  'eventEntries',
+  'trailConditionReports',
+  'checkIns',
+  'guidedTours',
+  'journalEntries',
+  'harvestEntries',
+  'microhabitatPins',
+  'foragingProfiles',
+  'outingInvitations',
+  'usageEvents',
+  'beaconSessions',
+  'locationSharingSessions',
+  'downloadedMapRegions',
+  'mapTiles',
+  'fruitingForecasts',
+  'emergencyContacts',
+  'featureFlags',
+  'pushSubscriptions',
 ];
 
 // ---------------------------------------------------------------------------
@@ -433,6 +628,106 @@ export function getDB(): Promise<IDBPDatabase<ForageFlowDB>> {
           // ---- Review Aggregations ----
           db.createObjectStore('reviewAggregations', { keyPath: 'id' });
         }
+
+        // ---- Version 4: Add Phase 3.2 enhancement stores ----
+        if (oldVersion < 4) {
+          // ---- Blog Articles ----
+          const blogStore = db.createObjectStore('blogArticles', { keyPath: 'id' });
+          blogStore.createIndex('by-publishedAt', 'publishedAt');
+          blogStore.createIndex('by-tag', 'tags', { multiEntry: true });
+
+          // ---- Custom Routes ----
+          const customRoutesStore = db.createObjectStore('customRoutes', { keyPath: 'id' });
+          customRoutesStore.createIndex('by-userId', 'userId');
+          customRoutesStore.createIndex('by-createdAt', 'createdAt');
+
+          // ---- Event Entries ----
+          const eventStore = db.createObjectStore('eventEntries', { keyPath: 'id' });
+          eventStore.createIndex('by-date', 'date');
+          eventStore.createIndex('by-type', 'type');
+
+          // ---- Trail Condition Reports ----
+          const conditionStore = db.createObjectStore('trailConditionReports', { keyPath: 'id' });
+          conditionStore.createIndex('by-trailId', 'trailId');
+          conditionStore.createIndex('by-reportedAt', 'reportedAt');
+          conditionStore.createIndex('by-userId', 'userId');
+
+          // ---- Check-Ins ----
+          const checkInStore = db.createObjectStore('checkIns', { keyPath: 'id' });
+          checkInStore.createIndex('by-userId', 'userId');
+          checkInStore.createIndex('by-parkId', 'parkId');
+          checkInStore.createIndex('by-checkedInAt', 'checkedInAt');
+
+          // ---- Guided Tours ----
+          const tourStore = db.createObjectStore('guidedTours', { keyPath: 'id' });
+          tourStore.createIndex('by-trailId', 'trailId');
+
+          // ---- Journal Entries ----
+          const journalStore = db.createObjectStore('journalEntries', { keyPath: 'id' });
+          journalStore.createIndex('by-userId', 'userId');
+          journalStore.createIndex('by-date', 'date');
+          journalStore.createIndex('by-speciesId', 'speciesId');
+
+          // ---- Harvest Entries ----
+          const harvestStore = db.createObjectStore('harvestEntries', { keyPath: 'id' });
+          harvestStore.createIndex('by-userId', 'userId');
+          harvestStore.createIndex('by-locationHash', 'locationHash');
+          harvestStore.createIndex('by-date', 'date');
+
+          // ---- Microhabitat Pins ----
+          const microhabitatStore = db.createObjectStore('microhabitatPins', { keyPath: 'id' });
+          microhabitatStore.createIndex('by-userId', 'userId');
+          microhabitatStore.createIndex('by-associatedSpeciesId', 'associatedSpeciesId');
+
+          // ---- Foraging Profiles ----
+          const profileStore = db.createObjectStore('foragingProfiles', { keyPath: 'id' });
+          profileStore.createIndex('by-userId', 'userId');
+
+          // ---- Outing Invitations ----
+          const invitationStore = db.createObjectStore('outingInvitations', { keyPath: 'id' });
+          invitationStore.createIndex('by-fromUserId', 'fromUserId');
+          invitationStore.createIndex('by-toUserId', 'toUserId');
+          invitationStore.createIndex('by-status', 'status');
+
+          // ---- Usage Events ----
+          const usageStore = db.createObjectStore('usageEvents', { keyPath: 'id' });
+          usageStore.createIndex('by-featureKey', 'featureKey');
+          usageStore.createIndex('by-timestamp', 'timestamp');
+
+          // ---- Beacon Sessions ----
+          const beaconStore = db.createObjectStore('beaconSessions', { keyPath: 'id' });
+          beaconStore.createIndex('by-userId', 'userId');
+          beaconStore.createIndex('by-isActive', 'isActive');
+
+          // ---- Location Sharing Sessions ----
+          const sharingStore = db.createObjectStore('locationSharingSessions', { keyPath: 'id' });
+          sharingStore.createIndex('by-userId', 'userId');
+          sharingStore.createIndex('by-isActive', 'isActive');
+
+          // ---- Downloaded Map Regions ----
+          const downloadedRegionStore = db.createObjectStore('downloadedMapRegions', { keyPath: 'id' });
+          downloadedRegionStore.createIndex('by-downloadedAt', 'downloadedAt');
+
+          // ---- Map Tiles ----
+          const mapTileStore = db.createObjectStore('mapTiles', { keyPath: 'url' });
+          mapTileStore.createIndex('by-regionId', 'regionId');
+
+          // ---- Fruiting Forecasts ----
+          const forecastStore = db.createObjectStore('fruitingForecasts', { keyPath: 'id' });
+          forecastStore.createIndex('by-speciesId', 'speciesId');
+          forecastStore.createIndex('by-lastUpdated', 'lastUpdated');
+
+          // ---- Emergency Contacts ----
+          const emergencyStore = db.createObjectStore('emergencyContacts', { keyPath: 'id' });
+          emergencyStore.createIndex('by-userId', 'userId');
+
+          // ---- Feature Flags ----
+          db.createObjectStore('featureFlags', { keyPath: 'featureKey' });
+
+          // ---- Push Subscriptions ----
+          const pushStore = db.createObjectStore('pushSubscriptions', { keyPath: 'id' });
+          pushStore.createIndex('by-userId', 'userId');
+        }
       },
     });
   }
@@ -448,7 +743,12 @@ export type StoreName = 'species' | 'plants' | 'trees' | 'parks' | 'trails'
   | 'membershipLocal' | 'authMetaLocal' | 'syncQueue' | 'settings'
   | 'cachedMapRegions' | 'communityDrafts' | 'communityFlags' | 'challenges'
   | 'follows' | 'reviews' | 'socialPhotos' | 'achievements' | 'feedItems'
-  | 'reviewAggregations';
+  | 'reviewAggregations' | 'blogArticles' | 'customRoutes' | 'eventEntries'
+  | 'trailConditionReports' | 'checkIns' | 'guidedTours' | 'journalEntries'
+  | 'harvestEntries' | 'microhabitatPins' | 'foragingProfiles' | 'outingInvitations'
+  | 'usageEvents' | 'beaconSessions' | 'locationSharingSessions'
+  | 'downloadedMapRegions' | 'mapTiles' | 'fruitingForecasts' | 'emergencyContacts'
+  | 'featureFlags' | 'pushSubscriptions';
 
 // ---------------------------------------------------------------------------
 // Generic CRUD Helpers
