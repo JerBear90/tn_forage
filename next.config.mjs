@@ -8,6 +8,7 @@ const withPWA = withPWAInit({
   cacheOnFrontEndNav: true,
   cacheStartUrl: true,
   reloadOnOnline: true,
+  customWorkerSrc: "public/sw-custom.js",
   fallbacks: {
     // Serve the offline page when a navigation request fails both network and cache
     document: "/~offline",
