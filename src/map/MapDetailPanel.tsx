@@ -264,10 +264,13 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
 
+  // Stable ID for tracking when the panel item changes
+  const itemId = item?.data?.id ?? null;
+
   // Reset expanded state when item changes
   useEffect(() => {
     setExpanded(false);
-  }, [item?.type === 'park' ? item.data.id : item?.type === 'trail' ? item.data.id : item?.data?.id]);
+  }, [itemId]);
 
   // Focus the close button when the panel opens
   useEffect(() => {

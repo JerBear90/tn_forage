@@ -10,7 +10,7 @@
  * Requirements: 12.1, 12.3
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getAllRecords } from "@/offline/db";
 import type { Species, Plant, Tree } from "@/types";
 
@@ -86,6 +86,7 @@ export function useAssociatedSpeciesLookup(
   names: string[]
 ): AssociatedSpeciesMap {
   const [lookupMap, setLookupMap] = useState<AssociatedSpeciesMap>({});
+  const namesKey = useMemo(() => names.join(","), [names]);
 
   useEffect(() => {
     let cancelled = false;
@@ -130,7 +131,9 @@ export function useAssociatedSpeciesLookup(
     return () => {
       cancelled = true;
     };
-  }, [names.join(",")]);
+    // namesKey is a stable string derived from the names array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [namesKey]);
 
   return lookupMap;
 }

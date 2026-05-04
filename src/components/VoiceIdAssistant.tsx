@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { parseVoiceDescription } from "@/utils/voiceIdParser";
 import type { VoiceIdResult } from "@/types";
 
@@ -16,6 +16,19 @@ export default function VoiceIdAssistant({ onResults }: VoiceIdAssistantProps) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [result, setResult] = useState<VoiceIdResult | null>(null);
+  const onResultsRef = useRef(onResults);
+  onResultsRef.current = onResults;
+
+  const processTranscript = useCallback((text: string) => {
+    const features = parseVoiceDescription(text);
+    const voiceResult: VoiceIdResult = {
+      transcript: text,
+      extractedFeatures: features,
+      matches: [],
+    };
+    setResult(voiceResult);
+    onResultsRef.current?.(voiceResult);
+  }, []);
 
   const startListening = useCallback(() => {
     if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
@@ -23,11 +36,13 @@ export default function VoiceIdAssistant({ onResults }: VoiceIdAssistantProps) {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SpeechRecognitionCtor = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
+    const Win = window as Record<string, unknown>;
+    const SpeechRecognitionCtor = (Win.SpeechRecognition ?? Win.webkitSpeechRecognition) as
+      | (new () => { continuous: boolean; interimResults: boolean; lang: string; onstart: (() => void) | null; onend: (() => void) | null; onresult: ((e: Event) => void) | null; onerror: (() => void) | null; start: () => void })
+      | undefined;
     if (!SpeechRecognitionCtor) return;
 
-    const recognition = new SpeechRecognitionCtor() as any;
+    const recognition = new SpeechRecognitionCtor();
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = "en-US";
@@ -44,18 +59,7 @@ export default function VoiceIdAssistant({ onResults }: VoiceIdAssistantProps) {
 
     recognition.onerror = () => setIsListening(false);
     recognition.start();
-  }, []);
-
-  const processTranscript = useCallback((text: string) => {
-    const features = parseVoiceDescription(text);
-    const voiceResult: VoiceIdResult = {
-      transcript: text,
-      extractedFeatures: features,
-      matches: [], // Matches would be populated by the scoring system
-    };
-    setResult(voiceResult);
-    onResults?.(voiceResult);
-  }, [onResults]);
+  }, [processTranscript]);
 
   const handleTextSubmit = () => {
     if (transcript.trim()) {
