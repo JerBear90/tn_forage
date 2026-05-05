@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * ForageFlow — Admin Layout
+ * ForageWise — Admin Layout
  *
  * Shell layout for all /admin/* routes. Wraps content in ProtectedRoute
  * and SuperUserGate to ensure only authenticated super_users can access
- * admin tools.
+ * admin tools. The /admin/login page is excluded from auth gates.
  *
  * Provides a sidebar/nav with links to:
  * - Dashboard
@@ -22,9 +22,9 @@ import ProtectedRoute from "@/auth/ProtectedRoute";
 import SuperUserGate from "@/auth/SuperUserGate";
 
 const adminLinks = [
-  { href: "/admin", label: "Dashboard", icon: "📊" },
+  { href: "/admin", label: "Overview", icon: "📊" },
+  { href: "/admin/dashboard", label: "Dashboard", icon: "📈" },
   { href: "/admin/moderation", label: "Moderation", icon: "🛡️" },
-  { href: "/admin/species-editor", label: "Species Editor", icon: "🍄" },
   { href: "/admin/safety-notices", label: "Safety Notices", icon: "⚠️" },
 ];
 
@@ -34,6 +34,11 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+
+  // The login page should not be wrapped in auth gates
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
 
   return (
     <ProtectedRoute>

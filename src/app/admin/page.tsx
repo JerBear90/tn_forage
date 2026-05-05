@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Admin Dashboard
+ * ForageWise — Admin Dashboard
  *
  * Landing page for the admin panel. Provides quick links to all
  * admin tools: Moderation, Species Editor, and Safety Notices.
@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
           Admin Dashboard
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Manage content, species data, and safety notices for ForageFlow.
+          Manage content, species data, and safety notices for ForageWise.
         </p>
       </div>
 

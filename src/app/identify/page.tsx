@@ -33,6 +33,7 @@ import WizardExampleHint from "@/components/WizardExampleHint";
 import {
   UNDERSIDE_EXAMPLES,
   GROWTH_EXAMPLES,
+  NEARBY_TREE_EXAMPLES,
   CAP_SHAPE_EXAMPLES,
   STEM_EXAMPLES,
   BRUISING_EXAMPLES,
@@ -479,6 +480,7 @@ function ConfidenceBadge({
 }
 
 function ResultCard({ result }: { result: IdentificationResult }) {
+  const router = useRouter();
   const isToxic = result.edibilityLabel === "toxic";
   const needsChecklist = requiresVerificationChecklist(result);
   const [showChecklist, setShowChecklist] = useState(false);
@@ -656,7 +658,7 @@ function ResultsDisplay({
   return (
     <div className="space-y-4">
       {/* Safety disclaimer — dismissible */}
-      <DismissibleDisclaimer storageKey="forageflow-identify-disclaimer-ack" variant="earth">
+      <DismissibleDisclaimer storageKey="foragewise-identify-disclaimer-ack" variant="earth">
         <p className="text-xs font-semibold">
           Important Safety Notice
         </p>
@@ -834,6 +836,7 @@ export default function IdentifyPage() {
                 />
               ))}
             </div>
+            <WizardExampleHint examples={NEARBY_TREE_EXAMPLES} selectedOption={wizard.answers.nearbyTree} />
           </fieldset>
         );
 
@@ -1179,7 +1182,7 @@ export default function IdentifyPage() {
       )}
 
       {/* Safety reminder (dismissible) */}
-      <DismissibleDisclaimer storageKey="forageflow-identify-disclaimer-ack" variant="earth">
+      <DismissibleDisclaimer storageKey="foragewise-identify-disclaimer-ack" variant="earth">
         <p className="text-xs font-medium leading-relaxed">
           Results are possible matches only. Never consume a wild species based
           solely on app results. Verify with a qualified expert before consuming.
