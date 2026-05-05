@@ -27,6 +27,8 @@ import AssociatedSpeciesLink from "@/components/AssociatedSpeciesLink";
 import SeasonChart from "@/components/SeasonChart";
 import ForagingTipSection from "@/components/ForagingTipSection";
 import VoicePronunciationButton from "@/components/VoicePronunciationButton";
+import BreadcrumbNavigator from "@/components/BreadcrumbNavigator";
+import { writeReferrer } from "@/utils/breadcrumbReferrer";
 import { useAssociatedSpeciesLookup } from "@/hooks/useAssociatedSpeciesLookup";
 import type {
   Species,
@@ -231,8 +233,10 @@ function TagList({ items, label }: { items: string[]; label: string }) {
 
 function SpeciesOrPlantDetail({
   record,
+  onDetailNavigation,
 }: {
   record: { kind: "species" | "plant"; data: Species | Plant };
+  onDetailNavigation: () => void;
 }) {
   const d = record.data;
   const isSpecies = record.kind === "species";
@@ -296,7 +300,8 @@ function SpeciesOrPlantDetail({
       {/* Tree Associations — linked to field guide entries */}
       {d.treeAssociations.length > 0 && (
         <Section title="Tree Associations" id="section-trees">
-          <div className="flex flex-wrap gap-1.5" role="list" aria-label="Associated trees">
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
+          <div className="flex flex-wrap gap-1.5" role="list" aria-label="Associated trees" onClick={onDetailNavigation}>
             {d.treeAssociations.map((name) => (
               <AssociatedSpeciesLink
                 key={name}
@@ -454,7 +459,7 @@ function SpeciesOrPlantDetail({
   );
 }
 
-function TreeDetail({ data }: { data: Tree }) {
+function TreeDetail({ data, onDetailNavigation }: { data: Tree; onDetailNavigation: () => void }) {
   const associatedSpeciesMap = useAssociatedSpeciesLookup(data.associatedSpecies);
 
   return (
@@ -506,6 +511,70 @@ function TreeDetail({ data }: { data: Tree }) {
         </p>
       </Section>
 
+      {/* Bark & Leaves Close-Up Gallery */}
+      <Section title="Bark & Leaves" id="section-bark-leaves-gallery">
+        {(data.barkCloseUpImages && data.barkCloseUpImages.length > 0) ||
+        (data.leafCloseUpImages && data.leafCloseUpImages.length > 0) ? (
+          <div className="flex flex-wrap gap-3" role="list" aria-label="Bark and leaf close-up images">
+            {data.barkCloseUpImages?.map((src, i) => (
+              <SpeciesImage
+                key={`bark-${i}`}
+                src={src}
+                alt={`${data.commonName} bark close-up`}
+                variant="detail"
+                className="min-w-[120px] min-h-[120px] w-32 h-32 rounded-lg border border-brand-charcoal/10 dark:border-dark-border"
+              />
+            ))}
+            {data.leafCloseUpImages?.map((src, i) => (
+              <SpeciesImage
+                key={`leaf-${i}`}
+                src={src}
+                alt={`${data.commonName} leaf close-up`}
+                variant="detail"
+                className="min-w-[120px] min-h-[120px] w-32 h-32 rounded-lg border border-brand-charcoal/10 dark:border-dark-border"
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60 italic">
+            Close-up photos coming soon
+          </p>
+        )}
+      </Section>
+
+      {/* Looks Similar To — only rendered when similarTrees is defined and non-empty */}
+      {data.similarTrees && data.similarTrees.length > 0 && (
+        <Section title="Looks Similar To" id="section-similar-trees">
+          <div className="space-y-3" role="list" aria-label="Similar tree species">
+            {data.similarTrees.map((similar) => (
+              <Link
+                key={similar.treeId}
+                href={`/field-guide/${similar.treeId}`}
+                onClick={onDetailNavigation}
+                aria-label={`View ${similar.commonName}`}
+                className="flex items-center gap-3 p-2 rounded-lg border border-brand-charcoal/10 dark:border-dark-border bg-white/60 dark:bg-dark-surface/60 hover:ring-2 hover:ring-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-shadow min-h-[44px]"
+                role="listitem"
+              >
+                <SpeciesImage
+                  src={similar.thumbnailImage ?? null}
+                  alt={`${similar.commonName} thumbnail`}
+                  variant="card"
+                  className="shrink-0 w-11 h-11 rounded-md border border-brand-charcoal/10 dark:border-dark-border"
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="block text-sm font-semibold text-brand-charcoal dark:text-dark-text">
+                    {similar.commonName}
+                  </span>
+                  <span className="block text-xs text-brand-charcoal/70 dark:text-dark-text-muted leading-relaxed line-clamp-2">
+                    {similar.differentiatingFeatures}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Section>
+      )}
+
       {/* Shape Description */}
       <Section title="Shape" id="section-shape">
         <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed">
@@ -516,7 +585,8 @@ function TreeDetail({ data }: { data: Tree }) {
       {/* Associated Species — rendered as links when resolved */}
       {data.associatedSpecies.length > 0 && (
         <Section title="Associated Species" id="section-associated">
-          <div className="flex flex-wrap gap-1.5" role="list" aria-label="Associated mushroom and plant species">
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
+          <div className="flex flex-wrap gap-1.5" role="list" aria-label="Associated mushroom and plant species" onClick={onDetailNavigation}>
             {data.associatedSpecies.map((name) => (
               <AssociatedSpeciesLink
                 key={name}
@@ -559,32 +629,37 @@ export default function SpeciesDetailPage() {
   const id = params.id ?? "";
   const { record, loading, error } = useSpeciesDetail(id);
 
+  // Derive current page title and category for breadcrumb referrer
+  const currentTitle = record
+    ? record.data.commonName
+    : "";
+  const currentCategory = record
+    ? record.kind === "tree"
+      ? "tree"
+      : (record.data as Species | Plant).category
+    : "";
+
+  /**
+   * Writes the current page info to sessionStorage before navigating
+   * to another detail page (e.g., associated species/tree links).
+   */
+  const handleDetailNavigation = () => {
+    if (currentTitle && currentCategory) {
+      writeReferrer({
+        href: `/field-guide/${id}`,
+        title: currentTitle,
+        category: currentCategory,
+      });
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col px-4 py-6 pb-24 max-w-2xl mx-auto">
-      {/* Back button */}
-      <nav aria-label="Breadcrumb" className="mb-4">
-        <Link
-          href="/field-guide"
-          className="inline-flex items-center gap-1.5 text-sm text-brand-teal hover:text-brand-teal-600 dark:text-brand-teal-300 dark:hover:text-brand-teal-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors"
-          aria-label="Back to Field Guide"
-        >
-          <svg
-            aria-hidden="true"
-            className="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5L8.25 12l7.5-7.5"
-            />
-          </svg>
-          Field Guide
-        </Link>
-      </nav>
+      {/* Breadcrumb navigation */}
+      <BreadcrumbNavigator
+        currentTitle={currentTitle}
+        currentCategory={currentCategory}
+      />
 
       {/* Error state */}
       {error && (
@@ -610,9 +685,9 @@ export default function SpeciesDetailPage() {
       {!loading && !error && record && (
         <article>
           {record.kind === "tree" ? (
-            <TreeDetail data={record.data} />
+            <TreeDetail data={record.data} onDetailNavigation={handleDetailNavigation} />
           ) : (
-            <SpeciesOrPlantDetail record={record as { kind: "species" | "plant"; data: Species | Plant }} />
+            <SpeciesOrPlantDetail record={record as { kind: "species" | "plant"; data: Species | Plant }} onDetailNavigation={handleDetailNavigation} />
           )}
         </article>
       )}

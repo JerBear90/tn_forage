@@ -15,19 +15,22 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { putRecord, getAllRecords } from "@/offline/db";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import {
-  scoreSpecies,
-  type IdentificationResult,
   type ConfidenceLevel,
 } from "@/services/identifyScoring";
 import { requiresVerificationChecklist } from "@/services/verificationChecklist";
 import LookalikeVerificationChecklist from "@/components/LookalikeVerificationChecklist";
 import DismissibleDisclaimer from "@/components/DismissibleDisclaimer";
 import { seedDatabase } from "@/data/seedDatabase";
+import { sanitizeSafetyText } from "@/components/edibilityUtils";
+import CategorySelector from "@/components/ai/CategorySelector";
+import PhotoSlotGrid from "@/components/ai/PhotoSlotGrid";
+import type { SlotPhoto } from "@/components/ai/PhotoSlotGrid";
+import type { AIIdentificationCategory } from "@/components/ai/slotConfigs";
 import type { Species, Photo, Coordinates } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -36,13 +39,6 @@ import type { Species, Photo, Coordinates } from "@/types";
 
 /** The four recommended photo angles */
 type PhotoSlotKey = "top" | "underside" | "habitat" | "stem";
-
-interface PhotoSlot {
-  key: PhotoSlotKey;
-  label: string;
-  description: string;
-  icon: string;
-}
 
 interface CapturedPhoto {
   id: string;
@@ -67,33 +63,6 @@ interface AIResult {
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
-
-const PHOTO_SLOTS: PhotoSlot[] = [
-  {
-    key: "top",
-    label: "Top View",
-    description: "Cap surface from above",
-    icon: "⬆️",
-  },
-  {
-    key: "underside",
-    label: "Underside",
-    description: "Gills, pores, or teeth",
-    icon: "⬇️",
-  },
-  {
-    key: "habitat",
-    label: "Habitat",
-    description: "Surrounding environment",
-    icon: "🌿",
-  },
-  {
-    key: "stem",
-    label: "Stem / Base",
-    description: "Stem, ring, volva",
-    icon: "🍄",
-  },
-];
 
 function generateId(): string {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -139,14 +108,14 @@ async function mockAIAnalysis(
 
     return {
       speciesId: sp.id,
-      commonName: sp.commonName,
-      scientificName: sp.scientificName,
+      commonName: sanitizeSafetyText(sp.commonName),
+      scientificName: sanitizeSafetyText(sp.scientificName),
       confidence,
       percentage: pct,
-      edibilityLabel: sp.edibilityLabel,
+      edibilityLabel: sanitizeSafetyText(sp.edibilityLabel),
       hasToxicLookalikes: sp.toxicLookalikes?.length > 0,
-      similarSpecies: sp.lookalikes?.map((l) => l.commonName) ?? [],
-      toxicLookalikes: sp.toxicLookalikes?.map((l) => l.commonName) ?? [],
+      similarSpecies: sp.lookalikes?.map((l) => sanitizeSafetyText(l.commonName)) ?? [],
+      toxicLookalikes: sp.toxicLookalikes?.map((l) => sanitizeSafetyText(l.commonName)) ?? [],
     };
   });
 }
@@ -205,6 +174,7 @@ function ConfidenceBadge({ confidence }: { confidence: ConfidenceLevel }) {
 // ---------------------------------------------------------------------------
 
 function AIResultCard({ result }: { result: AIResult }) {
+  const router = useRouter();
   const isToxic = result.edibilityLabel === "toxic";
   const needsChecklist = requiresVerificationChecklist({
     edibilityLabel: result.edibilityLabel as Parameters<typeof requiresVerificationChecklist>[0]["edibilityLabel"],
@@ -366,7 +336,7 @@ function AIResultCard({ result }: { result: AIResult }) {
         <LookalikeVerificationChecklist
           speciesName={result.commonName}
           onProceed={() => {
-            window.location.href = `/field-guide/${result.speciesId}`;
+            router.push(`/field-guide/${result.speciesId}`);
           }}
           onDismiss={() => setShowChecklist(false)}
         />
@@ -432,124 +402,6 @@ function MismatchWarning({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Photo Slot Component (Task 13.1)
-// ---------------------------------------------------------------------------
-
-function PhotoSlotCard({
-  slot,
-  photo,
-  onCapture,
-  onGallery,
-  onRemove,
-}: {
-  slot: PhotoSlot;
-  photo: CapturedPhoto | undefined;
-  onCapture: (slotKey: PhotoSlotKey) => void;
-  onGallery: (slotKey: PhotoSlotKey) => void;
-  onRemove: (slotKey: PhotoSlotKey) => void;
-}) {
-  return (
-    <div className="rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white/80 dark:bg-brand-charcoal/60 overflow-hidden">
-      {photo ? (
-        <div className="relative">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={photo.objectUrl}
-            alt={`${slot.label} photo`}
-            className="w-full h-32 object-cover"
-          />
-          <button
-            type="button"
-            onClick={() => onRemove(slot.key)}
-            aria-label={`Remove ${slot.label} photo`}
-            className="absolute top-2 right-2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-colors"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-          <div className="px-3 py-2 bg-brand-teal/10">
-            <p className="text-xs font-medium text-brand-teal">
-              ✓ {slot.label}
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="p-4">
-          <div className="text-center mb-3">
-            <span className="text-2xl" aria-hidden="true">
-              {slot.icon}
-            </span>
-            <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand mt-1">
-              {slot.label}
-            </p>
-            <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
-              {slot.description}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => onCapture(slot.key)}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-brand-teal/30 bg-brand-teal/5 py-2.5 text-brand-teal text-xs font-medium hover:bg-brand-teal/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors min-h-[44px]"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"
-                />
-              </svg>
-              Camera
-            </button>
-            <button
-              type="button"
-              onClick={() => onGallery(slot.key)}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-brand-moss/30 bg-brand-moss/5 py-2.5 text-brand-moss text-xs font-medium hover:bg-brand-moss/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors min-h-[44px]"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-                />
-              </svg>
-              Gallery
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Main AI Recognition Page
@@ -570,6 +422,10 @@ function AIRecognitionPageInner() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  // --- Category state (new category system) ---
+  const [selectedCategory, setSelectedCategory] = useState<AIIdentificationCategory>('mushroom');
+  const [categoryPhotos, setCategoryPhotos] = useState<Record<string, SlotPhoto>>({});
+
   // --- Notes ---
   const [notes, setNotes] = useState("");
 
@@ -583,6 +439,7 @@ function AIRecognitionPageInner() {
   useEffect(() => {
     return () => {
       photos.forEach((p) => URL.revokeObjectURL(p.objectUrl));
+      Object.values(categoryPhotos).forEach((p) => URL.revokeObjectURL(p.objectUrl));
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -594,7 +451,8 @@ function AIRecognitionPageInner() {
   }, []);
 
   const photoCount = photos.length;
-  const hasPhotos = photoCount > 0;
+  const categoryPhotoCount = Object.keys(categoryPhotos).length;
+  const hasPhotos = photoCount > 0 || categoryPhotoCount > 0;
 
   // --- Photo handlers ---
   const handleCapture = useCallback((slotKey: PhotoSlotKey) => {
@@ -637,6 +495,41 @@ function AIRecognitionPageInner() {
     });
   }, []);
 
+  // --- Category system handlers ---
+  const hasCategoryPhotos = Object.keys(categoryPhotos).length > 0;
+
+  const handleCategoryChange = useCallback((category: AIIdentificationCategory) => {
+    // Clear all category photos when category changes (confirmation handled by CategorySelector)
+    Object.values(categoryPhotos).forEach((photo) => URL.revokeObjectURL(photo.objectUrl));
+    setCategoryPhotos({});
+    setSelectedCategory(category);
+  }, [categoryPhotos]);
+
+  const handleCategoryPhotoUpload = useCallback((slotKey: string, file: File) => {
+    const objectUrl = URL.createObjectURL(file);
+    setCategoryPhotos((prev) => {
+      // Revoke old URL if replacing
+      if (prev[slotKey]) {
+        URL.revokeObjectURL(prev[slotKey].objectUrl);
+      }
+      return {
+        ...prev,
+        [slotKey]: { slotKey, file, objectUrl },
+      };
+    });
+  }, []);
+
+  const handleCategoryPhotoRemove = useCallback((slotKey: string) => {
+    setCategoryPhotos((prev) => {
+      if (prev[slotKey]) {
+        URL.revokeObjectURL(prev[slotKey].objectUrl);
+      }
+      const next = { ...prev };
+      delete next[slotKey];
+      return next;
+    });
+  }, []);
+
   // --- Save to IndexedDB for offline queuing (Task 13.2) ---
   const savePhotosLocally = useCallback(async () => {
     const now = new Date().toISOString();
@@ -644,6 +537,7 @@ function AIRecognitionPageInner() {
       ? { lat: geo.position.lat, lng: geo.position.lng }
       : undefined;
 
+    // Save legacy photo slots
     for (const photo of photos) {
       const arrayBuffer = await photo.file.arrayBuffer();
       const blob = new Blob([arrayBuffer], { type: photo.file.type });
@@ -658,7 +552,23 @@ function AIRecognitionPageInner() {
       };
       await putRecord("photos", photoRecord);
     }
-  }, [photos, geo.position, notes]);
+
+    // Save category-based photos
+    for (const slotPhoto of Object.values(categoryPhotos)) {
+      const arrayBuffer = await slotPhoto.file.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: slotPhoto.file.type });
+      const photoRecord: Photo = {
+        id: generateId(),
+        blob,
+        mimeType: slotPhoto.file.type || "image/jpeg",
+        caption: `AI Recognition (${selectedCategory}) - ${slotPhoto.slotKey}${notes ? ` | ${notes}` : ""}`,
+        coordinates: coords,
+        createdAt: now,
+        syncStatus: "pending",
+      };
+      await putRecord("photos", photoRecord);
+    }
+  }, [photos, categoryPhotos, selectedCategory, geo.position, notes]);
 
   // --- Analyze handler ---
   const handleAnalyze = useCallback(async () => {
@@ -757,6 +667,7 @@ function AIRecognitionPageInner() {
               onClick={() => {
                 setResults(null);
                 setPhotos([]);
+                setCategoryPhotos({});
                 setNotes("");
               }}
               className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold min-h-[48px] bg-brand-charcoal/5 dark:bg-brand-sand/10 text-brand-charcoal dark:text-brand-sand hover:bg-brand-charcoal/10 dark:hover:bg-brand-sand/20 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal active:scale-[0.97]"
@@ -856,31 +767,22 @@ function AIRecognitionPageInner() {
         </div>
       )}
 
-      {/* Photo slots */}
-      <section aria-label="Photo upload slots" className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">
-            Recommended Photos
-          </h2>
-          <span className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
-            {photoCount}/4 captured
-          </span>
+      {/* Category selector and photo slots */}
+      <section aria-label="Identification category and photo upload" className="mb-6">
+        <CategorySelector
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+          hasExistingPhotos={hasCategoryPhotos}
+        />
+
+        <div className="mt-4">
+          <PhotoSlotGrid
+            category={selectedCategory}
+            photos={categoryPhotos}
+            onPhotoUpload={handleCategoryPhotoUpload}
+            onPhotoRemove={handleCategoryPhotoRemove}
+          />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {PHOTO_SLOTS.map((slot) => (
-            <PhotoSlotCard
-              key={slot.key}
-              slot={slot}
-              photo={photos.find((p) => p.slotKey === slot.key)}
-              onCapture={handleCapture}
-              onGallery={handleGallery}
-              onRemove={handleRemovePhoto}
-            />
-          ))}
-        </div>
-        <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mt-2 text-center">
-          At least one photo is required. More angles improve accuracy.
-        </p>
       </section>
 
       {/* Notes */}

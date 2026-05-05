@@ -956,6 +956,13 @@ export const parksSeed: Park[] = [
       { type: 'free', currency: 'USD', notes: 'No entrance fee. Camping, cabin, and inn fees vary.' },
     ],
     plants: ['pl-ramps', 'pl-pawpaw', 'pl-wild-ginger', 'pl-mayapple', 'pl-spicebush', 'pl-black-cohosh'],
+    socialProfiles: {
+      facebook: 'https://www.facebook.com/FallCreekFallsSP',
+      instagram: 'https://www.instagram.com/fallcreekfallssp',
+      x: 'https://x.com/FCFStatePark',
+      youtube: 'https://www.youtube.com/@TNStateParks',
+      tiktok: 'https://www.tiktok.com/@tnstateparks',
+    },
   },
   {
     id: 'park-henry-horton',
@@ -1057,6 +1064,10 @@ export const parksSeed: Park[] = [
       'Ore Pit Trail (historic iron furnace)',
       'Jim Bailey Nature Center',
     ],
+    socialProfiles: {
+      facebook: 'https://www.facebook.com/MontgomeryBellSP',
+      instagram: 'https://www.instagram.com/montgomerybellsp',
+    },
   },
   {
     id: 'park-mousetail-landing',
@@ -1178,6 +1189,12 @@ export const parksSeed: Park[] = [
       'Class II State Natural Area',
       'Nature photography opportunities',
     ],
+    socialProfiles: {
+      facebook: 'https://www.facebook.com/RadnorLakeSP',
+      instagram: 'https://www.instagram.com/radnorlakesp',
+      x: 'https://x.com/RadnorLakeSP',
+      youtube: 'https://www.youtube.com/@RadnorLakeStateNaturalArea',
+    },
   },
   {
     id: 'park-rock-island',
@@ -1271,6 +1288,11 @@ export const parksSeed: Park[] = [
       'Foster Falls (60-foot waterfall)',
       'Sewanee Natural Bridge',
     ],
+    socialProfiles: {
+      facebook: 'https://www.facebook.com/SouthCumberlandSP',
+      instagram: 'https://www.instagram.com/southcumberlandsp',
+      youtube: 'https://www.youtube.com/@SouthCumberlandSP',
+    },
   },
   {
     id: 'park-standing-stone',
@@ -1749,6 +1771,9 @@ export const parksSeed: Park[] = [
       'CCC reclamation history',
       'Largest state park in West TN',
     ],
+    socialProfiles: {
+      facebook: 'https://www.facebook.com/NatchezTraceSP',
+    },
   },
   {
     id: 'park-nathan-bedford-forrest',
@@ -1921,6 +1946,11 @@ export const parksSeed: Park[] = [
       'World-class crappie fishing',
       'Boardwalk and pontoon boat tours',
     ],
+    socialProfiles: {
+      facebook: 'https://www.facebook.com/ReelfootLakeSP',
+      instagram: 'https://www.instagram.com/reelfootlakesp',
+      x: 'https://x.com/ReelfootLakeSP',
+    },
   },
   {
     id: 'park-t-o-fuller',

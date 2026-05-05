@@ -12,6 +12,30 @@ import { describe, it, expect } from 'vitest';
 import type { Park, Trail, Route } from '@/types';
 
 // ---------------------------------------------------------------------------
+// Foraging Score Display Logic
+// ---------------------------------------------------------------------------
+
+/**
+ * Pure logic for foraging score display formatting.
+ * Mirrors the ForagingScoreDisplay component behavior.
+ */
+function formatForagingScore(score: number | null | undefined): {
+  text: string;
+  ariaLabel: string;
+} {
+  if (score === null || score === undefined) {
+    return {
+      text: 'Score unavailable',
+      ariaLabel: 'Foraging score unavailable',
+    };
+  }
+  return {
+    text: `${score}/100`,
+    ariaLabel: `Foraging score: ${score} out of 100`,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Test data factories
 // ---------------------------------------------------------------------------
 
@@ -307,5 +331,46 @@ describe('MapDetailPanel logic — park name resolution', () => {
     const result = resolveMarkerClick('route', 'route-orphan', parks, trails, routes, null);
     expect(result).not.toBeNull();
     expect((result as { parkName?: string }).parkName).toBeUndefined();
+  });
+});
+
+
+// ---------------------------------------------------------------------------
+// Foraging Score Display Tests
+// ---------------------------------------------------------------------------
+
+describe('MapDetailPanel — foraging score display', () => {
+  it('formats a numeric score as "N/100"', () => {
+    const result = formatForagingScore(75);
+    expect(result.text).toBe('75/100');
+  });
+
+  it('includes aria-label "Foraging score: N out of 100" for numeric scores', () => {
+    const result = formatForagingScore(42);
+    expect(result.ariaLabel).toBe('Foraging score: 42 out of 100');
+  });
+
+  it('displays "Score unavailable" when score is null', () => {
+    const result = formatForagingScore(null);
+    expect(result.text).toBe('Score unavailable');
+    expect(result.ariaLabel).toBe('Foraging score unavailable');
+  });
+
+  it('displays "Score unavailable" when score is undefined', () => {
+    const result = formatForagingScore(undefined);
+    expect(result.text).toBe('Score unavailable');
+    expect(result.ariaLabel).toBe('Foraging score unavailable');
+  });
+
+  it('formats score of 0 correctly (not treated as falsy)', () => {
+    const result = formatForagingScore(0);
+    expect(result.text).toBe('0/100');
+    expect(result.ariaLabel).toBe('Foraging score: 0 out of 100');
+  });
+
+  it('formats maximum score of 100 correctly', () => {
+    const result = formatForagingScore(100);
+    expect(result.text).toBe('100/100');
+    expect(result.ariaLabel).toBe('Foraging score: 100 out of 100');
   });
 });

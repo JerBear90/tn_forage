@@ -64,6 +64,7 @@ export const speciesSeed: Species[] = [
       minTempF: 65,
       minHumidity: 65,
     },
+    summary: 'Bright orange shelf fungus on hardwoods, prized for its meaty texture when young.',
   },
   {
     id: 'sp-chanterelle',
@@ -123,6 +124,7 @@ export const speciesSeed: Species[] = [
       minHumidity: 70,
       minSoilTempF: 60,
     },
+    summary: 'Golden funnel-shaped mushroom found near oaks in summer and fall, prized for its peppery flavor.',
   },
   {
     id: 'sp-morel',
@@ -169,6 +171,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Honeycomb-capped spring mushroom found near tulip poplars, ash, and elms in Tennessee forests.',
   },
   {
     id: 'sp-hen-of-the-woods',
@@ -215,6 +218,7 @@ export const speciesSeed: Species[] = [
       minHumidity: 65,
       minSoilTempF: 55,
     },
+    summary: 'Large rosette of gray-brown caps at oak bases in fall, also known as Maitake.',
   },
   {
     id: 'sp-lions-mane',
@@ -260,6 +264,7 @@ export const speciesSeed: Species[] = [
       minTempF: 55,
       minHumidity: 70,
     },
+    summary: 'White cascading spines on hardwood trees, distinctive with few lookalikes.',
   },
   {
     id: 'sp-destroying-angel',
@@ -305,6 +310,7 @@ export const speciesSeed: Species[] = [
       'Ammirati, J., Traquair, J., & Horgen, P. (1985). Poisonous Mushrooms of the Northern United States and Canada.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Deadly all-white Amanita in hardwood forests; one of North America\'s most toxic mushrooms.',
   },
   {
     id: 'sp-jack-o-lantern',
@@ -344,6 +350,7 @@ export const speciesSeed: Species[] = [
       'Ammirati, J., Traquair, J., & Horgen, P. (1985). Poisonous Mushrooms of the Northern United States and Canada.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Toxic bright orange mushroom with true gills, often confused with chanterelles.',
   },
   {
     id: 'sp-false-morel',
@@ -382,6 +389,7 @@ export const speciesSeed: Species[] = [
       'Ammirati, J., Traquair, J., & Horgen, P. (1985). Poisonous Mushrooms of the Northern United States and Canada.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Toxic brain-like mushroom appearing in spring, often confused with true morels.',
   },
   {
     id: 'sp-turkey-tail',
@@ -420,6 +428,7 @@ export const speciesSeed: Species[] = [
       'Kuo, M. (2007). 100 Edible Mushrooms. University of Michigan Press.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Colorful banded shelf fungus on dead wood year-round, too tough to eat directly.',
   },
   {
     id: 'sp-reishi',
@@ -459,6 +468,7 @@ export const speciesSeed: Species[] = [
       'Rogers, R. (2011). The Fungal Pharmacy. North Atlantic Books.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Shiny lacquered bracket on hemlock trees, woody and used traditionally for tea.',
   },
   // -----------------------------------------------------------------------
   // New species added below (22 additional Tennessee mushroom species)
@@ -507,6 +517,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Fan-shaped shelf mushroom on dead hardwoods, common in fall through spring.',
   },
   {
     id: 'sp-black-trumpet',
@@ -545,6 +556,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Dark funnel-shaped mushroom in mossy hardwood forests, prized for rich flavor.',
   },
   {
     id: 'sp-puffball-giant',
@@ -590,6 +602,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Large white ball in meadows and open woods; interior must be uniformly white.',
   },
   {
     id: 'sp-honey-mushroom',
@@ -635,6 +648,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Honey-colored clusters at tree bases in fall; must be distinguished from Deadly Galerina.',
   },
   {
     id: 'sp-indigo-milk-cap',
@@ -673,6 +687,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Distinctive blue mushroom that exudes indigo milk when cut; few dangerous lookalikes.',
   },
   {
     id: 'sp-shaggy-mane',
@@ -718,6 +733,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Tall white mushroom with shaggy scales in lawns; dissolves into ink within hours.',
   },
   {
     id: 'sp-old-man-of-the-woods',
@@ -756,6 +772,7 @@ export const speciesSeed: Species[] = [
       'Bessette, A., Roody, W., & Bessette, A. (2000). North American Boletes. Syracuse University Press.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Dark shaggy-capped bolete whose flesh turns red then black when cut.',
   },
   {
     id: 'sp-cinnabar-chanterelle',
@@ -801,6 +818,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Small bright cinnabar-red chanterelle relative found in hardwood forests.',
   },
   {
     id: 'sp-deadly-galerina',
@@ -839,6 +857,7 @@ export const speciesSeed: Species[] = [
       'Ammirati, J., Traquair, J., & Horgen, P. (1985). Poisonous Mushrooms of the Northern United States and Canada.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Small deadly brown mushroom on decaying wood; contains the same toxins as Death Cap.',
   },
   {
     id: 'sp-green-spored-parasol',
@@ -877,6 +896,7 @@ export const speciesSeed: Species[] = [
       'Ammirati, J., Traquair, J., & Horgen, P. (1985). Poisonous Mushrooms of the Northern United States and Canada.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Toxic lawn mushroom with green spore print; most commonly consumed poisonous species.',
   },
   {
     id: 'sp-bear-head-tooth',
@@ -915,6 +935,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Branching white spines on hardwood trees; closely related to Lion\'s Mane.',
   },
   {
     id: 'sp-dryads-saddle',
@@ -953,6 +974,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Large bracket with pheasant-like scales on elms and maples; smells like watermelon rind.',
   },
   {
     id: 'sp-smooth-chanterelle',
@@ -998,6 +1020,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Bright orange chanterelle relative with smooth underside, common in SE oak forests.',
   },
   {
     id: 'sp-death-cap',
@@ -1037,6 +1060,7 @@ export const speciesSeed: Species[] = [
       'Ammirati, J., Traquair, J., & Horgen, P. (1985). Poisonous Mushrooms of the Northern United States and Canada.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Deadly greenish-yellow Amanita responsible for most mushroom fatalities worldwide.',
   },
   {
     id: 'sp-chaga',
@@ -1075,6 +1099,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Black charcoal-like mass on birch trees found year-round; used for tea and extracts.',
   },
   {
     id: 'sp-violet-toothed-polypore',
@@ -1113,6 +1138,7 @@ export const speciesSeed: Species[] = [
       'Barron, G. (1999). Mushrooms of Northeast North America. Lone Pine Publishing.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Thin bracket with violet-purple pore surface on dead hardwood; inedible but common.',
   },
   {
     id: 'sp-two-colored-bolete',
@@ -1158,6 +1184,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Red-capped bolete with yellow pores near oaks; stains blue slowly when cut.',
   },
   {
     id: 'sp-crown-tipped-coral',
@@ -1196,6 +1223,7 @@ export const speciesSeed: Species[] = [
       'Kuo, M. (2007). 100 Edible Mushrooms. University of Michigan Press.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'White branching coral fungus with crown-shaped tips, growing on decaying wood.',
   },
   {
     id: 'sp-fly-agaric',
@@ -1234,6 +1262,7 @@ export const speciesSeed: Species[] = [
       'Ammirati, J., Traquair, J., & Horgen, P. (1985). Poisonous Mushrooms of the Northern United States and Canada.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Iconic red cap with white spots; toxic mushroom containing ibotenic acid and muscimol.',
   },
   {
     id: 'sp-chicken-mushroom-cincinnatus',
@@ -1279,6 +1308,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Orange shelf fungus with white pore surface, fruiting at the base of oaks.',
   },
   {
     id: 'sp-ringless-honey-mushroom',
@@ -1324,6 +1354,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Dense fall clusters at tree bases without a stem ring; common in the Southeast.',
   },
   {
     id: 'sp-black-staining-polypore',
@@ -1362,6 +1393,7 @@ export const speciesSeed: Species[] = [
       'Kuo, M. (2007). 100 Edible Mushrooms. University of Michigan Press.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Large rosette at oak bases; pores and flesh stain black when bruised.',
   },
   {
     id: 'sp-witchs-butter',
@@ -1400,6 +1432,7 @@ export const speciesSeed: Species[] = [
       'Barron, G. (1999). Mushrooms of Northeast North America. Lone Pine Publishing.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Bright yellow jelly fungus on dead hardwood branches; flavorless but not toxic.',
   },
   {
     id: 'sp-wood-ear',
@@ -1438,6 +1471,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Brown ear-shaped jelly fungus on dead hardwood; widely used in Asian cuisine.',
   },
   {
     id: 'sp-sulfur-shelf-conifer',
@@ -1476,6 +1510,7 @@ export const speciesSeed: Species[] = [
       'Lincoff, G. (1981). National Audubon Society Field Guide to North American Mushrooms.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Orange shelf fungus on conifers; edibility uncertain, often causes stomach upset.',
   },
   {
     id: 'sp-berkeley-polypore',
@@ -1514,5 +1549,6 @@ export const speciesSeed: Species[] = [
       'Bessette, A., Roody, W., & Bessette, A. (2000). North American Boletes. Syracuse University Press.',
     ],
     lastUpdated: '2024-01-15',
+    summary: 'Very large tough polypore at oak bases; generally too leathery to eat.',
   },
 ];

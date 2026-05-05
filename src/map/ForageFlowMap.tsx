@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   MapContainer,
   TileLayer,
   Marker,
   Polyline,
-  LayersControl,
   CircleMarker,
   useMap,
 } from 'react-leaflet';
@@ -17,6 +16,8 @@ import type { ParkCondition } from '@/hooks/useForagingConditions';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import MushroomMapLayer from '@/map/MushroomMapLayer';
 import ForagingConditionsLayer from '@/map/ForagingConditionsLayer';
+import MapFilterPanel from '@/map/MapFilterPanel';
+import { DEFAULT_MAP_FILTER_STATE, type MapFilterState } from '@/map/mapFilterTypes';
 
 import MarkerClusterGroup from 'react-leaflet-cluster';
 
@@ -276,54 +277,58 @@ export default function ForageFlowMap({
   onMushroomSpeciesClick,
   foragingConditions,
 }: ForageFlowMapProps) {
+  const [filters, setFilters] = useState<MapFilterState>(DEFAULT_MAP_FILTER_STATE);
+
   return (
-    <MapContainer
-      center={TN_CENTER}
-      zoom={TN_ZOOM}
-      className="h-full w-full"
-      style={{ minHeight: '300px' }}
-      aria-label="Interactive map of Tennessee state parks, trails, and routes"
-    >
-      <FixLeafletIcons />
-      <FindMeControl />
+    <div className="flex flex-col h-full">
+      {/* Map Filter Panel rendered above the map */}
+      <MapFilterPanel activeFilters={filters} onFilterChange={setFilters} />
 
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      {/* Map container */}
+      <MapContainer
+        center={TN_CENTER}
+        zoom={TN_ZOOM}
+        className="h-full w-full flex-1"
+        style={{ minHeight: '300px' }}
+        aria-label="Interactive map of Tennessee state parks, trails, and routes"
+      >
+        <FixLeafletIcons />
+        <FindMeControl />
 
-      <LayersControl position="topright">
-        {/* Parks layer */}
-        <LayersControl.Overlay checked name="Parks">
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        {/* Parks layer — shown when locationTypes.parks is active */}
+        {filters.locationTypes.parks && (
           <ParkMarkers parks={parks} onMarkerClick={onMarkerClick} />
-        </LayersControl.Overlay>
+        )}
 
-        {/* Trails layer */}
-        <LayersControl.Overlay checked name="Trails">
+        {/* Trails layer — shown when locationTypes.trails is active */}
+        {filters.locationTypes.trails && (
           <TrailPolylines trails={trails} onMarkerClick={onMarkerClick} />
-        </LayersControl.Overlay>
+        )}
 
-        {/* Routes layer */}
-        <LayersControl.Overlay checked name="Routes">
+        {/* Routes layer — shown when locationTypes.routes is active */}
+        {filters.locationTypes.routes && (
           <RoutePolylines routes={routes} onMarkerClick={onMarkerClick} />
-        </LayersControl.Overlay>
+        )}
 
-        {/* Mushroom Spots layer — unchecked (hidden) by default */}
-        <LayersControl.Overlay checked={false} name="Mushroom Spots">
+        {/* Mushroom Spots layer — shown when conditions.mushroomSpots is active */}
+        {filters.conditions.mushroomSpots && (
           <MushroomMapLayer
             markers={mushroomMarkers ?? []}
             onSpeciesClick={onMushroomSpeciesClick ?? (() => {})}
           />
-        </LayersControl.Overlay>
-
-        {/* Foraging Conditions overlay — weather-based park recommendations */}
-        {foragingConditions && foragingConditions.length > 0 && (
-          <LayersControl.Overlay checked={false} name="Foraging Conditions">
-            <ForagingConditionsLayer conditions={foragingConditions} />
-          </LayersControl.Overlay>
         )}
-      </LayersControl>
-    </MapContainer>
+
+        {/* Foraging Conditions overlay — shown when conditions.foragingConditions is active */}
+        {filters.conditions.foragingConditions && foragingConditions && foragingConditions.length > 0 && (
+          <ForagingConditionsLayer conditions={foragingConditions} />
+        )}
+      </MapContainer>
+    </div>
   );
 }
 

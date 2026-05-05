@@ -208,6 +208,9 @@ export default function EdibilityTab({
 
           {/* Edibility content — varies by label, appears AFTER toxic lookalikes */}
           <div data-testid="edibility-content">
+            <h3 className="text-sm font-semibold text-brand-charcoal dark:text-dark-text mb-2">
+              Edibility
+            </h3>
             <EdibilityContent
               edibilityLabel={edibilityLabel}
               safetyNotes={sanitizedSafetyNotes}
@@ -234,9 +237,9 @@ function EdibilityContent({
     case "commonly-considered-edible-with-expert-confirmation":
       return (
         <div className="rounded-lg border border-brand-moss/30 bg-brand-moss/5 p-3">
-          <h3 className="text-sm font-semibold text-brand-moss mb-1">
+          <h4 className="text-sm font-semibold text-brand-moss mb-1">
             Could be edible with proper expert verification
-          </h3>
+          </h4>
           <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted leading-relaxed">
             This species is commonly considered edible by experienced foragers,
             but requires expert confirmation before consumption. Always verify
@@ -257,9 +260,9 @@ function EdibilityContent({
           role="alert"
           data-testid="edibility-toxic-warning"
         >
-          <h3 className="text-sm font-bold text-red-700 dark:text-red-400 mb-1">
+          <h4 className="text-sm font-bold text-red-700 dark:text-red-400 mb-1">
             ⚠ Toxic — Do Not Consume
-          </h3>
+          </h4>
           <p className="text-xs text-red-600 dark:text-red-300 leading-relaxed">
             This species is considered toxic and should not be consumed under any
             circumstances. Contact poison control immediately if ingested.
@@ -275,9 +278,9 @@ function EdibilityContent({
     case "inedible":
       return (
         <div className="rounded-lg border border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600 p-3">
-          <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">
+          <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">
             Inedible
-          </h3>
+          </h4>
           <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
             This species is not considered edible. It may not be toxic but is not
             suitable for consumption.
@@ -294,9 +297,9 @@ function EdibilityContent({
     default:
       return (
         <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 p-3">
-          <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-400 mb-1">
-            Edibility Unknown
-          </h3>
+          <h4 className="text-sm font-semibold text-amber-700 dark:text-amber-400 mb-1">
+            Unknown
+          </h4>
           <p className="text-xs text-amber-600 dark:text-amber-300 leading-relaxed">
             The edibility of this species has not been determined. Do not consume
             any wild species without expert verification.

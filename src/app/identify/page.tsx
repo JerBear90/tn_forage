@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useIdentifyWizard,
   WIZARD_STEP_LABELS,
@@ -498,8 +499,8 @@ function ResultCard({ result }: { result: IdentificationResult }) {
 
   const handleChecklistProceed = useCallback(() => {
     // Navigate programmatically after checklist is completed
-    window.location.href = `/field-guide/${result.speciesId}`;
-  }, [result.speciesId]);
+    router.push(`/field-guide/${result.speciesId}`);
+  }, [result.speciesId, router]);
 
   const handleChecklistDismiss = useCallback(() => {
     setShowChecklist(false);
@@ -743,6 +744,7 @@ function ResultsDisplay({
 // ---------------------------------------------------------------------------
 
 export default function IdentifyPage() {
+  const router = useRouter();
   const wizard = useIdentifyWizard();
   const stepRef = useRef<HTMLDivElement>(null);
   const [results, setResults] = useState<IdentificationResult[] | null>(null);

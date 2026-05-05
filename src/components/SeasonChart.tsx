@@ -22,6 +22,21 @@ export interface SeasonChartProps {
 export default function SeasonChart({ seasons, compact = false }: SeasonChartProps) {
   const inSeasonMonths = getMonthsForSeasons(seasons);
   const hasSeasonData = seasons.length > 0;
+  const isAllYear = inSeasonMonths.size === 12;
+
+  // When all 12 months are in-season, display a simple text label
+  if (isAllYear) {
+    return (
+      <div className={compact ? '' : 'space-y-1'}>
+        <p
+          role="status"
+          className={`text-brand-moss font-medium ${compact ? 'text-[10px]' : 'text-sm'}`}
+        >
+          Found all year round
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className={compact ? '' : 'space-y-1'}>

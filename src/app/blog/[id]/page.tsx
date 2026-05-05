@@ -38,14 +38,14 @@ export default function BlogArticlePage() {
     return (
       <div className="p-4 text-center">
         <p className="text-sm text-gray-600">Article not found.</p>
-        <Link href="/blog" className="text-sm text-teal-600 hover:underline mt-2 inline-block">← Back to Blog</Link>
+        <Link href="/community#blog" className="text-sm text-teal-600 hover:underline mt-2 inline-block">← Back to Blog</Link>
       </div>
     );
   }
 
   return (
     <div className="p-4 pb-24 max-w-2xl mx-auto">
-      <Link href="/blog" className="text-xs text-teal-600 hover:underline mb-4 inline-block">← Back to Blog</Link>
+      <Link href="/community#blog" className="text-xs text-teal-600 hover:underline mb-4 inline-block">← Back to Blog</Link>
       <h1 className="text-xl font-bold text-gray-800 mb-2">{article.title}</h1>
       <p className="text-xs text-gray-500 mb-4">
         {article.author} · {new Date(article.publishedAt).toLocaleDateString()}

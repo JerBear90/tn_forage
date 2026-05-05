@@ -53,6 +53,33 @@ const CONDITION_STYLES: Record<ConditionRating, { bg: string; icon: string; labe
   poor:      { bg: 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600', icon: '⚪', label: 'Poor' },
 };
 
+// ---------------------------------------------------------------------------
+// Foraging Score Display
+// ---------------------------------------------------------------------------
+
+/** Standalone foraging score — always visible in preview without extra interaction */
+function ForagingScoreDisplay({ score }: { score: number | null }) {
+  if (score === null || score === undefined) {
+    return (
+      <div
+        className="text-sm font-medium text-brand-charcoal/60 dark:text-dark-text-muted"
+        aria-label="Foraging score unavailable"
+      >
+        Score unavailable
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="text-sm font-bold text-brand-forest dark:text-brand-moss"
+      aria-label={`Foraging score: ${score} out of 100`}
+    >
+      {score}/100
+    </div>
+  );
+}
+
 /** Compact inline condition summary for the preview */
 function ConditionSummary({ condition }: { condition: ParkCondition }) {
   const style = CONDITION_STYLES[condition.rating];
@@ -374,7 +401,7 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
 
         {/* Scrollable content */}
         <div className="overflow-y-auto px-4 py-3 overscroll-contain">
-          {/* Preview: image + condition summary + action buttons */}
+          {/* Preview: image + foraging score + condition summary + action buttons */}
           {!expanded && (
             <div className="space-y-3">
               {/* Park image preview */}
@@ -389,6 +416,11 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
                     onError={(e) => { e.currentTarget.src = '/images/park-placeholder.jpg'; }}
                   />
                 </div>
+              )}
+
+              {/* Foraging score — always visible for parks */}
+              {item.type === 'park' && (
+                <ForagingScoreDisplay score={condition?.score ?? null} />
               )}
 
               {/* Trail/Route quick info */}
@@ -423,6 +455,7 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
                 <button
                   type="button"
                   onClick={() => router.push(`/trips/new?parkId=${planVisitId}`)}
+                  aria-label={`Plan a visit to ${item.type === 'park' ? item.data.name : item.parkName ?? title}`}
                   className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-brand-teal px-3 py-2.5 text-sm font-semibold text-white hover:bg-brand-teal/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal touch-manipulation"
                   style={{ minHeight: '44px' }}
                 >
@@ -467,6 +500,7 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
                 <button
                   type="button"
                   onClick={() => router.push(`/trips/new?parkId=${planVisitId}`)}
+                  aria-label={`Plan a visit to ${item.type === 'park' ? item.data.name : item.parkName ?? title}`}
                   className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-brand-teal px-3 py-2.5 text-sm font-semibold text-white hover:bg-brand-teal/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal touch-manipulation"
                   style={{ minHeight: '44px' }}
                 >

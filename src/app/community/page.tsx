@@ -1,12 +1,12 @@
 'use client';
 
 /**
- * ForageFlow — Community Sightings Page
+ * ForageFlow — Community Page
  *
- * Displays user-submitted sightings from IndexedDB communityDrafts store.
- * Supports creating new sightings, viewing existing ones, commenting (placeholder),
- * suggesting IDs (placeholder), flagging content, and privacy controls.
+ * Displays user-submitted sightings from IndexedDB communityDrafts store,
+ * plus sub-tab navigation for Sightings, Challenges, and Blog sections.
  *
+ * - Hash-based sub-tab routing: /community#sightings, /community#challenges, /community#blog
  * - Private-by-default sightings (task 14.4)
  * - Location fuzzing for public posts (task 14.5)
  * - Flagging with reason options (task 14.3)
@@ -23,10 +23,13 @@ import { getAllRecords, putRecord } from '@/offline/db';
 import { applyLocationPrivacy } from '@/services/locationPrivacy';
 import { matchSpeciesImage, type KnownSpeciesRecord } from '@/services/trending';
 import TrendingSpeciesSection from '@/components/community/TrendingSpeciesSection';
+import ChallengesSection from '@/components/ChallengesSection';
 import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import type {
   CommunityDraft,
   CommunityFlag,
+  CommunitySubSection,
+  BlogArticle,
   FlagReason,
   LogVisibility,
   Coordinates,
@@ -666,6 +669,156 @@ function SightingCard({ sighting, knownSpecies, onFlag }: SightingCardProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Sub-Tab Navigation Helpers
+// ---------------------------------------------------------------------------
+
+const VALID_SECTIONS: CommunitySubSection[] = ['sightings', 'challenges', 'blog'];
+
+function parseHashSection(hash: string): CommunitySubSection {
+  const cleaned = hash.replace('#', '').toLowerCase();
+  if (VALID_SECTIONS.includes(cleaned as CommunitySubSection)) {
+    return cleaned as CommunitySubSection;
+  }
+  return 'sightings';
+}
+
+// ---------------------------------------------------------------------------
+// Blog Sub-Section
+// ---------------------------------------------------------------------------
+
+function BlogSubSection() {
+  const [articles, setArticles] = useState<BlogArticle[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadArticles() {
+      try {
+        const all = await getAllRecords('blogArticles');
+        const sorted = (all as BlogArticle[]).sort(
+          (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+        );
+        setArticles(sorted);
+      } catch {
+        // Silently fail
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadArticles();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section aria-label="Blog articles">
+        <h2 className="font-heading font-semibold text-lg text-brand-forest dark:text-brand-moss mb-4">
+          Blog
+        </h2>
+        <div className="animate-pulse space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 rounded-lg bg-brand-charcoal/5 dark:bg-brand-sand/5" />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (articles.length === 0) {
+    return (
+      <section aria-label="Blog articles">
+        <h2 className="font-heading font-semibold text-lg text-brand-forest dark:text-brand-moss mb-4">
+          Blog
+        </h2>
+        <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50 text-center py-8">
+          No articles available yet.
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section aria-label="Blog articles">
+      <h2 className="font-heading font-semibold text-lg text-brand-forest dark:text-brand-moss mb-4">
+        Blog
+      </h2>
+      <div className="space-y-4">
+        {articles.map((article) => (
+          <Link
+            key={article.id}
+            href={`/blog/${article.id}`}
+            className="block rounded-xl border border-brand-teal/15 bg-white/80 dark:bg-brand-charcoal/60 p-4 hover:bg-brand-teal/5 dark:hover:bg-brand-teal/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+          >
+            <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-1">
+              {article.title}
+            </h3>
+            <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mb-2">
+              {article.author} · {new Date(article.publishedAt).toLocaleDateString()}
+            </p>
+            <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 line-clamp-2">
+              {article.summary}
+            </p>
+            {article.tags.length > 0 && (
+              <div className="flex gap-1 mt-2">
+                {article.tags.slice(0, 3).map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-brand-teal/10 px-2 py-0.5 text-[10px] text-brand-teal"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Sub-Tab Navigation Bar
+// ---------------------------------------------------------------------------
+
+interface SubTabNavProps {
+  activeSection: CommunitySubSection;
+  onSectionChange: (section: CommunitySubSection) => void;
+}
+
+function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
+  const tabs: { key: CommunitySubSection; label: string }[] = [
+    { key: 'sightings', label: 'Sightings' },
+    { key: 'challenges', label: 'Challenges' },
+    { key: 'blog', label: 'Blog' },
+  ];
+
+  return (
+    <nav aria-label="Community sub-sections" className="mb-6">
+      <div className="flex gap-1 rounded-xl bg-brand-charcoal/5 dark:bg-brand-sand/5 p-1">
+        {tabs.map((tab) => {
+          const isActive = activeSection === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => onSectionChange(tab.key)}
+              aria-label={`View ${tab.label} section`}
+              aria-current={isActive ? 'page' : undefined}
+              className={`flex-1 rounded-lg text-sm font-medium py-3 min-h-[44px] min-w-[44px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
+                isActive
+                  ? 'bg-brand-teal text-white shadow-sm'
+                  : 'text-brand-charcoal/70 dark:text-brand-sand/70 hover:bg-brand-teal/10 hover:text-brand-teal'
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Community Page
 // ---------------------------------------------------------------------------
 
@@ -675,6 +828,30 @@ function CommunityContent() {
   const [showNewForm, setShowNewForm] = useState(false);
   const [flagTarget, setFlagTarget] = useState<string | null>(null);
   const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set());
+
+  // Sub-tab navigation state
+  const [activeSection, setActiveSection] = useState<CommunitySubSection>(() => {
+    if (typeof window !== 'undefined') {
+      return parseHashSection(window.location.hash);
+    }
+    return 'sightings';
+  });
+
+  // Listen for hash changes (browser back/forward, direct link)
+  useEffect(() => {
+    function handleHashChange() {
+      setActiveSection(parseHashSection(window.location.hash));
+    }
+    window.addEventListener('hashchange', handleHashChange);
+    // Also read hash on mount in case SSR initial state differs
+    setActiveSection(parseHashSection(window.location.hash));
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleSectionChange = useCallback((section: CommunitySubSection) => {
+    setActiveSection(section);
+    window.location.hash = section;
+  }, []);
 
   // Known species/plants for image matching (Req 7.4)
   const [knownSpecies, setKnownSpecies] = useState<KnownSpeciesRecord[]>([]);
@@ -806,88 +983,106 @@ function CommunityContent() {
           ← Home
         </Link>
         <h1 className="text-2xl font-bold text-brand-forest dark:text-brand-moss font-heading">
-          Community Sightings
+          Community
         </h1>
         <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mt-1">
           Share and explore observations from the community. Community IDs are not expert confirmations.
         </p>
       </header>
 
-      {/* Safety notice */}
-      <div
-        role="note"
-        className="mb-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3 text-xs text-amber-700 dark:text-amber-300"
-      >
-        Community sightings are user-submitted and not verified by experts.
-        Always verify with a qualified expert before consuming any wild species.
-      </div>
+      {/* Sub-tab navigation */}
+      <SubTabNav activeSection={activeSection} onSectionChange={handleSectionChange} />
 
-      {/* New Sighting button / form */}
-      {showNewForm ? (
-        <NewSightingForm
-          onSave={handleSave}
-          onCancel={() => setShowNewForm(false)}
-        />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setShowNewForm(true)}
-          className="w-full mb-6 rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] min-h-[48px]"
-        >
-          + New Sighting
-        </button>
+      {/* Sightings sub-section */}
+      {activeSection === 'sightings' && (
+        <>
+          {/* Safety notice */}
+          <div
+            role="note"
+            className="mb-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3 text-xs text-amber-700 dark:text-amber-300"
+          >
+            Community sightings are user-submitted and not verified by experts.
+            Always verify with a qualified expert before consuming any wild species.
+          </div>
+
+          {/* New Sighting button / form */}
+          {showNewForm ? (
+            <NewSightingForm
+              onSave={handleSave}
+              onCancel={() => setShowNewForm(false)}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowNewForm(true)}
+              className="w-full mb-6 rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] min-h-[48px]"
+            >
+              + New Sighting
+            </button>
+          )}
+
+          {/* Sightings list */}
+          {loading ? (
+            <div
+              className="space-y-4"
+              role="status"
+              aria-label="Loading sightings"
+            >
+              {Array.from({ length: 3 }).map((_, i) => (
+                <SkeletonCard key={i} variant="sighting" />
+              ))}
+              <span className="sr-only">Loading sightings…</span>
+            </div>
+          ) : sightings.length === 0 ? (
+            <>
+              {/* Trending Species Section (Req 8.1) */}
+              <TrendingSpeciesSection sightings={sightings} />
+
+              <section aria-label="No sightings" className="text-center py-12">
+                <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50">
+                  No sightings yet. Be the first to share an observation!
+                </p>
+                <p className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40 mt-1">
+                  All sightings save locally and sync when online.
+                </p>
+              </section>
+            </>
+          ) : (
+            <>
+              {/* Trending Species Section (Req 8.1) */}
+              <TrendingSpeciesSection sightings={sightings} />
+
+              <div className="space-y-4" aria-label="Sightings list">
+                {sightings.map((s) => (
+                  <div key={s.id} className="relative">
+                    <SightingCard
+                      sighting={s}
+                      knownSpecies={knownSpecies}
+                      onFlag={(id) => setFlagTarget(id)}
+                    />
+                    {flaggedIds.has(s.id) && (
+                      <div className="absolute top-2 right-2">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-600 dark:text-red-400">
+                          🚩 Reported
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </>
       )}
 
-      {/* Sightings list */}
-      {loading ? (
-        <div
-          className="space-y-4"
-          role="status"
-          aria-label="Loading sightings"
-        >
-          {Array.from({ length: 3 }).map((_, i) => (
-            <SkeletonCard key={i} variant="sighting" />
-          ))}
-          <span className="sr-only">Loading sightings…</span>
-        </div>
-      ) : sightings.length === 0 ? (
-        <>
-          {/* Trending Species Section (Req 8.1) */}
-          <TrendingSpeciesSection sightings={sightings} />
+      {/* Challenges sub-section */}
+      {activeSection === 'challenges' && (
+        <ChallengesSection />
+      )}
 
-          <section aria-label="No sightings" className="text-center py-12">
-            <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50">
-              No sightings yet. Be the first to share an observation!
-            </p>
-            <p className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40 mt-1">
-              All sightings save locally and sync when online.
-            </p>
-          </section>
-        </>
-      ) : (
-        <>
-          {/* Trending Species Section (Req 8.1) */}
-          <TrendingSpeciesSection sightings={sightings} />
-
-          <div className="space-y-4" aria-label="Sightings list">
-            {sightings.map((s) => (
-              <div key={s.id} className="relative">
-                <SightingCard
-                  sighting={s}
-                  knownSpecies={knownSpecies}
-                  onFlag={(id) => setFlagTarget(id)}
-                />
-                {flaggedIds.has(s.id) && (
-                  <div className="absolute top-2 right-2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-600 dark:text-red-400">
-                      🚩 Reported
-                    </span>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </>
+      {/* Blog sub-section */}
+      {activeSection === 'blog' && (
+        <BlogSubSection />
       )}
 
       {/* Flag dialog */}

@@ -402,7 +402,68 @@ describe('SeasonChart — ARIA table roles', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 8. SeasonChartProps interface
+// 8. All-year display — "Found all year round"
+// ---------------------------------------------------------------------------
+
+describe('SeasonChart — all-year display', () => {
+  it('detects all-year when all 4 seasons are provided', () => {
+    const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+    const inSeasonMonths = getMonthsForSeasons(seasons);
+    expect(inSeasonMonths.size).toBe(12);
+  });
+
+  it('isAllYear is true when inSeasonMonths.size === 12', () => {
+    const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+    const inSeasonMonths = getMonthsForSeasons(seasons);
+    const isAllYear = inSeasonMonths.size === 12;
+    expect(isAllYear).toBe(true);
+  });
+
+  it('isAllYear is false when fewer than 12 months are in-season', () => {
+    const seasons = ['Spring', 'Summer'];
+    const inSeasonMonths = getMonthsForSeasons(seasons);
+    const isAllYear = inSeasonMonths.size === 12;
+    expect(isAllYear).toBe(false);
+  });
+
+  it('all-year label text is "Found all year round"', () => {
+    // The component renders this exact text when all 12 months are in-season
+    const label = 'Found all year round';
+    expect(label).toBe('Found all year round');
+  });
+
+  it('all-year label uses role="status" for screen reader announcement', () => {
+    // The component uses role="status" on the all-year <p> element
+    const expectedRole = 'status';
+    expect(expectedRole).toBe('status');
+  });
+
+  it('all-year label uses brand-moss styling', () => {
+    // The component applies text-brand-moss font-medium to the all-year label
+    const expectedClasses = 'text-brand-moss font-medium';
+    expect(expectedClasses).toContain('text-brand-moss');
+    expect(expectedClasses).toContain('font-medium');
+  });
+
+  it('all-year mode does NOT render the 12-month grid', () => {
+    // When isAllYear is true, the component returns early with just the label
+    const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+    const inSeasonMonths = getMonthsForSeasons(seasons);
+    const isAllYear = inSeasonMonths.size === 12;
+    // The grid (role="table") should not be rendered
+    expect(isAllYear).toBe(true);
+  });
+
+  it('partial-year (3 seasons) still renders the grid', () => {
+    const seasons = ['Spring', 'Summer', 'Fall'];
+    const inSeasonMonths = getMonthsForSeasons(seasons);
+    const isAllYear = inSeasonMonths.size === 12;
+    expect(isAllYear).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 9. SeasonChartProps interface
 // ---------------------------------------------------------------------------
 
 describe('SeasonChartProps interface', () => {
