@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "ForageFlow — Discover. Identify. Explore safely.",
+  title: "ForageWise — Discover. Identify. Explore safely.",
   description: "Tennessee's premier foraging companion app. Identify mushrooms, plants, and trees. Explore parks and trails. Stay safe in the field.",
 };
 
 /**
- * Marketing landing page promoting the ForageFlow app.
+ * Marketing landing page promoting the ForageWise app.
  * Requirements: 5.1–5.7
  */
 export default function LandingPage() {
@@ -15,8 +15,8 @@ export default function LandingPage() {
     <div className="min-h-screen bg-sand-50">
       {/* Hero */}
       <section className="relative bg-gradient-to-b from-teal-800 to-teal-900 text-white px-6 py-16 text-center">
-        <img src="/branding/mush_logo.png" alt="ForageFlow logo" className="h-16 mx-auto mb-4" />
-        <h1 className="text-3xl font-bold mb-3">ForageFlow</h1>
+        <img src="/branding/mush_logo.png" alt="ForageWise logo" className="h-16 mx-auto mb-4" />
+        <h1 className="text-3xl font-bold mb-3">ForageWise</h1>
         <p className="text-lg text-teal-100 mb-6">Discover. Identify. Explore safely.</p>
         <Link
           href="/login"
@@ -28,7 +28,7 @@ export default function LandingPage() {
 
       {/* Features */}
       <section className="px-6 py-12 max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Why ForageFlow?</h2>
+        <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Why ForageWise?</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { icon: "🍄", title: "Comprehensive Field Guide", desc: "30+ mushroom species, 16+ plants, and Tennessee's trees — all with safety-first identification steps." },
@@ -64,8 +64,9 @@ export default function LandingPage() {
         <div className="flex justify-center gap-4 mb-2">
           <Link href="/terms" className="hover:text-teal-600">Terms of Service</Link>
           <Link href="/privacy" className="hover:text-teal-600">Privacy Policy</Link>
+          <Link href="/admin/dashboard" className="hover:text-teal-600">Admin Dashboard</Link>
         </div>
-        <p>© {new Date().getFullYear()} ForageFlow. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} ForageWise. All rights reserved.</p>
       </footer>
     </div>
   );

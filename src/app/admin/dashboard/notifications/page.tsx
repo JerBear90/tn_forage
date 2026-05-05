@@ -11,6 +11,85 @@ import type { NotificationHistoryResult } from '@/services/admin/notificationSer
 
 const PER_PAGE = 10;
 
+// ---------------------------------------------------------------------------
+// Notification Templates
+// ---------------------------------------------------------------------------
+
+interface NotificationTemplate {
+  id: string;
+  name: string;
+  icon: string;
+  title: string;
+  body: string;
+  linkUrl?: string;
+}
+
+const TEMPLATES: NotificationTemplate[] = [
+  {
+    id: 'weekly-challenge',
+    name: 'Weekly Challenge',
+    icon: '🏆',
+    title: '🏆 New Weekly Challenge!',
+    body: 'A new foraging challenge is live! This week: identify 3 different mushroom species in your area. Open the app to get started.',
+    linkUrl: '/community',
+  },
+  {
+    id: 'seasonal-alert',
+    name: 'Seasonal Alert',
+    icon: '🍄',
+    title: '🍄 Prime Foraging Conditions!',
+    body: 'Recent rain and warm temperatures mean great conditions for mushroom fruiting this week. Check the Fruiting Forecast for species likely to appear near you.',
+    linkUrl: '/forecast',
+  },
+  {
+    id: 'new-feature',
+    name: 'New Feature',
+    icon: '✨',
+    title: '✨ New Feature Available',
+    body: 'We just launched a new feature to help you forage smarter. Open the app to check it out!',
+  },
+  {
+    id: 'safety-reminder',
+    name: 'Safety Reminder',
+    icon: '⚠️',
+    title: '⚠️ Safety Reminder',
+    body: 'Remember: never consume a wild species based solely on app identification. Always verify with a qualified expert. Stay safe out there!',
+    linkUrl: '/field-guide',
+  },
+  {
+    id: 'community-highlight',
+    name: 'Community Highlight',
+    icon: '👥',
+    title: '👥 Community Spotlight',
+    body: 'Check out what fellow foragers have been finding this week! Browse the latest sightings and share your own discoveries.',
+    linkUrl: '/community',
+  },
+  {
+    id: 'membership-promo',
+    name: 'Membership Promo',
+    icon: '⭐',
+    title: '⭐ Unlock Premium Features',
+    body: 'Upgrade to ForageWise Pro for offline maps, advanced AI identification, and exclusive foraging guides. Limited time offer!',
+    linkUrl: '/membership',
+  },
+  {
+    id: 'park-update',
+    name: 'Park Update',
+    icon: '🌲',
+    title: '🌲 Park Trail Update',
+    body: 'Trail conditions have been updated for parks in your area. Check the latest reports before your next trip.',
+    linkUrl: '/parks',
+  },
+  {
+    id: 'event-announcement',
+    name: 'Event Announcement',
+    icon: '📅',
+    title: '📅 Upcoming Foraging Event',
+    body: 'A local foraging event is coming up! Join fellow enthusiasts for a guided walk. Check the Events page for details.',
+    linkUrl: '/events',
+  },
+];
+
 export default function NotificationsPage() {
   // Composer state
   const [title, setTitle] = useState('');
@@ -22,6 +101,11 @@ export default function NotificationsPage() {
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendSuccess, setSendSuccess] = useState<string | null>(null);
   const [duplicateWarning, setDuplicateWarning] = useState(false);
+
+  // Schedule state
+  const [scheduleEnabled, setScheduleEnabled] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
 
   // Confirmation dialog state
   const [showConfirm, setShowConfirm] = useState(false);
@@ -67,6 +151,13 @@ export default function NotificationsPage() {
     return () => clearTimeout(timer);
   }, [title, body]);
 
+  // Apply a template
+  const applyTemplate = (template: NotificationTemplate) => {
+    setTitle(template.title);
+    setBody(template.body);
+    setLinkUrl(template.linkUrl ?? '');
+  };
+
   const buildTarget = (): NotificationTarget => {
     switch (targetType) {
       case 'region':
@@ -99,13 +190,19 @@ export default function NotificationsPage() {
 
     try {
       const result = await sendNotification(draft);
-      setSendSuccess(`Notification sent to ${result.recipientCount} recipient${result.recipientCount !== 1 ? 's' : ''}.`);
+      const scheduleNote = scheduleEnabled && scheduledDate && scheduledTime
+        ? ` (scheduled for ${scheduledDate} at ${scheduledTime})`
+        : '';
+      setSendSuccess(`Notification sent to ${result.recipientCount} recipient${result.recipientCount !== 1 ? 's' : ''}.${scheduleNote}`);
       // Reset form
       setTitle('');
       setBody('');
       setLinkUrl('');
       setTargetType('all');
       setTargetValue('');
+      setScheduleEnabled(false);
+      setScheduledDate('');
+      setScheduledTime('');
       setDuplicateWarning(false);
       // Refresh history
       fetchHistory();
@@ -130,6 +227,36 @@ export default function NotificationsPage() {
           Compose and broadcast push notifications to users
         </p>
       </div>
+
+      {/* Templates */}
+      <section
+        className="rounded-xl border border-brand-charcoal/10 bg-white p-6 shadow-sm dark:border-brand-sand/10 dark:bg-brand-charcoal/50"
+        aria-labelledby="templates-heading"
+      >
+        <h2
+          id="templates-heading"
+          className="text-lg font-semibold text-brand-charcoal dark:text-brand-sand"
+        >
+          Quick Templates
+        </h2>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Click a template to pre-fill the composer. Edit before sending.
+        </p>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {TEMPLATES.map((template) => (
+            <button
+              key={template.id}
+              type="button"
+              onClick={() => applyTemplate(template)}
+              aria-label={`Use template: ${template.name}`}
+              className="min-h-[44px] flex items-center gap-3 rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 bg-brand-sand/30 dark:bg-brand-charcoal/30 px-4 py-3 text-left transition-all hover:border-brand-teal/40 hover:bg-brand-teal/5 dark:hover:bg-brand-teal/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal active:scale-[0.98]"
+            >
+              <span className="text-xl shrink-0" aria-hidden="true">{template.icon}</span>
+              <span className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">{template.name}</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* Notification Composer */}
       <section
@@ -273,6 +400,56 @@ export default function NotificationsPage() {
             </div>
           )}
 
+          {/* Schedule Option */}
+          <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
+            <div className="flex items-center gap-3">
+              <input
+                id="schedule-toggle"
+                type="checkbox"
+                checked={scheduleEnabled}
+                onChange={(e) => setScheduleEnabled(e.target.checked)}
+                className="h-5 w-5 rounded border-brand-charcoal/30 text-brand-teal focus:ring-brand-teal/30 dark:border-brand-sand/30"
+                aria-label="Schedule notification for later"
+              />
+              <label
+                htmlFor="schedule-toggle"
+                className="text-sm font-medium text-brand-charcoal dark:text-brand-sand cursor-pointer"
+              >
+                Schedule for later
+              </label>
+            </div>
+            {scheduleEnabled && (
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                <div className="flex-1">
+                  <label htmlFor="schedule-date" className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Date
+                  </label>
+                  <input
+                    id="schedule-date"
+                    type="date"
+                    value={scheduledDate}
+                    onChange={(e) => setScheduledDate(e.target.value)}
+                    aria-label="Scheduled date"
+                    className="w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-sm text-brand-charcoal focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:focus:border-brand-teal"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label htmlFor="schedule-time" className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Time
+                  </label>
+                  <input
+                    id="schedule-time"
+                    type="time"
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    aria-label="Scheduled time"
+                    className="w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-sm text-brand-charcoal focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:focus:border-brand-teal"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Duplicate Warning */}
           {duplicateWarning && (
             <div
@@ -309,10 +486,10 @@ export default function NotificationsPage() {
           <button
             onClick={handleSendClick}
             disabled={!isFormValid || sending || duplicateWarning}
-            aria-label="Send notification"
+            aria-label={scheduleEnabled ? "Schedule notification" : "Send notification"}
             className="min-h-[44px] min-w-[44px] rounded-lg bg-brand-teal px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-teal/90 focus:outline-none focus:ring-2 focus:ring-brand-teal/30 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {sending ? 'Sending...' : 'Send Notification'}
+            {sending ? 'Sending...' : scheduleEnabled ? '📅 Schedule Notification' : 'Send Notification'}
           </button>
         </div>
       </section>

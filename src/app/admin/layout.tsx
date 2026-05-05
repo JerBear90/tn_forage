@@ -23,7 +23,18 @@ import SuperUserGate from "@/auth/SuperUserGate";
 
 const adminLinks = [
   { href: "/admin", label: "Overview", icon: "📊" },
-  { href: "/admin/dashboard", label: "Dashboard", icon: "📈" },
+  { href: "/admin/dashboard", label: "Analytics", icon: "📈" },
+  { href: "/admin/dashboard/users", label: "Users", icon: "👥" },
+  { href: "/admin/dashboard/notifications", label: "Notifications", icon: "🔔" },
+  { href: "/admin/dashboard/content", label: "Content", icon: "📝" },
+  { href: "/admin/dashboard/retention", label: "Retention", icon: "📉" },
+  { href: "/admin/dashboard/funnels", label: "Funnels", icon: "🔄" },
+  { href: "/admin/dashboard/search", label: "Search", icon: "🔍" },
+  { href: "/admin/dashboard/onboarding", label: "Onboarding", icon: "🚀" },
+  { href: "/admin/dashboard/revenue", label: "Revenue", icon: "💰" },
+  { href: "/admin/dashboard/alerts", label: "Alerts", icon: "🚨" },
+  { href: "/admin/dashboard/releases", label: "Releases", icon: "📋" },
+  { href: "/admin/dashboard/reviews", label: "Reviews", icon: "⭐" },
   { href: "/admin/moderation", label: "Moderation", icon: "🛡️" },
   { href: "/admin/safety-notices", label: "Safety Notices", icon: "⚠️" },
 ];

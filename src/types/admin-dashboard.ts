@@ -262,8 +262,8 @@ export const CHART_COLORS = {
   tertiary: 'var(--brand-earth)',
   quaternary: 'var(--brand-forest)',
   background: 'var(--brand-sand)',
-  text: 'var(--brand-charcoal)',
-  grid: 'var(--brand-charcoal-10)',
+  text: '#e5e7eb',
+  grid: 'rgba(255, 255, 255, 0.1)',
 } as const;
 
 /** Recharts theme configuration using brand tokens */
