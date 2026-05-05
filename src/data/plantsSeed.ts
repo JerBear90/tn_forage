@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Tennessee Plant Seed Data
+ * ForageWise — Tennessee Plant Seed Data
  *
  * Local seed data for plant species commonly found in Tennessee.
  * This data is loaded into IndexedDB on first run.

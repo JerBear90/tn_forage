@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — GlobalSearchBar Component
+ * ForageWise — GlobalSearchBar Component
  *
  * Search icon button in the AppShell header that expands into a search
  * input overlay. Shows recent searches when opened without typing,

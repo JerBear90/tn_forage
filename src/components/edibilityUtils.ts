@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Edibility Safety Utilities
+ * ForageWise — Edibility Safety Utilities
  *
  * Pure functions for edibility safety text processing.
  * Separated from the React component for testability.

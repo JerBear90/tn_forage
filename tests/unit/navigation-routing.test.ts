@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Navigation and Routing Tests
+ * ForageWise — Navigation and Routing Tests
  *
  * Tests that the bottom navigation has the correct items in the right order:
  * Field Guide / Map / ID / Community / Plan

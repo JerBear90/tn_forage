@@ -2,7 +2,7 @@
 
 ## Overview
 
-ForageFlow uses Stripe for payment processing. Stripe is the **server-authoritative source of truth** for membership status. The frontend displays cached membership data but cannot grant or modify paid access.
+ForageWise uses Stripe for payment processing. Stripe is the **server-authoritative source of truth** for membership status. The frontend displays cached membership data but cannot grant or modify paid access.
 
 ## Plans
 
@@ -75,7 +75,7 @@ The handler detects the plan from the Stripe subscription:
 
 ### Status Mapping
 
-| Stripe Status | ForageFlow Status |
+| Stripe Status | ForageWise Status |
 |--------------|-------------------|
 | `active` | `active` |
 | `trialing` | `trialing` |

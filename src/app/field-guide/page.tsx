@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Field Guide List Page
+ * ForageWise — Field Guide List Page
  *
  * Searchable, filterable species list that reads entirely from IndexedDB.
  * Works offline. Mobile-first layout with single column on mobile,

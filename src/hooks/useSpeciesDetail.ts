@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — useSpeciesDetail Hook
+ * ForageWise — useSpeciesDetail Hook
  *
  * Looks up a single species, plant, or tree record by ID from IndexedDB.
  * Tries each store in order: species → plants → trees.

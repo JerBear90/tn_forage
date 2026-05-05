@@ -210,13 +210,13 @@ export default function HomepageContent() {
         <h1 className="flex flex-col items-center gap-2 mb-1">
           <img
             src="/branding/mush_logo.png"
-            alt="ForageFlow"
+            alt="ForageWise"
             width={72}
             height={72}
             className="h-[72px] w-[72px] rounded-2xl"
           />
           <span className="text-3xl font-bold text-brand-teal font-heading">
-            ForageFlow
+            ForageWise
           </span>
         </h1>
         <p className="text-brand-charcoal/70 dark:text-dark-text-muted text-sm">
@@ -271,7 +271,7 @@ export default function HomepageContent() {
         className="rounded-lg bg-brand-earth/10 border border-brand-earth/20 p-4 text-center"
       >
         <p className="text-xs text-brand-earth dark:text-brand-earth-300 font-medium leading-relaxed">
-          ForageFlow provides identification assistance only. Always verify with
+          ForageWise provides identification assistance only. Always verify with
           a qualified expert before consuming any wild species.
         </p>
       </section>

@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Membership Plan Hierarchy
+ * ForageWise — Membership Plan Hierarchy
  *
  * Defines the plan hierarchy and comparison utilities.
  * Plan order: free < monthly < yearly < lifetime < admin

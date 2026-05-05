@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Background Sync Registration
+ * ForageWise — Background Sync Registration
  *
  * Registers a Background Sync event with the service worker so that
  * pending sync queue items are processed even when the app is closed.
@@ -21,7 +21,7 @@ export async function requestBackgroundSync(): Promise<void> {
     const registration = await navigator.serviceWorker.ready;
 
     if ('sync' in registration) {
-      await (registration as any).sync.register('forageflow-sync-queue');
+      await (registration as any).sync.register('foragewise-sync-queue');
     }
   } catch {
     // Background Sync not supported or registration failed — silent fallback

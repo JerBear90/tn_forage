@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — ForagingTipSection Component
+ * ForageWise — ForagingTipSection Component
  *
  * Displays season-specific foraging guidance on the species detail page.
  * If the species is in season for the current month, shows the relevant

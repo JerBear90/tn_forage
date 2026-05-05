@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Auth Service
+ * ForageWise — Auth Service
  *
  * Service module (not a React hook) that manages authentication state,
  * PocketBase integration, SSO redirect flows, and offline session restore.

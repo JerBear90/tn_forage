@@ -17,7 +17,7 @@ import type { DetailPanelItem } from '@/map/MapDetailPanel';
  * Dynamically import the Leaflet map component with SSR disabled.
  * Leaflet requires `window` and cannot render on the server.
  */
-const ForageFlowMap = dynamic(() => import('@/map/ForageFlowMap'), {
+const ForageWiseMap = dynamic(() => import('@/map/ForageWiseMap'), {
   ssr: false,
   loading: () => (
     <div
@@ -381,7 +381,7 @@ export default function MapPageClient() {
             </p>
           </div>
         ) : (
-          <ForageFlowMap
+          <ForageWiseMap
             parks={parks}
             trails={trails}
             routes={routes}

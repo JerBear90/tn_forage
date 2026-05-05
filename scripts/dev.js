@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Dev Server Launcher
+ * ForageWise — Dev Server Launcher
  *
  * Starts PocketBase and Next.js dev server together.
  * PocketBase runs in the background; Next.js runs in the foreground.

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Species Comparison Page
+ * ForageWise — Species Comparison Page
  *
  * Allows users to select 2-4 species and view them side-by-side.
  * Reads all data from IndexedDB (works offline).
@@ -518,7 +518,7 @@ function ComparisonModal({
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 py-4 pb-24">
         {/* Safety disclaimer (dismissible) */}
-        <DismissibleDisclaimer storageKey="forageflow-compare-disclaimer-ack">
+        <DismissibleDisclaimer storageKey="foragewise-compare-disclaimer-ack">
           <p className="font-medium">
             ⚠ Verify with a qualified expert before consuming any wild species. This comparison is for identification assistance only.
           </p>

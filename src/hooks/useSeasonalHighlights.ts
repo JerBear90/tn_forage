@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — useSeasonalHighlights Hook
+ * ForageWise — useSeasonalHighlights Hook
  *
  * Loads species from IndexedDB filtered by the current season.
  * Returns species with images, names, season, and habitat for

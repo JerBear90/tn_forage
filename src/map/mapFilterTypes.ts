@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Map Filter Types and Constants
+ * ForageWise — Map Filter Types and Constants
  *
  * Shared types and default state for the MapFilterPanel component.
  * Extracted to a .ts file so tests can import without JSX parsing issues.

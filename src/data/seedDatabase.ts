@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Database Seeding
+ * ForageWise — Database Seeding
  *
  * Loads local seed data (species, plants, trees) into IndexedDB on first run.
  * Uses a seed data version to detect when seed data has been updated and

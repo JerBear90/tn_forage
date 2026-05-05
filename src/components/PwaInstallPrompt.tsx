@@ -10,7 +10,7 @@ export { shouldShowPwaPrompt } from "./pwaPromptUtils";
 // Constants
 // ---------------------------------------------------------------------------
 
-const DISMISSAL_KEY = "forageflow-pwa-prompt-dismissed";
+const DISMISSAL_KEY = "foragewise-pwa-prompt-dismissed";
 
 // ---------------------------------------------------------------------------
 // Platform detection helpers
@@ -76,17 +76,17 @@ export default function PwaInstallPrompt({ forceShow }: PwaInstallPromptProps) {
   return (
     <div
       role="complementary"
-      aria-label="Install ForageFlow"
+      aria-label="Install ForageWise"
       className="fixed bottom-20 inset-x-0 z-40 mx-4 max-w-lg sm:mx-auto"
     >
       <div className="rounded-xl border border-brand-teal/20 bg-white/95 dark:bg-brand-charcoal/95 backdrop-blur shadow-lg p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="font-heading font-semibold text-sm text-brand-charcoal dark:text-brand-sand">
-              Add ForageFlow to Home Screen
+              Add ForageWise to Home Screen
             </h2>
             <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mt-1">
-              Use ForageFlow like a native app — works offline in the field.
+              Use ForageWise like a native app — works offline in the field.
             </p>
 
             {platform === "ios" && (
@@ -115,7 +115,7 @@ export default function PwaInstallPrompt({ forceShow }: PwaInstallPromptProps) {
 
             {platform === "other" && (
               <p className="mt-2 text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
-                Open this page in your mobile browser to install ForageFlow on
+                Open this page in your mobile browser to install ForageWise on
                 your device.
               </p>
             )}

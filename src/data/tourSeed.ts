@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Guided Tour Seed Data
+ * ForageWise — Guided Tour Seed Data
  *
  * Pre-authored guided tour content for select Tennessee trails.
  * Each tour provides narrated waypoints with ecological context,

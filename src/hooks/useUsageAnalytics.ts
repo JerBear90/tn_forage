@@ -18,7 +18,7 @@ function generateEventId(): string {
  * Gets or creates a session ID for the current browser session.
  */
 function getSessionId(): string {
-  const key = 'forageflow_session_id';
+  const key = 'foragewise_session_id';
   let sessionId = sessionStorage.getItem(key);
   if (!sessionId) {
     sessionId = `sess-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;

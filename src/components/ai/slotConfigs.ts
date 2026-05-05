@@ -1,5 +1,5 @@
 /**
- * ForageFlow — AI Identification Photo Slot Configurations
+ * ForageWise — AI Identification Photo Slot Configurations
  *
  * Defines the category-specific photo slots for mushroom, plant, and tree
  * identification. Each category has 5 slots with descriptive labels,

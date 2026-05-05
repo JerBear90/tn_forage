@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Core TypeScript type definitions
+ * ForageWise — Core TypeScript type definitions
  *
  * These types define the shape of data stored in IndexedDB and used
  * throughout the application. They map 1-to-1 with the IndexedDB stores

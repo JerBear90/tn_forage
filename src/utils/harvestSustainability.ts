@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Harvest Sustainability Calculator
+ * ForageWise — Harvest Sustainability Calculator
  *
  * Calculates sustainability level (green/yellow/red) based on harvest
  * frequency at a given location. Implements location hashing for privacy

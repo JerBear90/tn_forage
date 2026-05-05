@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — AI Identification Photo Slot Grid
+ * ForageWise — AI Identification Photo Slot Grid
  *
  * Renders 5 photo upload slots for the selected identification category.
  * Each slot shows a category-specific placeholder image with descriptive alt

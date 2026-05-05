@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Map Page
+ * ForageWise — E2E Tests: Map Page
  *
  * Tests map page rendering with Leaflet, switching between map and list views,
  * opening a detail panel (top positioning), legend visibility, and map height.

@@ -1,4 +1,4 @@
-# ForageFlow — Apple App Store Listing
+# ForageWise — Apple App Store Listing
 
 ## Important Note for PWAs on iOS
 
@@ -18,7 +18,7 @@ iOS does not support TWA (Trusted Web Activity) like Android. Your options:
 
 ### App Name (30 chars max)
 ```
-ForageFlow
+ForageWise
 ```
 
 ### Subtitle (30 chars max)
@@ -47,7 +47,7 @@ Your offline field companion for mushroom and plant discovery in Tennessee. Frui
 
 ### Description (4000 chars max)
 ```
-ForageFlow is your offline-first field companion for mushroom, plant, tree, park, and trail discovery in Tennessee. Built for foragers who need reliable information in areas with no cell service.
+ForageWise is your offline-first field companion for mushroom, plant, tree, park, and trail discovery in Tennessee. Built for foragers who need reliable information in areas with no cell service.
 
 FIELD GUIDE
 Browse 30+ mushroom species and 16+ plants with detailed identification steps, images, habitat info, seasonal data, and safety notes. Every species includes toxic lookalike warnings.
@@ -80,7 +80,7 @@ WORKS OFFLINE
 The entire Field Guide, journal, saved routes, and downloaded map areas work without internet.
 
 SAFETY FIRST
-ForageFlow never claims anything is "safe to eat." All identifications are possible matches requiring expert verification. Toxic lookalikes are always shown prominently.
+ForageWise never claims anything is "safe to eat." All identifications are possible matches requiring expert verification. Toxic lookalikes are always shown prominently.
 
 Built with real Tennessee data from government sources and university extension resources.
 ```
@@ -140,9 +140,9 @@ Same 8 screens as Google Play:
 ### Xcode Project Structure
 
 ```
-ForageFlow-iOS/
-├── ForageFlow.xcodeproj
-├── ForageFlow/
+ForageWise-iOS/
+├── ForageWise.xcodeproj
+├── ForageWise/
 │   ├── AppDelegate.swift
 │   ├── SceneDelegate.swift
 │   ├── ViewController.swift      ← WKWebView loading PWA URL
@@ -151,7 +151,7 @@ ForageFlow-iOS/
 │       ├── AppIcon.appiconset/   ← 1024×1024 icon
 │       └── LaunchImage.imageset/
 ├── LaunchScreen.storyboard       ← Splash with logo
-└── ForageFlow.entitlements
+└── ForageWise.entitlements
 ```
 
 ### Key ViewController.swift
@@ -174,7 +174,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         webView.navigationDelegate = self
         view.addSubview(webView)
         
-        if let url = URL(string: "https://forageflow.app") {
+        if let url = URL(string: "https://foragewise.app") {
             webView.load(URLRequest(url: url))
         }
     }
@@ -182,7 +182,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
     // Handle external links (open in Safari)
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url,
-           url.host != "forageflow.app" {
+           url.host != "foragewise.app" {
             UIApplication.shared.open(url)
             decisionHandler(.cancel)
             return
@@ -195,11 +195,11 @@ class ViewController: UIViewController, WKNavigationDelegate {
 ### Info.plist Additions
 ```xml
 <key>NSLocationWhenInUseUsageDescription</key>
-<string>ForageFlow uses your location to show nearby parks, log finds, and share your position with friends for safety.</string>
+<string>ForageWise uses your location to show nearby parks, log finds, and share your position with friends for safety.</string>
 <key>NSCameraUsageDescription</key>
-<string>ForageFlow uses your camera to photograph species for identification and spore print scanning.</string>
+<string>ForageWise uses your camera to photograph species for identification and spore print scanning.</string>
 <key>NSPhotoLibraryUsageDescription</key>
-<string>ForageFlow accesses your photos to attach images to journal entries and trail condition reports.</string>
+<string>ForageWise accesses your photos to attach images to journal entries and trail condition reports.</string>
 ```
 
 ### TestFlight Steps

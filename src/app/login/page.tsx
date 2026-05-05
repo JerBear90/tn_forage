@@ -160,14 +160,14 @@ export default function LoginPage() {
         <div className="mb-8 text-center">
           <Image
             src="/branding/mush_logo.png"
-            alt="ForageFlow logo"
+            alt="ForageWise logo"
             width={64}
             height={64}
             className="mx-auto mb-3 rounded-2xl"
             priority
           />
           <h1 className="font-heading text-3xl font-bold text-brand-teal">
-            ForageFlow
+            ForageWise
           </h1>
           <p className="mt-1 text-sm text-brand-charcoal/70 dark:text-brand-sand/70">
             Sign in to sync your data and access all features.

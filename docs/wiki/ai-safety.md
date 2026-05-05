@@ -1,8 +1,8 @@
-# ForageFlow AI Safety
+# ForageWise AI Safety
 
 ## Core Principle
 
-AI recognition in ForageFlow is **assistive only**. It provides possible matches to help users narrow down identification, but it never confirms edibility or safety. All AI results require manual verification.
+AI recognition in ForageWise is **assistive only**. It provides possible matches to help users narrow down identification, but it never confirms edibility or safety. All AI results require manual verification.
 
 ## Safety Language Rules
 

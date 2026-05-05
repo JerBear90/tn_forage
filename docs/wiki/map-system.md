@@ -1,4 +1,4 @@
-# ForageFlow Map System
+# ForageWise Map System
 
 ## Overview
 
@@ -6,7 +6,7 @@ The map system uses Leaflet (via `react-leaflet`) to display Tennessee State Par
 
 ## Components
 
-### ForageFlowMap (`src/map/ForageFlowMap.tsx`)
+### ForageWiseMap (`src/map/ForageWiseMap.tsx`)
 Main map component rendered on `/map`. Features:
 - Leaflet map centered on Tennessee
 - Park, trail, and route marker layers

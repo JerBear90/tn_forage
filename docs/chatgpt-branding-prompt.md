@@ -1,9 +1,3 @@
-# ForageFlow — ChatGPT Branding & Marketing Prompt
-
-Copy everything below this line into ChatGPT (GPT-4o with image generation) to create your logo, app icons, screenshots, and store marketing materials.
-
----
-
 ## PROMPT START
 
 I need you to help me create a complete branding and marketing package for my app called **ForageFlow**. I'll give you all the details about the app, brand identity, and what I need created. Please generate each asset one at a time when I ask.

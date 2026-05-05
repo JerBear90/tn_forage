@@ -11,13 +11,13 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { getDB, DB_NAME, DB_VERSION, STORE_NAMES } from '@/offline/db';
 import type { IDBPDatabase } from 'idb';
-import type { ForageFlowDB } from '@/offline/db';
+import type { ForageWiseDB } from '@/offline/db';
 
 // ---------------------------------------------------------------------------
 // Shared database handle — opened once for all tests
 // ---------------------------------------------------------------------------
 
-let db: IDBPDatabase<ForageFlowDB>;
+let db: IDBPDatabase<ForageWiseDB>;
 
 beforeAll(async () => {
   db = await getDB();

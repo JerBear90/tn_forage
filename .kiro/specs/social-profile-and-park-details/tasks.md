@@ -2,7 +2,7 @@
 
 ## Overview
 
-This plan implements two complementary feature sets for ForageFlow: (1) a social layer with follow system, activity feed, photo sharing, reviews, achievements, and public profiles; and (2) enhanced park and trail detail pages with extended metadata, trail maps, photo tours, reviews display, directions, weather links, and contact info. All features build on the existing offline-first IndexedDB + PocketBase sync queue architecture. Implementation proceeds bottom-up: types and data layer first, then services, then UI components, wiring everything together at the end.
+This plan implements two complementary feature sets for ForageWise: (1) a social layer with follow system, activity feed, photo sharing, reviews, achievements, and public profiles; and (2) enhanced park and trail detail pages with extended metadata, trail maps, photo tours, reviews display, directions, weather links, and contact info. All features build on the existing offline-first IndexedDB + PocketBase sync queue architecture. Implementation proceeds bottom-up: types and data layer first, then services, then UI components, wiring everything together at the end.
 
 ## Tasks
 
@@ -18,7 +18,7 @@ This plan implements two complementary feature sets for ForageFlow: (1) a social
     - Add 6 new stores: `follows`, `reviews`, `socialPhotos`, `achievements`, `feedItems`, `reviewAggregations`
     - Add indexes as defined in the design: `by-followerId`, `by-followedId`, `by-targetType-targetId`, `by-userId`, `by-createdAt`, `by-syncStatus`, `by-earnedAt`
     - Add upgrade migration from version 2 to version 3
-    - Update `ForageFlowDB` schema interface, `STORE_NAMES` array, and `StoreName` type
+    - Update `ForageWiseDB` schema interface, `STORE_NAMES` array, and `StoreName` type
     - _Requirements: 14.1, 14.2, 14.3, 1.5, 3.3, 4.5, 5.6_
 
   - [x] 1.3 Write unit tests for IndexedDB schema upgrade

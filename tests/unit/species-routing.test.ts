@@ -103,7 +103,7 @@ beforeEach(async () => {
 // Property 12: Species detail routing resolves correct record
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 12: Species detail routing resolves correct record", () => {
+describe("Feature: foragewise-enhancements, Property 12: Species detail routing resolves correct record", () => {
   /**
    * **Validates: Requirements 17.1, 17.2, 17.3**
    */

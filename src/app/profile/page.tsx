@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import ProfileContent from "./ProfileContent";
 
 export const metadata: Metadata = {
-  title: "Profile — ForageFlow",
+  title: "Profile — ForageWise",
   description:
-    "Manage your ForageFlow profile, settings, and membership.",
+    "Manage your ForageWise profile, settings, and membership.",
 };
 
 export default function ProfilePage() {

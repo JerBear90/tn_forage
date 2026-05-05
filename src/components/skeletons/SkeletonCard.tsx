@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — SkeletonCard Component
+ * ForageWise — SkeletonCard Component
  *
  * Reusable skeleton loading placeholder for card-based layouts.
  * Supports three variants matching the real card structures:

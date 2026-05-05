@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Tennessee Mushroom Species Seed Data
+ * ForageWise — Tennessee Mushroom Species Seed Data
  *
  * Local seed data for mushroom species commonly found in Tennessee.
  * This data is loaded into IndexedDB on first run.

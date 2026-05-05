@@ -203,14 +203,14 @@ export default function SignupPage() {
         <div className="mb-8 text-center">
           <Image
             src="/branding/mush_logo.png"
-            alt="ForageFlow logo"
+            alt="ForageWise logo"
             width={64}
             height={64}
             className="mx-auto mb-3 rounded-2xl"
             priority
           />
           <h1 className="font-heading text-3xl font-bold text-brand-teal">
-            Join ForageFlow
+            Join ForageWise
           </h1>
           <p className="mt-1 text-sm text-brand-charcoal/70 dark:text-brand-sand/70">
             Create an account to sync your trips, logs, and species data across
@@ -441,7 +441,7 @@ export default function SignupPage() {
 
         {/* Safety note */}
         <p className="mt-8 max-w-xs mx-auto text-center text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
-          By creating an account you agree that ForageFlow provides
+          By creating an account you agree that ForageWise provides
           identification assistance only. Always verify species with a qualified
           expert.
         </p>

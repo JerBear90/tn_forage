@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Theme / Dark Mode
+ * ForageWise — E2E Tests: Theme / Dark Mode
  *
  * Tests dark mode toggle switching theme and theme persistence
  * across page reload via localStorage.
@@ -15,7 +15,7 @@ test.describe('Theme — Dark Mode Toggle', () => {
   test.beforeEach(async ({ page }) => {
     // Clear localStorage to start with a clean theme state
     await page.goto('/');
-    await page.evaluate(() => localStorage.removeItem('forageflow-theme'));
+    await page.evaluate(() => localStorage.removeItem('foragewise-theme'));
     await page.reload();
   });
 
@@ -110,7 +110,7 @@ test.describe('Theme — Persistence', () => {
 
     // Set dark mode via localStorage directly
     await page.evaluate(() => {
-      localStorage.setItem('forageflow-theme', 'dark');
+      localStorage.setItem('foragewise-theme', 'dark');
     });
 
     // Reload the page
@@ -128,7 +128,7 @@ test.describe('Theme — Persistence', () => {
 
     // Set light mode via localStorage
     await page.evaluate(() => {
-      localStorage.setItem('forageflow-theme', 'light');
+      localStorage.setItem('foragewise-theme', 'light');
     });
 
     // Reload the page
@@ -161,7 +161,7 @@ test.describe('Theme — Persistence', () => {
 
       // Verify localStorage was updated
       const storedTheme = await page.evaluate(() =>
-        localStorage.getItem('forageflow-theme')
+        localStorage.getItem('foragewise-theme')
       );
       expect(storedTheme).toMatch(/^(light|dark)$/);
     }

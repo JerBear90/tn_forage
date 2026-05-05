@@ -20,7 +20,7 @@ export interface VisibilityConfirmDialogProps {
 /**
  * Reusable confirmation dialog shown when a user changes a trip or
  * expedition log from private to public. Warns that content will become
- * visible to other ForageFlow users.
+ * visible to other ForageWise users.
  *
  * Accessible: focus trap, aria attributes, Escape key to close.
  * Mobile-first: large tap targets (min 44px).
@@ -110,7 +110,7 @@ export default function VisibilityConfirmDialog({
         {/* Warning message */}
         <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mb-5">
           Making this content public means it will be visible to other
-          ForageFlow users.
+          ForageWise users.
         </p>
 
         {/* Action buttons — large tap targets */}

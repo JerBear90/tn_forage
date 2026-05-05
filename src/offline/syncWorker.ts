@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Sync Worker
+ * ForageWise — Sync Worker
  *
  * Processes the offline sync queue by sending pending operations to PocketBase.
  * Runs when the device comes back online and processes items in FIFO order.

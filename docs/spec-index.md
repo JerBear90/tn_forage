@@ -1,14 +1,14 @@
 # Spec Index
 
 Main Kiro files:
-- `.kiro/specs/forageflow/requirements.md`
-- `.kiro/specs/forageflow/design.md`
-- `.kiro/specs/forageflow/tasks.md`
+- `.kiro/specs/foragewise/requirements.md`
+- `.kiro/specs/foragewise/design.md`
+- `.kiro/specs/foragewise/tasks.md`
 
 Security/SSO:
-- `.kiro/specs/forageflow/security-sso-requirements.md`
-- `.kiro/specs/forageflow/security-sso-design.md`
-- `.kiro/specs/forageflow/security-sso-tasks.md`
+- `.kiro/specs/foragewise/security-sso-requirements.md`
+- `.kiro/specs/foragewise/security-sso-design.md`
+- `.kiro/specs/foragewise/security-sso-tasks.md`
 
 Steering:
 - `.kiro/steering/product.md`

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — ProtectedRoute
+ * ForageWise — ProtectedRoute
  *
  * Wrapper component that guards routes behind authentication.
  *

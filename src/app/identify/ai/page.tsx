@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — AI Photo Recognition Page
+ * ForageWise — AI Photo Recognition Page
  *
  * Multi-photo upload with recommended shots (top, underside, habitat, stem).
  * Supports camera capture + gallery upload.
@@ -630,7 +630,7 @@ function AIRecognitionPageInner() {
 
         <div className="space-y-4">
           {/* Safety disclaimer — dismissible */}
-          <DismissibleDisclaimer storageKey="forageflow-ai-identify-disclaimer-ack" variant="earth">
+          <DismissibleDisclaimer storageKey="foragewise-ai-identify-disclaimer-ack" variant="earth">
             <p className="text-xs font-semibold">
               Possible match only — not safe for consumption decisions
             </p>

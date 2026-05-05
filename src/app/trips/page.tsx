@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — Trips Page
+ * ForageWise — Trips Page
  *
  * Lists all saved trips from IndexedDB with search/filter, sync status
  * badges, delete with confirmation, loading skeleton, and empty state.

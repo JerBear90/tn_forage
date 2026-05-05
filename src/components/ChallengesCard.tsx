@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Challenge, ChallengeCategory } from "@/types";
 
 /**
- * ForageFlow — ChallengesCard Component
+ * ForageWise — ChallengesCard Component
  *
  * Renders a single challenge with:
  * - Title, description, and category badge

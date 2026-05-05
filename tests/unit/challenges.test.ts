@@ -144,7 +144,7 @@ beforeEach(async () => {
 // Property 2: Challenge completion invariant
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 2: Challenge completion invariant", () => {
+describe("Feature: foragewise-enhancements, Property 2: Challenge completion invariant", () => {
   /**
    * **Validates: Requirements 2.4, 2.7**
    */
@@ -187,7 +187,7 @@ describe("Feature: forageflow-enhancements, Property 2: Challenge completion inv
 // Property 3: Challenge persistence round-trip
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 3: Challenge persistence round-trip", () => {
+describe("Feature: foragewise-enhancements, Property 3: Challenge persistence round-trip", () => {
   /**
    * **Validates: Requirements 2.5**
    */
@@ -231,7 +231,7 @@ describe("Feature: forageflow-enhancements, Property 3: Challenge persistence ro
 // Property 6: Challenges preview returns non-completed challenges
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 6: Challenges preview returns non-completed challenges", () => {
+describe("Feature: foragewise-enhancements, Property 6: Challenges preview returns non-completed challenges", () => {
   /**
    * **Validates: Requirements 11.3**
    */

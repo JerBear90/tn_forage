@@ -1,8 +1,8 @@
-# ForageFlow User Guide
+# ForageWise User Guide
 
 ## Getting Started
 
-ForageFlow is a mobile-first app for discovering mushrooms, plants, trees, parks, and trails across Tennessee. It works offline after your first visit — open it on your phone in the field and everything you need is right there.
+ForageWise is a mobile-first app for discovering mushrooms, plants, trees, parks, and trails across Tennessee. It works offline after your first visit — open it on your phone in the field and everything you need is right there.
 
 ### Navigation
 
@@ -39,7 +39,7 @@ Filters combine — selecting "Mushroom" + "East TN" + "Fall" shows only mushroo
 - Toxic lookalikes (always shown before edibility discussion)
 - Associated species links (on tree pages, tap to navigate to related species)
 
-**Safety note:** ForageFlow never says something is "safe to eat." The edibility tab provides general information and always directs you to verify with a qualified expert before consuming any wild species.
+**Safety note:** ForageWise never says something is "safe to eat." The edibility tab provides general information and always directs you to verify with a qualified expert before consuming any wild species.
 
 ### Map
 
@@ -100,7 +100,7 @@ Challenge progress is stored locally and works offline.
 
 ## Offline Use
 
-ForageFlow is designed to work without internet after your first visit. The following features work fully offline:
+ForageWise is designed to work without internet after your first visit. The following features work fully offline:
 
 - Field Guide (browsing and species detail)
 - Map (previously viewed areas with cached tiles)
@@ -118,7 +118,7 @@ Features that require internet:
 
 ### Adding to Home Screen
 
-For the best experience, add ForageFlow to your home screen:
+For the best experience, add ForageWise to your home screen:
 
 **iOS Safari:**
 1. Tap the Share button (square with arrow)
@@ -130,13 +130,13 @@ For the best experience, add ForageFlow to your home screen:
 2. Tap "Add to Home Screen" or "Install app"
 3. Confirm
 
-Once installed, ForageFlow opens like a native app with its own icon and full-screen experience.
+Once installed, ForageWise opens like a native app with its own icon and full-screen experience.
 
 ---
 
 ## Safety Reminders
 
-- ForageFlow is an identification aid, not a substitute for expert verification
+- ForageWise is an identification aid, not a substitute for expert verification
 - Always verify species identification with a qualified expert before consuming any wild species
 - Toxic lookalikes are shown prominently on species detail pages
 - The app uses cautious language like "commonly considered edible with expert confirmation" — never "safe to eat"

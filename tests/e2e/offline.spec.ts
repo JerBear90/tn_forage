@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Offline Functionality
+ * ForageWise — E2E Tests: Offline Functionality
  *
  * Playwright test stubs verifying offline-first behavior.
  * These tests simulate network disconnection to verify that core

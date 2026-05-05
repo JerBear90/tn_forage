@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Role Hierarchy
+ * ForageWise — Role Hierarchy
  *
  * Defines the role hierarchy and comparison utilities.
  * Role order: guest < free < member < super_user

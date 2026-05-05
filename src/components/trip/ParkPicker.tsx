@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — ParkPicker Component
+ * ForageWise — ParkPicker Component
  *
  * Visual card grid for selecting a park during trip creation.
  * Displays all Tennessee state parks with images, names, and region

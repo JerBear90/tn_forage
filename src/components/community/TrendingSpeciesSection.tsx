@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — TrendingSpeciesSection Component
+ * ForageWise — TrendingSpeciesSection Component
  *
  * Displays a horizontal scrollable row of trending species cards on the
  * Community Feed page. Aggregates sighting counts by speciesGuess from

@@ -1,14 +1,14 @@
 "use client";
 
 /**
- * ForageFlow — SpeciesImage Component
+ * ForageWise — SpeciesImage Component
  *
  * Mobile-optimized image component for species, plant, and tree photos.
  * Uses Next.js Image for automatic WebP/AVIF conversion, responsive
  * srcSet generation, and lazy loading. Falls back to a placeholder
  * icon when no valid image URL is available.
  *
- * Sizes are tuned for ForageFlow's mobile-first layout:
+ * Sizes are tuned for ForageWise's mobile-first layout:
  *   - Card thumbnails: 400px wide (covers up to 2x on ~200px cards)
  *   - Detail gallery:  640px wide (covers up to 2x on ~320px viewport)
  *   - Seasonal cards:  384px wide (covers up to 2x on ~192px cards)

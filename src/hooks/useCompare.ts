@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — useCompare Hook
+ * ForageWise — useCompare Hook
  *
  * Manages species comparison state using URL search params.
  * Selected species IDs are stored in the `ids` query parameter

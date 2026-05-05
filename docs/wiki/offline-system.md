@@ -1,14 +1,14 @@
-# ForageFlow Offline System
+# ForageWise Offline System
 
 ## Overview
 
-ForageFlow is offline-first. Core field tools work without internet after the initial visit. The offline system uses IndexedDB for structured data and a Service Worker for app shell, images, and map tile caching.
+ForageWise is offline-first. Core field tools work without internet after the initial visit. The offline system uses IndexedDB for structured data and a Service Worker for app shell, images, and map tile caching.
 
 ## IndexedDB Database
 
 **Module**: `src/offline/db.ts`
 **Library**: `idb` (typed IndexedDB wrapper)
-**Database name**: `forageflow`
+**Database name**: `foragewise`
 **Version**: 1
 
 ### Stores (17 total)

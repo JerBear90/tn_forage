@@ -1,7 +1,7 @@
 /**
  * Property-based tests for PWA install prompt visibility logic.
  *
- * Feature: forageflow-enhancements, Property 4: PWA install prompt visibility logic
+ * Feature: foragewise-enhancements, Property 4: PWA install prompt visibility logic
  *
  * **Validates: Requirements 10.1, 10.3, 10.4**
  */

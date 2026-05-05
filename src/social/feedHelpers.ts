@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Activity Feed Helpers
+ * ForageWise — Activity Feed Helpers
  *
  * Pure functions for the activity feed page. Extracted so they can be
  * unit-tested without importing JSX/React components.

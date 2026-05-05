@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 /**
  * CSS-based PWA splash / loading screen.
  *
- * Shows the ForageFlow logo centered on the brand teal background while the
+ * Shows the ForageWise logo centered on the brand teal background while the
  * app hydrates. Automatically fades out after a short delay and is removed
  * from the DOM once the transition completes.
  *
@@ -42,11 +42,11 @@ export default function PwaSplash() {
         src="/branding/mush_logo.png"
         width={96}
         height={96}
-        alt="ForageFlow logo"
+        alt="ForageWise logo"
         className="pwa-splash__icon"
       />
 
-      <p className="pwa-splash__title">ForageFlow</p>
+      <p className="pwa-splash__title">ForageWise</p>
     </div>
   );
 }

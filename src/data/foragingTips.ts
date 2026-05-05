@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Foraging Tips Data
+ * ForageWise — Foraging Tips Data
  *
  * Static foraging tips for species detail pages and the mushroom calendar.
  * Per-species, per-season tips cover habitat, appearance, and what to look for.

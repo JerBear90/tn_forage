@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Breadcrumb Referrer Utilities
+ * ForageWise — Breadcrumb Referrer Utilities
  *
  * Manages the sessionStorage-based referrer stack for contextual
  * breadcrumb navigation between detail pages.

@@ -30,7 +30,7 @@ const VALID_DIFFICULTIES = ['easy', 'moderate', 'hard', 'expert'];
 // Build a set of valid park IDs for trail validation
 const validParkIds = new Set(parksSeed.map((p) => p.id));
 
-describe('Feature: forageflow-enhancements, Property 1: Seed data record completeness', () => {
+describe('Feature: foragewise-enhancements, Property 1: Seed data record completeness', () => {
   // -------------------------------------------------------------------------
   // Parks
   // -------------------------------------------------------------------------

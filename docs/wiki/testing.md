@@ -1,8 +1,8 @@
-# ForageFlow Testing
+# ForageWise Testing
 
 ## Overview
 
-ForageFlow uses a multi-layer testing strategy covering unit tests, integration tests, E2E tests, offline/PWA tests, mobile viewport tests, and accessibility tests.
+ForageWise uses a multi-layer testing strategy covering unit tests, integration tests, E2E tests, offline/PWA tests, mobile viewport tests, and accessibility tests.
 
 ## Test Stack
 

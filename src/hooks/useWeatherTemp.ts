@@ -80,7 +80,7 @@ export function useWeatherTemp(): WeatherState {
         // Step 1: Get the forecast grid endpoint from weather.gov
         const pointRes = await fetch(
           `https://api.weather.gov/points/${latitude.toFixed(4)},${longitude.toFixed(4)}`,
-          { headers: { "User-Agent": "ForageFlow/1.0 (forageflow-app)" } }
+          { headers: { "User-Agent": "ForageWise/1.0 (foragewise-app)" } }
         );
 
         if (!pointRes.ok) throw new Error("Failed to get weather point");
@@ -92,7 +92,7 @@ export function useWeatherTemp(): WeatherState {
 
         // Step 2: Get the hourly forecast
         const forecastRes = await fetch(forecastUrl, {
-          headers: { "User-Agent": "ForageFlow/1.0 (forageflow-app)" },
+          headers: { "User-Agent": "ForageWise/1.0 (foragewise-app)" },
         });
 
         if (!forecastRes.ok) throw new Error("Failed to get forecast");

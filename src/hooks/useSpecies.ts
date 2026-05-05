@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — useSpecies Hook
+ * ForageWise — useSpecies Hook
  *
  * Loads all species (mushrooms), plants, and trees from IndexedDB on mount.
  * Seeds the database if stores are empty (first run).

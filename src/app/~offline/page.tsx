@@ -2,8 +2,8 @@ import Image from "next/image";
 import OfflineRetryButton from "./OfflineRetryButton";
 
 export const metadata = {
-  title: "Offline — ForageFlow",
-  description: "You are currently offline. Some ForageFlow features are still available.",
+  title: "Offline — ForageWise",
+  description: "You are currently offline. Some ForageWise features are still available.",
 };
 
 /**
@@ -21,11 +21,11 @@ export default function OfflinePage() {
       style={{ backgroundColor: "#F5F0DF", minHeight: "100vh" }}
     >
       <div className="mx-auto max-w-md">
-        {/* ForageFlow logo */}
+        {/* ForageWise logo */}
         <div className="mb-8 flex justify-center">
           <Image
             src="/branding/mush_logo.png"
-            alt="ForageFlow logo"
+            alt="ForageWise logo"
             width={96}
             height={96}
             className="rounded-3xl shadow-lg"
@@ -48,7 +48,7 @@ export default function OfflinePage() {
           style={{ color: "#1F2937", opacity: 0.85 }}
         >
           It looks like you&apos;ve lost your connection. Don&apos;t worry — many
-          ForageFlow features still work without internet.
+          ForageWise features still work without internet.
         </p>
 
         {/* Available features */}

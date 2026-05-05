@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Bottom Navigation Item Definitions
+ * ForageWise — Bottom Navigation Item Definitions
  *
  * Defines the navigation items used by BottomNav.
  * Separated from the component to allow testing without JSX parsing.

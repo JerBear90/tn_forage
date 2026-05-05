@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — SeasonChart Component
+ * ForageWise — SeasonChart Component
  *
  * Displays a 12-month grid for a single species showing which months
  * it is in season. Uses semantic table roles for screen reader support.

@@ -92,7 +92,7 @@ const arbTreeRecord: fc.Arbitrary<Tree> = fc.record({
 // Property 7: Associated species link resolution
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 7: Associated species link resolution", () => {
+describe("Feature: foragewise-enhancements, Property 7: Associated species link resolution", () => {
   /**
    * **Validates: Requirements 12.1, 12.3**
    */

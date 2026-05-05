@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Recent Searches Utilities
+ * ForageWise — Recent Searches Utilities
  *
  * Persists recent search queries in localStorage for quick access.
  * Stores at most 10 entries, newest first, with no duplicates.
@@ -7,7 +7,7 @@
  * localStorage is unavailable (e.g., private browsing in some browsers).
  */
 
-export const STORAGE_KEY = 'forageflow-recent-searches';
+export const STORAGE_KEY = 'foragewise-recent-searches';
 export const MAX_RECENT = 10;
 
 /**

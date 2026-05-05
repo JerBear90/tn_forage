@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Season Helper Utilities
+ * ForageWise — Season Helper Utilities
  *
  * Pure utility functions for season-to-month mapping, current season
  * detection, and month label generation. Used by SeasonChart,

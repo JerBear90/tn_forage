@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Verification Checklist Logic
+ * ForageWise — Verification Checklist Logic
  *
  * Pure logic module for the lookalike verification checklist.
  * Determines when the checklist should be shown and defines

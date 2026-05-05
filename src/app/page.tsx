@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import HomepageContent from "@/components/HomepageContent";
 
 export const metadata: Metadata = {
-  title: "ForageFlow — Home",
+  title: "ForageWise — Home",
   description:
     "Offline-first field app for mushroom, plant, tree, park, trail, and expedition discovery in Tennessee.",
 };

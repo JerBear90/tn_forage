@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import {
   LineChart,
   Line,
@@ -383,6 +384,26 @@ export default function DashboardPage() {
 
       {/* Time Range Selector */}
       <TimeRangeSelector selected={timeRangePreset} onChange={handleTimeRangeChange} />
+
+      {/* Quick Actions */}
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {[
+          { href: '/admin/dashboard/blog', icon: '📝', label: 'New Blog Post' },
+          { href: '/admin/dashboard/notifications', icon: '🔔', label: 'Send Notification' },
+          { href: '/admin/dashboard/ai', icon: '🤖', label: 'Generate Content' },
+          { href: '/admin/dashboard/releases', icon: '📋', label: 'Add Release' },
+          { href: '/admin/dashboard/settings', icon: '⚙️', label: 'Settings' },
+        ].map((action) => (
+          <Link
+            key={action.href}
+            href={action.href}
+            className="flex flex-col items-center gap-2 rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white dark:bg-brand-charcoal/50 p-4 text-center hover:border-brand-teal/40 hover:bg-brand-teal/5 dark:hover:bg-brand-teal/10 transition-colors min-h-[44px]"
+          >
+            <span className="text-2xl" aria-hidden="true">{action.icon}</span>
+            <span className="text-xs font-medium text-brand-charcoal dark:text-brand-sand">{action.label}</span>
+          </Link>
+        ))}
+      </section>
 
       {/* Overview Cards Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

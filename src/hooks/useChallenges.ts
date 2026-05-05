@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — useChallenges Hook
+ * ForageWise — useChallenges Hook
  *
  * Loads all challenges from the IndexedDB `challenges` store on mount.
  * Seeds the database if stores are empty (first run).

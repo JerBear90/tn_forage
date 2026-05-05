@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — MapFilterPanel Component
+ * ForageWise — MapFilterPanel Component
  *
  * Displays categorized inline filter buttons for the map view.
  * Replaces the hidden LayersControl dropdown with visible, labeled,

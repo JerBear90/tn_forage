@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — AI Identification Category Selector
+ * ForageWise — AI Identification Category Selector
  *
  * Allows the user to select between mushroom, plant, and tree identification
  * categories. Shows a confirmation dialog when changing category if photos

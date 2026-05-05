@@ -35,6 +35,11 @@ const adminLinks = [
   { href: "/admin/dashboard/alerts", label: "Alerts", icon: "🚨" },
   { href: "/admin/dashboard/releases", label: "Releases", icon: "📋" },
   { href: "/admin/dashboard/reviews", label: "Reviews", icon: "⭐" },
+  { href: "/admin/dashboard/feedback", label: "Feedback", icon: "💬" },
+  { href: "/admin/dashboard/blog", label: "Blog", icon: "✍️" },
+  { href: "/admin/dashboard/ai", label: "AI Insights", icon: "🤖" },
+  { href: "/admin/dashboard/settings", label: "Settings", icon: "⚙️" },
+  { href: "/admin/dashboard/audit", label: "Audit Log", icon: "📜" },
   { href: "/admin/moderation", label: "Moderation", icon: "🛡️" },
   { href: "/admin/safety-notices", label: "Safety Notices", icon: "⚠️" },
 ];

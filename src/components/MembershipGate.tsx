@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — MembershipGate
+ * ForageWise — MembershipGate
  *
  * Wrapper component that restricts premium features based on membership plan.
  * Works offline using cached membership data from the AuthProvider (which

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Regional Filter Component
+ * ForageWise — Regional Filter Component
  *
  * Filter chips for Tennessee geographic regions: All Regions, East TN,
  * Middle TN, West TN. Styled consistently with the existing category

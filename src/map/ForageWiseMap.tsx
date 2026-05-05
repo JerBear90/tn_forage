@@ -44,7 +44,7 @@ const COLOR_EARTH = '#7C4A24'; // Routes
 
 function createCircleIcon(color: string): L.DivIcon {
   return L.divIcon({
-    className: 'forageflow-marker',
+    className: 'foragewise-marker',
     html: `<div style="
       width: 24px;
       height: 24px;
@@ -69,13 +69,13 @@ function createClusterCustomIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
   // Scale size based on cluster count
   let size = 40;
-  let className = 'forageflow-cluster forageflow-cluster-small';
+  let className = 'foragewise-cluster foragewise-cluster-small';
   if (count >= 100) {
     size = 56;
-    className = 'forageflow-cluster forageflow-cluster-large';
+    className = 'foragewise-cluster foragewise-cluster-large';
   } else if (count >= 10) {
     size = 48;
-    className = 'forageflow-cluster forageflow-cluster-medium';
+    className = 'foragewise-cluster foragewise-cluster-medium';
   }
 
   return L.divIcon({
@@ -253,7 +253,7 @@ function FindMeControl() {
 // Props
 // ---------------------------------------------------------------------------
 
-export interface ForageFlowMapProps {
+export interface ForageWiseMapProps {
   parks: Park[];
   trails: Trail[];
   routes: Route[];
@@ -268,7 +268,7 @@ export interface ForageFlowMapProps {
 // Component
 // ---------------------------------------------------------------------------
 
-export default function ForageFlowMap({
+export default function ForageWiseMap({
   parks,
   trails,
   routes,
@@ -276,7 +276,7 @@ export default function ForageFlowMap({
   mushroomMarkers,
   onMushroomSpeciesClick,
   foragingConditions,
-}: ForageFlowMapProps) {
+}: ForageWiseMapProps) {
   const [filters, setFilters] = useState<MapFilterState>(DEFAULT_MAP_FILTER_STATE);
 
   return (
@@ -343,7 +343,7 @@ function ParkMarkers({
   onMarkerClick,
 }: {
   parks: Park[];
-  onMarkerClick?: ForageFlowMapProps['onMarkerClick'];
+  onMarkerClick?: ForageWiseMapProps['onMarkerClick'];
 }) {
   return (
     <MarkerClusterGroup
@@ -374,7 +374,7 @@ function TrailPolylines({
   onMarkerClick,
 }: {
   trails: Trail[];
-  onMarkerClick?: ForageFlowMapProps['onMarkerClick'];
+  onMarkerClick?: ForageWiseMapProps['onMarkerClick'];
 }) {
   return (
     <FeatureGroup>
@@ -403,7 +403,7 @@ function RoutePolylines({
   onMarkerClick,
 }: {
   routes: Route[];
-  onMarkerClick?: ForageFlowMapProps['onMarkerClick'];
+  onMarkerClick?: ForageWiseMapProps['onMarkerClick'];
 }) {
   return (
     <FeatureGroup>

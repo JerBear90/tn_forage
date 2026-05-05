@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Community Page
+ * ForageWise — E2E Tests: Community Page
  *
  * Tests community page navigation from bottom nav and home page link,
  * sighting creation flow, and visibility toggle (public/private).

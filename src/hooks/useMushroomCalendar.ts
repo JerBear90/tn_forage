@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — Mushroom Calendar Hook
+ * ForageWise — Mushroom Calendar Hook
  *
  * Loads all mushroom species from IndexedDB, groups them by month
  * using the canonical season-to-month mapping, and attaches monthly

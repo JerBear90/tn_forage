@@ -18,7 +18,7 @@ export interface ThemeContextValue {
 
 export const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const STORAGE_KEY = "forageflow-theme";
+const STORAGE_KEY = "foragewise-theme";
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "light";

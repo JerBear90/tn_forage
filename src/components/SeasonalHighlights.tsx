@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — SeasonalHighlights Component
+ * ForageWise — SeasonalHighlights Component
  *
  * Renders seasonal species highlights with images, common name,
  * active season, and habitat. Each highlight is tappable and

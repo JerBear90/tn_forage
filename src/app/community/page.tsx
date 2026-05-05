@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — Community Page
+ * ForageWise — Community Page
  *
  * Displays user-submitted sightings from IndexedDB communityDrafts store,
  * plus sub-tab navigation for Sightings, Challenges, and Blog sections.

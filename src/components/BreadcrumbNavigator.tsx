@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — BreadcrumbNavigator Component
+ * ForageWise — BreadcrumbNavigator Component
  *
  * Contextual breadcrumb navigation for detail pages. Reads sessionStorage
  * to determine if the user arrived from another detail page, and renders

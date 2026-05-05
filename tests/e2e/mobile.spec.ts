@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Mobile Viewport
+ * ForageWise — E2E Tests: Mobile Viewport
  *
  * Playwright test stubs for mobile device layouts.
  * Verifies that the app renders correctly on iPhone Safari

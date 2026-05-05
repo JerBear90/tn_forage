@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Activity Feed Service
+ * ForageWise — Activity Feed Service
  *
  * Provides paginated and cached activity feed from followed users.
  * All data is read from IndexedDB for offline-first access.

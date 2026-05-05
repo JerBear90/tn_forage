@@ -1,7 +1,7 @@
 /**
  * Property-based test for regional filter composition (Property 8)
  *
- * Feature: forageflow-enhancements, Property 8: Regional filter composition
+ * Feature: foragewise-enhancements, Property 8: Regional filter composition
  *
  * Uses fast-check to generate random FieldGuideItem lists with random
  * regions arrays, apply random filter combinations (region, category,
@@ -128,7 +128,7 @@ const arbEdibilitySet = fc
 // Property Tests
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 8: Regional filter composition", () => {
+describe("Feature: foragewise-enhancements, Property 8: Regional filter composition", () => {
   it("filtered result contains only items satisfying ALL active filter criteria simultaneously", () => {
     fc.assert(
       fc.property(

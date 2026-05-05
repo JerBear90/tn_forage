@@ -75,9 +75,9 @@ const SAFETY_DISCLAIMER_TEXT =
 // ---------------------------------------------------------------------------
 
 const sampleSpecies: MonthData['species'] = [
-  { id: 'sp-chanterelle', commonName: 'Chanterelle', image: '/images/species/sp-chanterelle.jpg' },
-  { id: 'sp-morel', commonName: 'Morel', image: '/images/species/sp-morel.jpg' },
-  { id: 'sp-chicken-of-the-woods', commonName: 'Chicken of the Woods', image: '' },
+  { id: 'sp-chanterelle', commonName: 'Chanterelle', image: '/images/species/sp-chanterelle.jpg', summary: 'Golden funnel-shaped mushroom found near oaks in summer and fall.' },
+  { id: 'sp-morel', commonName: 'Morel', image: '/images/species/sp-morel.jpg', summary: 'Honeycomb-capped spring mushroom found in disturbed soils near tulip poplars.' },
+  { id: 'sp-chicken-of-the-woods', commonName: 'Chicken of the Woods', image: '', summary: 'Bright orange shelf fungus on hardwoods, prized for its meaty texture when young.' },
 ];
 
 function buildSampleMonths(currentMonth: number): MonthData[] {

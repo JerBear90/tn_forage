@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — useCommunityPreview Hook
+ * ForageWise — useCommunityPreview Hook
  *
  * Loads community drafts from IndexedDB `communityDrafts` store.
  * Filters to `visibility === 'public'` only, sorts by `createdAt`

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — Parks Browse Page
+ * ForageWise — Parks Browse Page
  *
  * Shows all Tennessee state parks as browsable cards with images,
  * region filters, and a link to plan a trip from each park.

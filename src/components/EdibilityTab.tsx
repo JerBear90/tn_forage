@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — EdibilityTab Component
+ * ForageWise — EdibilityTab Component
  *
  * Tab component for species detail pages with "Overview" and "Could Be" tabs.
  * Enforces safety language rules — forbidden phrases are stripped at runtime.

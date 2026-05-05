@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Tennessee Tree Seed Data
+ * ForageWise — Tennessee Tree Seed Data
  *
  * Comprehensive seed data for native tree species found in Tennessee.
  * Data sourced from UT Extension, TN Dept of Agriculture, and USDA

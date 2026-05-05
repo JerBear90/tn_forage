@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Accessibility (WCAG AA)
+ * ForageWise — E2E Tests: Accessibility (WCAG AA)
  *
  * Integrates @axe-core/playwright for automated accessibility checks.
  * Runs axe-core on Home, Field Guide, and Map pages in both light and
@@ -26,7 +26,7 @@ import AxeBuilder from '@axe-core/playwright';
  */
 async function setTheme(page: import('@playwright/test').Page, theme: 'light' | 'dark') {
   await page.evaluate((t) => {
-    localStorage.setItem('forageflow-theme', t);
+    localStorage.setItem('foragewise-theme', t);
   }, theme);
   await page.reload();
   // Wait for theme class to be applied

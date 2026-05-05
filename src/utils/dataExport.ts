@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Data Export Utility
+ * ForageWise — Data Export Utility
  *
  * Generates a JSON export of all user data from IndexedDB.
  * Excludes photo blobs (too large) but includes metadata.
@@ -112,7 +112,7 @@ export function downloadExportAsFile(exportData: UserDataExport): void {
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = `forageflow-export-${exportData.exportedAt.split('T')[0]}.json`;
+  link.download = `foragewise-export-${exportData.exportedAt.split('T')[0]}.json`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

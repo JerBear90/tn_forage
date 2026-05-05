@@ -11,6 +11,7 @@ import { useAutoSync } from "@/hooks/useAutoSync";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
 import { useErrorCapture } from "@/hooks/useErrorCapture";
 import { useSessionTracking } from "@/hooks/useSessionTracking";
+import NotificationSignupPrompt from "@/components/NotificationSignupPrompt";
 import { getAllRecords } from "@/offline/db";
 
 /** Pages where the app shell header should be hidden (auth screens). */
@@ -152,6 +153,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Content wrapper — padded for fixed header (top) and bottom nav */}
       <div className="pt-12">
         <SafetyDisclaimer />
+        {/* Notification signup prompt — only on non-admin pages */}
+        {!pathname.startsWith('/admin') && <NotificationSignupPrompt />}
         <main className="min-h-screen">{children}</main>
       </div>
     </>

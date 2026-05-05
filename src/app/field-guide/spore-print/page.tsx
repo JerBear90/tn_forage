@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Spore Print Guide
+ * ForageWise — Spore Print Guide
  *
  * Step-by-step spore print instructions, color reference with visual swatches,
  * species-linked expectations from IndexedDB, and safety warning.
@@ -278,7 +278,7 @@ export default function SporePrintGuidePage() {
       </header>
 
       {/* Safety warning — dismissible */}
-      <DismissibleDisclaimer storageKey="forageflow-sporeprint-disclaimer-ack">
+      <DismissibleDisclaimer storageKey="foragewise-sporeprint-disclaimer-ack">
         <p className="font-semibold">Important Safety Notice</p>
         <p className="leading-relaxed mt-1">
           A spore print is one identification tool among many. It is NOT
@@ -364,7 +364,7 @@ export default function SporePrintGuidePage() {
       </section>
 
       {/* Repeated safety reminder at bottom (dismissible) */}
-      <DismissibleDisclaimer storageKey="forageflow-sporeprint-disclaimer-ack">
+      <DismissibleDisclaimer storageKey="foragewise-sporeprint-disclaimer-ack">
         <p className="text-xs font-medium leading-relaxed">
           Remember: A spore print is one identification tool among many. It is
           NOT sufficient on its own to determine if a mushroom is edible. Verify

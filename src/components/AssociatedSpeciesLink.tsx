@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — AssociatedSpeciesLink Component
+ * ForageWise — AssociatedSpeciesLink Component
  *
  * Renders an associated species name as a tappable link if the species ID
  * exists in IndexedDB, or as plain text if not found.

@@ -1,4 +1,4 @@
-# ForageFlow Phase 3.2 — Manual Testing Checklist
+# ForageWise Phase 3.2 — Manual Testing Checklist
 
 ## Pre-Testing Setup
 
@@ -56,7 +56,7 @@
 - [ ] Page loads and displays correctly on mobile (320px)
 - [ ] Page displays correctly on tablet (768px)
 - [ ] Page displays correctly on desktop (1280px)
-- [ ] ForageFlow logo is visible and current
+- [ ] ForageWise logo is visible and current
 - [ ] Brand colors match (teal, forest green, sand, charcoal)
 - [ ] Tagline "Discover. Identify. Explore safely." is present
 - [ ] CTA button is visible and clickable

@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Push Notification Infrastructure
+ * ForageWise — Push Notification Infrastructure
  *
  * Service worker push registration, permission requests, and notification wiring.
  *

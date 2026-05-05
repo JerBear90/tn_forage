@@ -50,9 +50,10 @@ export default function BlogArticlePage() {
       <p className="text-xs text-gray-500 mb-4">
         {article.author} · {new Date(article.publishedAt).toLocaleDateString()}
       </p>
-      <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap mb-6">
-        {article.body}
-      </div>
+      <div
+        className="prose prose-sm max-w-none text-gray-700 mb-6"
+        dangerouslySetInnerHTML={{ __html: article.body }}
+      />
 
       {/* Source Attribution */}
       {article.sources.length > 0 && (

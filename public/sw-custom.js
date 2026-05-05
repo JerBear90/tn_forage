@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Custom Service Worker Extension
+ * ForageWise — Custom Service Worker Extension
  *
  * Adds Background Sync support for the offline sync queue.
  * When the device comes back online, pending sync operations are
@@ -10,7 +10,7 @@
 
 // Register for Background Sync events
 self.addEventListener('sync', (event) => {
-  if (event.tag === 'forageflow-sync-queue') {
+  if (event.tag === 'foragewise-sync-queue') {
     event.waitUntil(processSyncQueue());
   }
 });
@@ -19,7 +19,7 @@ self.addEventListener('sync', (event) => {
 self.addEventListener('online', () => {
   // Attempt to register a sync if Background Sync API is available
   if (self.registration && self.registration.sync) {
-    self.registration.sync.register('forageflow-sync-queue').catch(() => {
+    self.registration.sync.register('foragewise-sync-queue').catch(() => {
       // Background Sync not supported — fall back to direct processing
       processSyncQueue();
     });
@@ -134,7 +134,7 @@ async function executeSyncItem(pbUrl, item) {
 
 function openSyncDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('forageflow', 3);
+    const request = indexedDB.open('foragewise', 3);
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
   });

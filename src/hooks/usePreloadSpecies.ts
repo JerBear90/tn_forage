@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — usePreloadSpecies Hook
+ * ForageWise — usePreloadSpecies Hook
  *
  * Preloads species/plant/tree detail data from IndexedDB into an in-memory
  * cache on hover or focus. The species detail page can check this cache

@@ -1,6 +1,6 @@
 # SSO Provider Setup Guide
 
-ForageFlow uses redirect-based OAuth via PocketBase for SSO with Google, Apple, and Microsoft. This guide covers how to configure each provider.
+ForageWise uses redirect-based OAuth via PocketBase for SSO with Google, Apple, and Microsoft. This guide covers how to configure each provider.
 
 ## Prerequisites
 
@@ -33,7 +33,7 @@ PocketBase also needs its own OAuth redirect configured. Check PocketBase docs f
 3. Navigate to **APIs & Services → Credentials**
 4. Click **Create Credentials → OAuth client ID**
 5. Application type: **Web application**
-6. Name: `ForageFlow`
+6. Name: `ForageWise`
 
 ### 2. Configure Redirect URIs
 Add these authorized redirect URIs:
@@ -65,8 +65,8 @@ http://127.0.0.1:8090/api/oauth2-redirect    (PocketBase redirect)
 2. Navigate to **Certificates, Identifiers & Profiles**
 3. Under **Identifiers**, click **+** and select **Services IDs**
 4. Register a new Services ID:
-   - Description: `ForageFlow`
-   - Identifier: `com.forageflow.auth` (or your bundle ID)
+   - Description: `ForageWise`
+   - Identifier: `com.foragewise.auth` (or your bundle ID)
 5. Enable **Sign in with Apple**
 6. Configure the **Return URLs**
 
@@ -106,7 +106,7 @@ http://127.0.0.1:8090/api/oauth2-redirect    (PocketBase redirect)
 1. Go to [Azure Portal](https://portal.azure.com/)
 2. Navigate to **Azure Active Directory → App registrations**
 3. Click **New registration**
-4. Name: `ForageFlow`
+4. Name: `ForageWise`
 5. Supported account types: **Accounts in any organizational directory and personal Microsoft accounts**
 6. Redirect URI: Web platform
 
@@ -160,7 +160,7 @@ http://127.0.0.1:8090/api/oauth2-redirect    (PocketBase redirect)
 - Verify client ID and secret are entered correctly
 
 ### Mobile Redirect Issues
-- Use redirect-based OAuth (not popup) — ForageFlow is configured for this
+- Use redirect-based OAuth (not popup) — ForageWise is configured for this
 - Test on actual mobile devices, not just browser dev tools
 - Verify the callback page (`/auth/callback`) handles the response correctly
 

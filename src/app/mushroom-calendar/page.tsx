@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — Mushroom Calendar Page
+ * ForageWise — Mushroom Calendar Page
  *
  * Displays all 12 months of the year with mushroom species in season,
  * image thumbnails, monthly foraging tips, and a safety disclaimer.
