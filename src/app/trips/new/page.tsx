@@ -40,8 +40,9 @@ function CreateTripPageInner() {
   const [locationMode, setLocationMode] = useState<LocationMode>('park');
 
   // --- Park-based flow state ---
-  // Pre-select park from URL query param (e.g. /trips/new?parkId=park-big-ridge)
+  // Pre-select park from URL query param (e.g. /trips/new?parkId=park-big-ridge&parkName=Big%20Ridge)
   const initialParkId = searchParams.get('parkId');
+  const initialParkName = searchParams.get('parkName');
   const [selectedParkId, setSelectedParkId] = useState<string | null>(initialParkId);
   const [selectedTrailId, setSelectedTrailId] = useState<string | null>(null);
 
@@ -233,6 +234,15 @@ function CreateTripPageInner() {
         </section>
       ) : (
       <>
+
+      {/* Pre-selected park indicator from map */}
+      {initialParkName && initialParkId && (
+        <div className="mb-4 rounded-lg bg-brand-teal/10 border border-brand-teal/20 px-4 py-3">
+          <p className="text-xs text-brand-teal font-medium">
+            📍 Planning a visit to <span className="font-semibold">{initialParkName}</span>
+          </p>
+        </div>
+      )}
 
       {error && (
         <div
@@ -484,13 +494,15 @@ function CreateTripPageInner() {
         </div>
 
         {/* ── Submit ── */}
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {saving ? 'Saving…' : 'Save Trip'}
-        </button>
+        <div className="pb-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {saving ? 'Saving…' : 'Save Trip'}
+          </button>
+        </div>
       </form>
 
       {/* Offline note */}

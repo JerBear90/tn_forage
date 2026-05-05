@@ -70,12 +70,23 @@ function ForagingScoreDisplay({ score }: { score: number | null }) {
     );
   }
 
+  /** Get a brief label for the foraging score */
+  const getRatingLabel = (s: number): string => {
+    if (s >= 80) return 'Excellent foraging conditions';
+    if (s >= 60) return 'Good conditions';
+    if (s >= 40) return 'Average conditions';
+    if (s >= 20) return 'Below average';
+    return 'Poor conditions';
+  };
+
   return (
-    <div
-      className="text-sm font-bold text-brand-forest dark:text-brand-moss"
-      aria-label={`Foraging score: ${score} out of 100`}
-    >
-      {score}/100
+    <div aria-label={`Foraging score: ${score} out of 100 — ${getRatingLabel(score)}`}>
+      <div className="text-sm font-bold text-brand-forest dark:text-brand-moss">
+        {score}/100
+      </div>
+      <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted mt-0.5">
+        {getRatingLabel(score)}
+      </p>
     </div>
   );
 }
@@ -343,12 +354,16 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
   const title = item.data.name;
   const typeLabel = item.type === 'park' ? 'Park' : item.type === 'trail' ? 'Trail' : 'Route';
 
-  // Determine the ID for "Plan a Visit" link
+  // Determine the ID and name for "Plan a Visit" link
   const planVisitId = item.type === 'park'
     ? item.data.id
     : item.type === 'trail'
       ? item.data.parkId
       : item.data.parkId;
+
+  const planVisitName = item.type === 'park'
+    ? item.data.name
+    : item.parkName ?? title;
 
   const condition = item.type === 'park' ? conditionsMap?.[item.data.id] : undefined;
 
@@ -454,7 +469,7 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push(`/trips/new?parkId=${planVisitId}`)}
+                  onClick={() => router.push(`/trips/new?parkId=${planVisitId}&parkName=${encodeURIComponent(planVisitName)}`)}
                   aria-label={`Plan a visit to ${item.type === 'park' ? item.data.name : item.parkName ?? title}`}
                   className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-brand-teal px-3 py-2.5 text-sm font-semibold text-white hover:bg-brand-teal/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal touch-manipulation"
                   style={{ minHeight: '44px' }}
@@ -499,7 +514,7 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
               <div className="mt-4 pt-3 border-t border-brand-forest/5 dark:border-dark-border">
                 <button
                   type="button"
-                  onClick={() => router.push(`/trips/new?parkId=${planVisitId}`)}
+                  onClick={() => router.push(`/trips/new?parkId=${planVisitId}&parkName=${encodeURIComponent(planVisitName)}`)}
                   aria-label={`Plan a visit to ${item.type === 'park' ? item.data.name : item.parkName ?? title}`}
                   className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-brand-teal px-3 py-2.5 text-sm font-semibold text-white hover:bg-brand-teal/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal touch-manipulation"
                   style={{ minHeight: '44px' }}

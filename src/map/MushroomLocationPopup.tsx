@@ -31,13 +31,13 @@ export default function MushroomLocationPopup({
   return (
     <div className="min-w-[180px] max-w-[260px]">
       {/* Location name */}
-      <h3 className="text-sm font-semibold text-brand-charcoal leading-tight">
+      <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand leading-tight">
         {name}
       </h3>
 
       {/* Parent park subtitle for trails */}
       {type === 'trail' && parkName && (
-        <p className="text-xs text-gray-500 mt-0.5">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
           Trail at {parkName}
         </p>
       )}
@@ -66,7 +66,7 @@ export default function MushroomLocationPopup({
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-xs text-gray-400 italic">
+        <p className="mt-2 text-xs text-gray-400 dark:text-gray-500 italic">
           No mushroom species data available
         </p>
       )}
