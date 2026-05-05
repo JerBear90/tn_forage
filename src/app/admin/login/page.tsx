@@ -21,12 +21,6 @@ export default function AdminLoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // If already authenticated, redirect to admin dashboard
-  if (!authLoading && isAuthenticated) {
-    router.replace("/admin");
-    return null;
-  }
-
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -48,6 +42,12 @@ export default function AdminLoginPage() {
     },
     [email, password, login, router]
   );
+
+  // If already authenticated, redirect to admin dashboard
+  if (!authLoading && isAuthenticated) {
+    router.replace("/admin");
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-charcoal via-gray-900 to-brand-charcoal p-4">
