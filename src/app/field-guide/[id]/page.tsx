@@ -21,7 +21,6 @@ import {
 } from "@/hooks/useSpeciesDetail";
 import ImageLightbox from "@/components/ImageLightbox";
 import SpeciesImage from "@/components/SpeciesImage";
-import EdibilityTab from "@/components/EdibilityTab";
 import SkeletonDetail from "@/components/skeletons/SkeletonDetail";
 import AssociatedSpeciesLink from "@/components/AssociatedSpeciesLink";
 import SeasonChart from "@/components/SeasonChart";
@@ -173,7 +172,7 @@ function ImageGallery({ images }: { images: string[] }) {
   );
 }
 
-/** Lookalike card */
+/** Lookalike card with image and link to detail page */
 function LookalikeCard({
   lookalike,
   isToxicSection,
@@ -182,30 +181,45 @@ function LookalikeCard({
   isToxicSection: boolean;
 }) {
   return (
-    <div
-      className={`rounded-lg border p-3 ${
+    <Link
+      href={`/field-guide/${lookalike.speciesId}`}
+      aria-label={`View details for ${lookalike.commonName}${isToxicSection ? ' (toxic)' : ''}`}
+      className={`block rounded-lg border p-3 transition-shadow hover:ring-2 hover:ring-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
         isToxicSection
           ? "border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700"
           : "border-brand-charcoal/10 bg-white/60 dark:bg-dark-surface/60 dark:border-dark-border"
       }`}
     >
-      <div className="flex items-center gap-2 mb-1">
-        {isToxicSection && (
-          <span
-            className="inline-block rounded-full bg-red-600 text-white text-xs font-bold px-2 py-0.5"
-            aria-label="Toxic"
-          >
-            ⚠ TOXIC
-          </span>
-        )}
-        <span className="font-semibold text-sm text-brand-charcoal dark:text-dark-text">
-          {lookalike.commonName}
-        </span>
+      <div className="flex gap-3">
+        {/* Lookalike image */}
+        <div className="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-brand-charcoal/5 dark:bg-brand-charcoal/20">
+          <SpeciesImage
+            src={`/images/species/${lookalike.speciesId}.jpg`}
+            alt={`${lookalike.commonName} photo`}
+            variant="card"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {isToxicSection && (
+              <span
+                className="inline-block rounded-full bg-red-600 text-white text-xs font-bold px-2 py-0.5"
+                aria-label="Toxic"
+              >
+                ⚠ TOXIC
+              </span>
+            )}
+            <span className="font-semibold text-sm text-brand-charcoal dark:text-dark-text">
+              {lookalike.commonName}
+            </span>
+          </div>
+          <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted leading-relaxed line-clamp-2">
+            {lookalike.differentiatingFeatures}
+          </p>
+        </div>
       </div>
-      <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted leading-relaxed">
-        {lookalike.differentiatingFeatures}
-      </p>
-    </div>
+    </Link>
   );
 }
 
@@ -313,12 +327,7 @@ function SpeciesOrPlantDetail({
         </Section>
       )}
 
-      {/* Season */}
-      {d.season.length > 0 && (
-        <Section title="Season" id="section-season">
-          <TagList items={d.season} label="Active seasons" />
-        </Section>
-      )}
+
 
       {/* Region */}
       <Section title="Region" id="section-region">
@@ -388,12 +397,7 @@ function SpeciesOrPlantDetail({
         </Section>
       )}
 
-      {/* Edibility Tab — replaces inline edibility/safety sections */}
-      <EdibilityTab
-        edibilityLabel={d.edibilityLabel}
-        safetyNotes={d.safetyNotes}
-        toxicLookalikes={d.toxicLookalikes}
-      />
+
 
       {/* Spore Print (mushrooms only) */}
       {speciesData?.sporePrint && (

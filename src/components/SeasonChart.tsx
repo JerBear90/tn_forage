@@ -74,6 +74,16 @@ export default function SeasonChart({ seasons, compact = false }: SeasonChartPro
         </div>
       </div>
 
+      {/* Available months text summary */}
+      {hasSeasonData && (
+        <p
+          className={`text-brand-moss font-medium ${compact ? 'text-[10px] mt-0.5' : 'text-xs mt-2'}`}
+          role="status"
+        >
+          Available: {MONTH_LABELS.filter((_, i) => inSeasonMonths.has(i as MonthIndex)).join(', ')}
+        </p>
+      )}
+
       {!hasSeasonData && (
         <p
           className={`text-gray-400 ${compact ? 'text-[10px] mt-0.5' : 'text-xs mt-1'}`}
