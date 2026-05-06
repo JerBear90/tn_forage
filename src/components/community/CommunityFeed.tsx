@@ -173,7 +173,7 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
     });
   }, []);
 
-  const toggleFollow = useCallback((userId: string) => {
+  const toggleFollow = useCallback(async (userId: string) => {
     setFollowedUsers((prev) => {
       const next = new Set(prev);
       if (next.has(userId)) next.delete(userId);
@@ -181,6 +181,24 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
       saveFollowedUsers(next);
       return next;
     });
+    // Also persist to IndexedDB for profile display
+    try {
+      const { putRecord, getDB } = await import('@/offline/db');
+      const db = await getDB();
+      const followId = `follow-local-user-${userId}`;
+      const existing = await db.get('follows', followId);
+      if (existing) {
+        await db.delete('follows', followId);
+      } else {
+        await putRecord('follows', {
+          id: followId,
+          followerId: 'local-user',
+          followedId: userId,
+          createdAt: new Date().toISOString(),
+          syncStatus: 'pending' as const,
+        });
+      }
+    } catch { /* IndexedDB may not be available */ }
   }, []);
 
   const handleShare = useCallback(async (item: FeedItem) => {
@@ -311,6 +329,7 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<ThreadedComment[]>([]);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [votedIds, setVotedIds] = useState<Record<string, 1 | -1>>({});
   const lastTapRef = useRef<number>(0);
   const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -355,8 +374,14 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
           localStorage.setItem(`fw_comments_v2_${item.id}`, JSON.stringify(migrated));
         }
       }
+      // Load voted comment IDs
+      const votedStored = localStorage.getItem(`fw_votes_${item.id}`);
+      if (votedStored) setVotedIds(JSON.parse(votedStored));
     } catch { /* ignore */ }
   }, [item.id, item.createdAt]);
+
+  // Count all comments recursively
+  const totalCommentCount = countAllComments(comments);
 
   // Double-tap to like, single tap to expand
   const handleDoubleTap = useCallback(() => {
@@ -404,12 +429,19 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
     setComment('');
   }, [comment, comments, item.id, replyingTo]);
 
-  // Vote on a comment
+  // Vote on a comment (single vote per comment)
   const handleVote = useCallback((commentId: string, direction: 1 | -1) => {
-    const updated = voteOnComment(comments, commentId, direction);
+    // Check if already voted this direction
+    if (votedIds[commentId] === direction) return;
+    // If switching vote, undo previous first
+    const adjustment = votedIds[commentId] ? direction * 2 : direction;
+    const updated = voteOnComment(comments, commentId, adjustment as 1 | -1);
     setComments(updated);
     localStorage.setItem(`fw_comments_v2_${item.id}`, JSON.stringify(updated));
-  }, [comments, item.id]);
+    const newVotedIds = { ...votedIds, [commentId]: direction };
+    setVotedIds(newVotedIds);
+    localStorage.setItem(`fw_votes_${item.id}`, JSON.stringify(newVotedIds));
+  }, [comments, item.id, votedIds]);
 
   // Type badge
   const typeBadge = item.type === 'trip' ? '🗺️ Trip Plan' : item.type === 'checkin' ? '📍 Check-in' : null;
@@ -525,11 +557,14 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
           type="button"
           onClick={() => setExpanded(true)}
           aria-label="View comments"
-          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5"
+          className="min-h-[44px] min-w-[44px] flex items-center gap-1 justify-center rounded-lg transition-colors hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5"
         >
           <svg className="w-6 h-6 text-brand-charcoal/60 dark:text-brand-sand/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z" />
           </svg>
+          {totalCommentCount > 0 && (
+            <span className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">{totalCommentCount}</span>
+          )}
         </button>
         <button
           type="button"
@@ -612,10 +647,15 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
             <div className="flex-1 overflow-y-auto min-h-0">
               {/* Post header */}
               <div className="flex items-center gap-3 px-4 py-3">
-                <div className="w-8 h-8 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-                  </svg>
+                <div className="w-8 h-8 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {item.avatarUrl && item.avatarUrl.startsWith('http') ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={item.avatarUrl} alt={displayName} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                  ) : (
+                    <svg className="w-4 h-4 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                    </svg>
+                  )}
                 </div>
                 <span className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">
                   {displayName}
@@ -668,6 +708,23 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
 
               {/* Divider */}
               <div className="border-t border-brand-charcoal/5 dark:border-brand-sand/5" />
+
+              {/* Top comment (highest voted) */}
+              {comments.length > 0 && (() => {
+                const topComment = [...comments].sort((a, b) => b.votes - a.votes)[0];
+                if (topComment && topComment.votes > 0) {
+                  return (
+                    <div className="px-4 py-2 bg-brand-teal/5 dark:bg-brand-teal/10 border-b border-brand-charcoal/5 dark:border-brand-sand/5">
+                      <p className="text-[10px] font-semibold text-brand-teal uppercase tracking-wide mb-1">Top Comment</p>
+                      <p className="text-xs text-brand-charcoal dark:text-brand-sand">
+                        <span className="font-semibold">{topComment.author}</span>{' '}{topComment.text}
+                      </p>
+                      <span className="text-[10px] text-brand-charcoal/40 dark:text-brand-sand/40">▲ {topComment.votes}</span>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               {/* Comments list */}
               <div className="px-4 py-3">
@@ -766,6 +823,17 @@ function voteOnComment(comments: ThreadedComment[], commentId: string, direction
     }
     return c;
   });
+}
+
+function countAllComments(comments: ThreadedComment[]): number {
+  let count = 0;
+  for (const c of comments) {
+    count += 1;
+    if (c.replies.length > 0) {
+      count += countAllComments(c.replies);
+    }
+  }
+  return count;
 }
 
 function CommentThread({ comment, depth, onVote, onReply }: {
