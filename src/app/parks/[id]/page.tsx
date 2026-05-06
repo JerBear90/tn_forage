@@ -277,7 +277,7 @@ export default function ParkDetailPage() {
 
       {/* Plan a Trip button */}
       <Link
-        href={`/trips/new?parkId=${park.id}`}
+        href={`/trips/new?parkId=${park.id}&parkName=${encodeURIComponent(park.name)}`}
         aria-label={`Plan a visit to ${park.name}`}
         className="mt-4 w-full rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 text-center hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] block"
       >
