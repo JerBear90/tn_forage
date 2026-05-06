@@ -59,6 +59,12 @@ const profileSections = [
     icon: "\u{1F4F7}",
   },
   {
+    label: "My Finds",
+    href: "/community",
+    description: "Sightings you've shared with the community",
+    icon: "\u{1F33F}",
+  },
+  {
     label: "Field Guide",
     href: "/field-guide",
     description: "Species reference library",
