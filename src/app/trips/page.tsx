@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { useTrips, type TripWithLocation } from '@/hooks/useTrips';
 import { getAllRecords } from '@/offline/db';
 import { getRecentSearches } from '@/offline/recentSearches';
+import OnlineHint from '@/components/OnlineHint';
 import type { SyncStatus, Park } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -428,6 +429,8 @@ export default function TripsPage() {
           + New Trip
         </Link>
       </header>
+
+      <OnlineHint message="Go online to sync your trips across devices and get updated park recommendations." />
 
       {/* Suggested parks — based on past trips, searches, and popular parks */}
       {!loading && <SuggestedParks trips={trips} />}

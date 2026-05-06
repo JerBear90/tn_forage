@@ -7,6 +7,7 @@ import { useMapData } from '@/hooks/useMapData';
 import { useMushroomMapData } from '@/hooks/useMushroomMapData';
 import { useSpecies } from '@/hooks/useSpecies';
 import { useForagingConditions } from '@/hooks/useForagingConditions';
+import OnlineHint from '@/components/OnlineHint';
 import MapDetailPanel from '@/map/MapDetailPanel';
 import MapListView, { type ConditionFilter } from '@/map/MapListView';
 import SeasonHeatmap, { type HeatmapItem } from '@/components/SeasonHeatmap';
@@ -228,6 +229,10 @@ export default function MapPageClient() {
           {error}
         </div>
       )}
+
+      <div className="px-4">
+        <OnlineHint message="Go online to download new map tiles, get live foraging conditions, and see weather-based recommendations." />
+      </div>
 
       {/* Season Heatmap — collapsible overlay */}
       <div className="px-4 pb-2 shrink-0">

@@ -19,6 +19,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/auth/useAuth';
+import OnlineHint from '@/components/OnlineHint';
 import { getAllRecords, putRecord } from '@/offline/db';
 import { applyLocationPrivacy } from '@/services/locationPrivacy';
 import { matchSpeciesImage, type KnownSpeciesRecord } from '@/services/trending';
@@ -990,6 +991,8 @@ function CommunityContent() {
           Share and explore observations from the community. Community IDs are not expert confirmations.
         </p>
       </header>
+
+      <OnlineHint message="Go online to see the latest community sightings, post observations, and sync your data." />
 
       {/* Sub-tab navigation */}
       <SubTabNav activeSection={activeSection} onSectionChange={handleSectionChange} />

@@ -15,6 +15,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import OnlineHint from "@/components/OnlineHint";
 import {
   useSpeciesDetail,
   type SpeciesDetailRecord,
@@ -652,6 +653,8 @@ export default function SpeciesDetailPage() {
         currentTitle={currentTitle}
         currentCategory={currentCategory}
       />
+
+      <OnlineHint message="You're viewing cached data. Go online to check for updated species info, new images, and community sightings." />
 
       {/* Error state */}
       {error && (
