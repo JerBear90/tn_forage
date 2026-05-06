@@ -8,6 +8,7 @@ import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
 import SupportFooter from "@/components/SupportFooter";
 import LocationSetupPrompt from "@/components/LocationSetupPrompt";
+import WeatherPanel from "@/components/WeatherPanel";
 import { useWeatherTemp } from "@/hooks/useWeatherTemp";
 import { useAutoSync } from "@/hooks/useAutoSync";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
@@ -46,6 +47,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { syncing, pendingCount } = useAutoSync();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
+  const [weatherPanelOpen, setWeatherPanelOpen] = useState(false);
 
   // Track page views on route changes (Requirements: 2.1, 12.1)
   usePageViewTracking();
@@ -110,15 +112,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Right: Weather + Search + Offline badge + Profile */}
         <div className="flex items-center gap-1.5">
-          {temp !== null && (
-            <span
-              className="text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 tabular-nums flex items-center gap-0.5"
-              aria-label={`Current temperature: ${temp}°F`}
-            >
-              {icon && <span aria-hidden="true">{icon}</span>}
-              {temp}°F
-            </span>
-          )}
+          <button
+            type="button"
+            onClick={() => setWeatherPanelOpen(true)}
+            className="text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 tabular-nums flex items-center gap-0.5 rounded-md px-1.5 py-1 hover:bg-brand-teal/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+            aria-label={temp !== null ? `Weather: ${temp}°F. Tap for details.` : 'Weather and online features'}
+          >
+            {temp !== null ? (
+              <>
+                {icon && <span aria-hidden="true">{icon}</span>}
+                {temp}°F
+              </>
+            ) : (
+              <span aria-hidden="true">🌤️</span>
+            )}
+          </button>
           {pendingCount > 0 && (
             <span
               className={`w-2 h-2 rounded-full ${syncing ? 'bg-amber-400 animate-pulse' : 'bg-brand-teal'}`}
@@ -160,6 +168,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <main className="min-h-screen">{children}</main>
         <SupportFooter />
         <LocationSetupPrompt />
+        <WeatherPanel isOpen={weatherPanelOpen} onClose={() => setWeatherPanelOpen(false)} />
       </div>
     </>
   );
