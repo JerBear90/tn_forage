@@ -704,10 +704,25 @@ export default function ProfileContent() {
       )}
 
       {/* ── Support ── */}
-      <section aria-label="Support" className="mb-8">
+      <section aria-label="Support" className="mb-8 space-y-2">
         <h2 className="font-heading font-semibold text-base text-brand-charcoal dark:text-brand-sand mb-2">
-          Support
+          Tools & Support
         </h2>
+        <Link
+          href="/survival"
+          className="flex items-center gap-3 rounded-lg bg-white/60 dark:bg-brand-charcoal/40 border border-brand-forest/10 px-4 py-3 hover:bg-brand-teal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors"
+        >
+          <span className="text-lg" aria-hidden="true">🆘</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm text-brand-charcoal dark:text-brand-sand">
+              Survival Toolkit
+            </p>
+            <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
+              Emergency reference, toxic species, GPS coordinates
+            </p>
+          </div>
+          <svg aria-hidden="true" className="w-4 h-4 text-brand-charcoal/30 dark:text-brand-sand/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+        </Link>
         <Link
           href="/support"
           className="flex items-center gap-3 rounded-lg bg-white/60 dark:bg-brand-charcoal/40 border border-brand-forest/10 px-4 py-3 hover:bg-brand-teal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors"
@@ -721,20 +736,7 @@ export default function ProfileContent() {
               Report a problem or request assistance
             </p>
           </div>
-          <svg
-            aria-hidden="true"
-            className="w-4 h-4 text-brand-charcoal/30 dark:text-brand-sand/30"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M8.25 4.5l7.5 7.5-7.5 7.5"
-            />
-          </svg>
+          <svg aria-hidden="true" className="w-4 h-4 text-brand-charcoal/30 dark:text-brand-sand/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
         </Link>
       </section>
 

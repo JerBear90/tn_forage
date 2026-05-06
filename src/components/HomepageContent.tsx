@@ -8,6 +8,7 @@ import ChallengesSection from '@/components/ChallengesSection';
 import HomepageCustomizer from '@/components/HomepageCustomizer';
 import OnlineHint from '@/components/OnlineHint';
 import NearbyNow from '@/components/NearbyNow';
+import QuickCapture from '@/components/QuickCapture';
 import type { HomepageSectionKey, HomepageLayoutConfig } from '@/types';
 import { putRecord, getRecord } from '@/offline/db';
 
@@ -229,6 +230,11 @@ export default function HomepageContent() {
       <OnlineHint message="Go online to get live weather, sync your data, and see the latest community sightings." />
 
       <NearbyNow />
+
+      {/* Quick Capture — one-tap field documentation */}
+      <section className="mb-6 px-1">
+        <QuickCapture />
+      </section>
 
       {/* Customize button */}
       <div className="flex justify-end mb-4">

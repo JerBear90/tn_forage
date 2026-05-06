@@ -9,6 +9,7 @@ import { useSpecies } from '@/hooks/useSpecies';
 import { useForagingConditions } from '@/hooks/useForagingConditions';
 import OnlineHint from '@/components/OnlineHint';
 import DownloadMapButton from '@/components/DownloadMapButton';
+import PrivateMapPins from '@/components/PrivateMapPins';
 import MapDetailPanel from '@/map/MapDetailPanel';
 import MapListView, { type ConditionFilter } from '@/map/MapListView';
 import SeasonHeatmap, { type HeatmapItem } from '@/components/SeasonHeatmap';
@@ -400,6 +401,11 @@ export default function MapPageClient() {
           <MapDetailPanel item={panelItem} onClose={handleClosePanel} conditionsMap={conditionsMap} />
         </div>
       )}
+
+      {/* Private Map Pins — personal secret spots */}
+      <div className="mx-4 mb-4">
+        <PrivateMapPins />
+      </div>
     </main>
   );
 }

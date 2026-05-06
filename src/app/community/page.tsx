@@ -20,6 +20,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/auth/useAuth';
 import OnlineHint from '@/components/OnlineHint';
+import IdRequest from '@/components/community/IdRequest';
 import { getAllRecords, putRecord } from '@/offline/db';
 import { applyLocationPrivacy } from '@/services/locationPrivacy';
 import { matchSpeciesImage, type KnownSpeciesRecord } from '@/services/trending';
@@ -1032,6 +1033,11 @@ function CommunityContent() {
           )}
 
           {/* Sightings list */}
+          {isAuthenticated && (
+            <div className="mb-6">
+              <IdRequest />
+            </div>
+          )}
           {loading ? (
             <div
               className="space-y-4"
