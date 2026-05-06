@@ -144,6 +144,9 @@ function ParkCard({
                 <span className={`text-[9px] font-medium rounded-full px-1.5 py-0.5 ${badge.bg}`}>
                   {badge.label} foraging
                 </span>
+                <span className="text-[9px] text-brand-charcoal/50 dark:text-dark-text-muted italic">
+                  Based on weather &amp; moisture
+                </span>
               </div>
             )}
           </div>
@@ -183,12 +186,6 @@ function ParkCard({
               {park.trails.length} trail{park.trails.length !== 1 ? 's' : ''}
             </span>
           </div>
-          {/* Foraging score explanation */}
-          {badge && condition && (
-            <p className="text-[10px] text-brand-charcoal/50 dark:text-dark-text-muted mt-1.5 italic">
-              Scores based on recent weather, moisture, and seasonal conditions (1-10 scale)
-            </p>
-          )}
         </div>
       </button>
     </li>
