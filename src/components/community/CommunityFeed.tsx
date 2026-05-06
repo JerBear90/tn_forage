@@ -323,7 +323,8 @@ interface FeedCardProps {
 function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onShare }: FeedCardProps) {
   const displayName = item.displayName || (item.userId && item.userId !== 'local-user' ? `Forager ${item.userId.slice(0, 6)}` : 'Anonymous');
   const timeAgo = getRelativeTime(item.createdAt);
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
   const [showHeart, setShowHeart] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [comment, setComment] = useState('');
@@ -333,23 +334,25 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   const lastTapRef = useRef<number>(0);
   const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load first photo from IndexedDB
+  // Load all photos from IndexedDB
   useEffect(() => {
     let cancelled = false;
     if (item.photos.length > 0) {
-      loadPhotoUrl(item.photos[0]).then((url) => {
-        if (!cancelled && url) setPhotoUrl(url);
+      Promise.all(item.photos.map((id) => loadPhotoUrl(id))).then((urls) => {
+        if (!cancelled) {
+          setPhotoUrls(urls.filter((u): u is string => u !== null));
+        }
       });
     }
     return () => { cancelled = true; };
   }, [item.photos]);
 
-  // Clean up object URL on unmount
+  // Clean up object URLs on unmount
   useEffect(() => {
     return () => {
-      if (photoUrl) URL.revokeObjectURL(photoUrl);
+      photoUrls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [photoUrl]);
+  }, [photoUrls]);
 
   // Load comments from localStorage
   useEffect(() => {
@@ -497,17 +500,17 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
         <TripCard item={item} />
       ) : (
         <div
-          className="relative w-full aspect-[4/3] bg-brand-charcoal/5 dark:bg-brand-sand/5 cursor-pointer select-none"
+          className="relative w-full aspect-[4/3] bg-brand-charcoal/5 dark:bg-brand-sand/5 cursor-pointer select-none overflow-hidden"
           onClick={handleDoubleTap}
           role="button"
           tabIndex={0}
           aria-label="Double-tap to like, tap to expand"
           onKeyDown={(e) => { if (e.key === 'Enter') setExpanded(true); }}
         >
-          {photoUrl ? (
+          {photoUrls.length > 0 ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={photoUrl}
+              src={photoUrls[galleryIndex] || photoUrls[0]}
               alt={item.title || 'Community sighting photo'}
               className="w-full h-full object-cover"
             />
@@ -523,6 +526,38 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
               </svg>
             </div>
+          )}
+          {/* Gallery dots indicator */}
+          {photoUrls.length > 1 && (
+            <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1.5">
+              {photoUrls.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${i === galleryIndex ? 'bg-white' : 'bg-white/40'}`}
+                />
+              ))}
+            </div>
+          )}
+          {/* Gallery arrows */}
+          {photoUrls.length > 1 && galleryIndex > 0 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setGalleryIndex((i) => i - 1); }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center"
+              aria-label="Previous photo"
+            >
+              ‹
+            </button>
+          )}
+          {photoUrls.length > 1 && galleryIndex < photoUrls.length - 1 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setGalleryIndex((i) => i + 1); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center"
+              aria-label="Next photo"
+            >
+              ›
+            </button>
           )}
           {/* Double-tap heart animation */}
           {showHeart && (
@@ -662,16 +697,59 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
                 </span>
               </div>
 
-              {/* Post image */}
-              <div className="w-full bg-black">
-                {photoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photoUrl}
-                    alt={item.title || 'Post photo'}
-                    className="w-full object-contain"
-                    style={{ maxHeight: '45vh' }}
-                  />
+              {/* Post image gallery */}
+              <div className="relative w-full bg-black">
+                {photoUrls.length > 0 ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={photoUrls[galleryIndex] || photoUrls[0]}
+                      alt={item.title || 'Post photo'}
+                      className="w-full object-contain"
+                      style={{ maxHeight: '45vh' }}
+                    />
+                    {/* Gallery arrows */}
+                    {photoUrls.length > 1 && galleryIndex > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setGalleryIndex((i) => i - 1)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center text-lg min-h-[44px] min-w-[44px]"
+                        aria-label="Previous photo"
+                      >
+                        ‹
+                      </button>
+                    )}
+                    {photoUrls.length > 1 && galleryIndex < photoUrls.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setGalleryIndex((i) => i + 1)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center text-lg min-h-[44px] min-w-[44px]"
+                        aria-label="Next photo"
+                      >
+                        ›
+                      </button>
+                    )}
+                    {/* Dots */}
+                    {photoUrls.length > 1 && (
+                      <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-1.5">
+                        {photoUrls.map((_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setGalleryIndex(i)}
+                            className={`w-2 h-2 rounded-full transition-all ${i === galleryIndex ? 'bg-white scale-125' : 'bg-white/40'}`}
+                            aria-label={`Go to photo ${i + 1}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {/* Photo counter */}
+                    {photoUrls.length > 1 && (
+                      <div className="absolute top-3 right-3 bg-black/60 rounded-full px-2.5 py-1 text-[10px] text-white font-medium">
+                        {galleryIndex + 1}/{photoUrls.length}
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="w-full aspect-[4/3] flex items-center justify-center bg-brand-charcoal/5 dark:bg-brand-sand/5">
                     <svg className="w-12 h-12 text-brand-charcoal/15 dark:text-brand-sand/15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
