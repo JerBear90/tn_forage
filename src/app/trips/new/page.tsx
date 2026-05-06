@@ -81,13 +81,13 @@ function CreateTripPageInner() {
   // Load park name from IndexedDB if parkId is provided but parkName is not
   useEffect(() => {
     if (initialParkId && !initialParkName) {
-      async function loadName() {
+      const loadName = async () => {
         try {
           const { getRecord } = await import('@/offline/db');
-          const park = await getRecord('parks', initialParkId!);
+          const park = await getRecord('parks', initialParkId);
           if (park) setSelectedParkName(park.name);
         } catch { /* silently fail */ }
-      }
+      };
       loadName();
     }
   }, [initialParkId, initialParkName]);
