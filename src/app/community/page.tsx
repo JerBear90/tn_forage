@@ -866,22 +866,33 @@ function CommunityContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const PULL_THRESHOLD = 80;
 
-  // Load sightings and known species from IndexedDB
+  // Load sightings from PocketBase (online) or IndexedDB (offline)
   const loadData = useCallback(async () => {
     try {
-      const [drafts, speciesRecords, plantRecords] = await Promise.all([
-        getAllRecords('communityDrafts'),
+      const { getCommunityPosts } = await import('@/services/communityPostsService');
+      const { posts } = await getCommunityPosts(1, 50);
+
+      // Convert to CommunityDraft format for display
+      const drafts: CommunityDraft[] = posts.map((p) => ({
+        id: p.id,
+        userId: p.userId,
+        speciesGuess: p.speciesGuess || undefined,
+        photos: p.photos,
+        coordinates: p.coordinates ?? undefined,
+        notes: p.notes,
+        visibility: p.visibility,
+        createdAt: p.created,
+        updatedAt: p.updated,
+      }));
+
+      setSightings(drafts);
+
+      // Also load species for image matching
+      const [speciesRecords, plantRecords] = await Promise.all([
         getAllRecords('species'),
         getAllRecords('plants'),
       ]);
 
-      // Sort newest first
-      const sorted = (drafts as CommunityDraft[]).sort(
-        (a, b) => b.createdAt.localeCompare(a.createdAt),
-      );
-      setSightings(sorted);
-
-      // Build known species list for image matching
       const known: KnownSpeciesRecord[] = [
         ...speciesRecords.map((s) => ({
           id: s.id,
@@ -896,7 +907,33 @@ function CommunityContent() {
       ];
       setKnownSpecies(known);
     } catch {
-      // Store may not exist yet
+      // Fallback: load from local IndexedDB
+      try {
+        const [drafts, speciesRecords, plantRecords] = await Promise.all([
+          getAllRecords('communityDrafts'),
+          getAllRecords('species'),
+          getAllRecords('plants'),
+        ]);
+
+        const sorted = (drafts as CommunityDraft[]).sort(
+          (a, b) => b.createdAt.localeCompare(a.createdAt),
+        );
+        setSightings(sorted);
+
+        const known: KnownSpeciesRecord[] = [
+          ...speciesRecords.map((s) => ({
+            id: s.id,
+            commonName: s.commonName,
+            images: s.images,
+          })),
+          ...plantRecords.map((p) => ({
+            id: p.id,
+            commonName: p.commonName,
+            images: p.images,
+          })),
+        ];
+        setKnownSpecies(known);
+      } catch { /* store may not exist */ }
     }
   }, []);
 
