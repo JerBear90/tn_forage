@@ -91,18 +91,20 @@ function TripCard({
       className="rounded-xl border border-brand-teal/15 bg-white/90 dark:bg-brand-charcoal/70 p-4 shadow-sm transition-shadow hover:shadow-md"
       aria-label={`Trip to ${trip.locationName} on ${formattedDate}`}
     >
-      {/* Header row */}
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="min-w-0 flex-1">
-          <h3 className="font-heading font-semibold text-sm text-brand-forest dark:text-brand-moss truncate">
-            {trip.locationName}
-          </h3>
-          <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
-            {formattedDate}
-          </p>
+      {/* Header row — clickable to view details */}
+      <Link href={`/trips/${trip.id}`} className="block mb-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-heading font-semibold text-sm text-brand-forest dark:text-brand-moss truncate">
+              {trip.locationName}
+            </h3>
+            <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
+              {formattedDate}
+            </p>
+          </div>
+          <SyncBadge status={trip.syncStatus} />
         </div>
-        <SyncBadge status={trip.syncStatus} />
-      </div>
+      </Link>
 
       {/* Target species */}
       {trip.targetSpecies.length > 0 && (
