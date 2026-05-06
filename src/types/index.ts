@@ -437,6 +437,10 @@ export interface Settings {
   safetyDisclaimerDismissed: boolean;
   introAnimationShown: boolean;
   lastSyncAt?: string;
+  /** JSON-encoded support ticket data (used by support page) */
+  _supportTicket?: string;
+  /** JSON-encoded missing image report (used by SpeciesImage) */
+  _missingImage?: string;
 }
 
 // ---------------------------------------------------------------------------
