@@ -7,16 +7,23 @@
  * map controls, and touch-friendly targets.
  *
  * Run with: npx playwright test tests/e2e/mobile.spec.ts
+ *
+ * Note: Device emulation is configured via viewport/userAgent only
+ * (not defaultBrowserType) to avoid worker isolation issues.
  */
 
 import { test, expect, devices } from '@playwright/test';
+
+// Extract only viewport and userAgent (exclude defaultBrowserType which forces new workers)
+const { defaultBrowserType: _iphone, ...iPhone13 } = devices['iPhone 13'];
+const { defaultBrowserType: _pixel, ...Pixel5 } = devices['Pixel 5'];
 
 // ---------------------------------------------------------------------------
 // iPhone Safari Viewport
 // ---------------------------------------------------------------------------
 
 test.describe('iPhone Safari Viewport', () => {
-  test.use({ ...devices['iPhone 13'] });
+  test.use(iPhone13);
 
   test('should render home page at iPhone viewport', async ({ page }) => {
     await page.goto('/');
@@ -85,7 +92,7 @@ test.describe('iPhone Safari Viewport', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('Android Chrome Viewport', () => {
-  test.use({ ...devices['Pixel 5'] });
+  test.use(Pixel5);
 
   test('should render home page at Android viewport', async ({ page }) => {
     await page.goto('/');
@@ -130,7 +137,7 @@ test.describe('Android Chrome Viewport', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('Bottom Nav Visibility', () => {
-  test.use({ ...devices['iPhone 13'] });
+  test.use(iPhone13);
 
   const pages = ['/', '/field-guide', '/identify', '/map', '/trips'];
 
@@ -148,7 +155,7 @@ test.describe('Bottom Nav Visibility', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('Map Controls — Mobile', () => {
-  test.use({ ...devices['iPhone 13'] });
+  test.use(iPhone13);
 
   test('should display Find Me button on mobile map', async ({ page }) => {
     await page.goto('/map');
