@@ -179,6 +179,7 @@ export default function SpeciesImage({
         loading="lazy"
         placeholder="blur"
         blurDataURL={BLUR_DATA_URL}
+        unoptimized={src.startsWith('/images/')}
         onError={() => {
           setErrored(true);
           reportMissingImage(src, `SpeciesImage variant=${variant}`);
