@@ -183,16 +183,19 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
     });
     // Also persist to IndexedDB for profile display
     try {
-      const { putRecord, getDB } = await import('@/offline/db');
-      const db = await getDB();
-      const followId = `follow-local-user-${userId}`;
+      const { putRecord: putRec, getDB: getDatabase } = await import('@/offline/db');
+      const db = await getDatabase();
+      // Use the current user's auth ID if available
+      const authStore = (await import('@/auth/authService')).pb.authStore;
+      const currentUserId = authStore.record?.id || 'local-user';
+      const followId = `follow-${currentUserId}-${userId}`;
       const existing = await db.get('follows', followId);
       if (existing) {
         await db.delete('follows', followId);
       } else {
-        await putRecord('follows', {
+        await putRec('follows', {
           id: followId,
-          followerId: 'local-user',
+          followerId: currentUserId,
           followedId: userId,
           createdAt: new Date().toISOString(),
           syncStatus: 'pending' as const,

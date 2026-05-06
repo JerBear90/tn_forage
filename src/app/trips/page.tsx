@@ -29,8 +29,8 @@ const syncBadgeConfig: Record<
 > = {
   pending: {
     className:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-    label: 'Pending',
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+    label: 'Saved',
   },
   synced: {
     className:
