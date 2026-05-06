@@ -61,12 +61,12 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
         id: generateId(),
         userId: user?.id || 'local-user',
         speciesGuess: `[ID Request] ${question.trim()}`,
+        photos: [],
         notes: question.trim(),
-        visibility: 'public',
-        coordinates: null,
-        photoIds: [],
+        visibility: 'public' as const,
+        coordinates: undefined,
         createdAt: new Date().toISOString(),
-        syncStatus: 'pending',
+        updatedAt: new Date().toISOString(),
       });
 
       setSubmitted(true);
