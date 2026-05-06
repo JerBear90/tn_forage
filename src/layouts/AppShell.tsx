@@ -7,6 +7,7 @@ import OfflineBadge from "@/components/OfflineBadge";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
 import SupportFooter from "@/components/SupportFooter";
+import LocationSetupPrompt from "@/components/LocationSetupPrompt";
 import { useWeatherTemp } from "@/hooks/useWeatherTemp";
 import { useAutoSync } from "@/hooks/useAutoSync";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
@@ -158,6 +159,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {!pathname.startsWith('/admin') && <NotificationSignupPrompt />}
         <main className="min-h-screen">{children}</main>
         <SupportFooter />
+        <LocationSetupPrompt />
       </div>
     </>
   );

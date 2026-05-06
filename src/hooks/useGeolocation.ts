@@ -151,6 +151,12 @@ export function useGeolocation(): GeolocationState {
 
         // Cache for future offline use
         cacheLocation(coords);
+
+        // Dispatch event for first-time location setup prompt
+        const alreadySetup = localStorage.getItem('foragewise-location-setup-done');
+        if (!alreadySetup) {
+          window.dispatchEvent(new Event('foragewise-location-granted'));
+        }
       },
       // Error — try cached fallback
       async (geoErr) => {
