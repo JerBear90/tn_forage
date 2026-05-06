@@ -821,12 +821,23 @@ function CommunityContent() {
         >
           ← Home
         </Link>
-        <h1 className="text-2xl font-bold text-brand-forest dark:text-brand-moss font-heading">
-          Community
-        </h1>
-        <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mt-1">
-          Share and explore observations from the community. Community IDs are not expert confirmations.
-        </p>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-brand-forest dark:text-brand-moss font-heading">
+            Community
+          </h1>
+          <div className="relative group">
+            <button
+              type="button"
+              className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs font-bold"
+              aria-label="Community disclaimer"
+            >
+              !
+            </button>
+            <div className="absolute left-0 top-7 z-50 hidden group-hover:block group-focus-within:block w-64 rounded-lg bg-white dark:bg-brand-charcoal border border-amber-200 dark:border-amber-800 shadow-lg p-3 text-xs text-amber-700 dark:text-amber-300">
+              Community posts are user-submitted and not verified by experts. Always verify with a qualified expert before consuming any wild species.
+            </div>
+          </div>
+        </div>
       </header>
 
       <OnlineHint message="Go online to see the latest community sightings, post observations, and sync your data." />

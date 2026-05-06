@@ -249,14 +249,7 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
         </div>
       )}
 
-      {/* Safety notice */}
-      <div
-        role="note"
-        className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3 text-xs text-amber-700 dark:text-amber-300"
-      >
-        Community posts are user-submitted and not verified by experts.
-        Always verify with a qualified expert before consuming any wild species.
-      </div>
+      {/* Safety notice removed — now shown as tooltip on community header */}
 
       {/* Empty state */}
       {feedItems.length === 0 && (
