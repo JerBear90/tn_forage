@@ -117,7 +117,7 @@ export default function ObservationForm({ onSubmitted, onCancel }: ObservationFo
         speciesGuess: observation.speciesGuess,
         notes: `${observation.habitatNotes}\nSubstrate: ${observation.substrate}\nTrees: ${observation.associatedTrees.join(', ')}`,
         visibility: isPublic ? 'public' : 'private',
-        coordinates: observation.coordinates,
+        coordinates: observation.coordinates ?? undefined,
         photoIds: [],
         createdAt: observation.createdAt,
         syncStatus: 'pending',
