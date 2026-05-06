@@ -95,7 +95,7 @@ export default function ProfileHeader({
             </p>
           )}
 
-          {/* Follower / Following counts */}
+          {/* Follower / Following / Trips counts */}
           <div className="flex items-center gap-4 mt-2">
             <Link
               href="/profile/follows?tab=followers"
@@ -113,6 +113,15 @@ export default function ProfileHeader({
               <span className="font-semibold">{profile.followingCount ?? 0}</span>{" "}
               <span className="text-brand-charcoal/60 dark:text-brand-sand/60">
                 following
+              </span>
+            </Link>
+            <Link
+              href="/trips"
+              className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 hover:text-brand-teal transition-colors"
+            >
+              <span className="font-semibold">{profile.completedTripCount ?? 0}</span>{" "}
+              <span className="text-brand-charcoal/60 dark:text-brand-sand/60">
+                {profile.completedTripCount === 1 ? "trip" : "trips"}
               </span>
             </Link>
           </div>

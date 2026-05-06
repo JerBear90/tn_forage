@@ -100,6 +100,7 @@ export default function ProfileContent() {
   // --- Social profile ---
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [tripCount, setTripCount] = useState(0);
 
   // The effective profile: auth user first, then cached
   const profile = user ?? cachedProfile;
@@ -185,6 +186,13 @@ export default function ProfileContent() {
           if (raw && !cancelled) setFollowingCount(JSON.parse(raw).length);
         } catch { /* ignore */ }
       }
+
+      // Load trip count
+      try {
+        const { getAllRecords } = await import("@/offline/db");
+        const trips = await getAllRecords("trips");
+        if (!cancelled) setTripCount(trips.length);
+      } catch { /* ignore */ }
     }
     loadSocialCounts();
     return () => {
@@ -609,7 +617,7 @@ export default function ProfileContent() {
               bio: "",
               followerCount,
               followingCount,
-              completedTripCount: 0,
+              completedTripCount: tripCount,
               achievementCount: 0,
               defaultVisibility: "private",
             } as UserProfileExtended
