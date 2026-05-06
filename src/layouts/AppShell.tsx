@@ -9,6 +9,7 @@ import GlobalSearchBar from "@/components/GlobalSearchBar";
 import SupportFooter from "@/components/SupportFooter";
 import LocationSetupPrompt from "@/components/LocationSetupPrompt";
 import WeatherPanel from "@/components/WeatherPanel";
+import GuidedIntro from "@/components/GuidedIntro";
 import { useWeatherTemp } from "@/hooks/useWeatherTemp";
 import { useAutoSync } from "@/hooks/useAutoSync";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
@@ -169,6 +170,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SupportFooter />
         <LocationSetupPrompt />
         <WeatherPanel isOpen={weatherPanelOpen} onClose={() => setWeatherPanelOpen(false)} />
+        <GuidedIntro />
       </div>
     </>
   );

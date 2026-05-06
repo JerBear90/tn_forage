@@ -8,6 +8,7 @@ import { useMushroomMapData } from '@/hooks/useMushroomMapData';
 import { useSpecies } from '@/hooks/useSpecies';
 import { useForagingConditions } from '@/hooks/useForagingConditions';
 import OnlineHint from '@/components/OnlineHint';
+import DownloadMapButton from '@/components/DownloadMapButton';
 import MapDetailPanel from '@/map/MapDetailPanel';
 import MapListView, { type ConditionFilter } from '@/map/MapListView';
 import SeasonHeatmap, { type HeatmapItem } from '@/components/SeasonHeatmap';
@@ -235,7 +236,7 @@ export default function MapPageClient() {
       </div>
 
       {/* Season Heatmap — collapsible overlay */}
-      <div className="px-4 pb-2 shrink-0">
+      <div className="px-4 pb-2 shrink-0 flex items-center gap-2 flex-wrap">
         <button
           type="button"
           onClick={() => setShowHeatmap((prev) => !prev)}
@@ -274,6 +275,8 @@ export default function MapPageClient() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
+
+        <DownloadMapButton />
 
         {showHeatmap && (
           <div
