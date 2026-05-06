@@ -2,6 +2,7 @@
 
 import { useChallenges } from "@/hooks/useChallenges";
 import ChallengesCard from "@/components/ChallengesCard";
+import BadgeCelebration from "@/components/BadgeCelebration";
 
 /**
  * ForageWise — ChallengesSection Component
@@ -10,6 +11,9 @@ import ChallengesCard from "@/components/ChallengesCard";
  * Accepts an optional `preview` prop:
  * - When true, shows at most 3 non-completed challenges (for home page)
  * - When false/undefined, shows all challenges
+ *
+ * Shows a BadgeCelebration overlay when a badge is newly earned.
+ * Displays a small badge preview below the heading showing earned count.
  *
  * Uses the useChallenges hook to load data from IndexedDB.
  *
@@ -24,8 +28,17 @@ interface ChallengesSectionProps {
 export default function ChallengesSection({
   preview = false,
 }: ChallengesSectionProps) {
-  const { challenges, loading, error, updateCriterion, getChallengesPreview } =
-    useChallenges();
+  const {
+    challenges,
+    loading,
+    error,
+    updateCriterion,
+    getChallengesPreview,
+    badges,
+    earnedBadges,
+    justEarnedBadge,
+    dismissBadgeCelebration,
+  } = useChallenges();
 
   const displayedChallenges = preview ? getChallengesPreview() : challenges;
 
@@ -84,9 +97,30 @@ export default function ChallengesSection({
 
   return (
     <section aria-label="Challenges" className="space-y-3">
-      <h2 className="font-heading font-semibold text-lg text-brand-forest dark:text-brand-moss">
-        {preview ? "Active Challenges" : "Challenges"}
-      </h2>
+      {/* Badge celebration overlay */}
+      {justEarnedBadge && (
+        <BadgeCelebration
+          badge={justEarnedBadge}
+          onDismiss={dismissBadgeCelebration}
+        />
+      )}
+
+      {/* Heading with badge count */}
+      <div className="flex items-center justify-between">
+        <h2 className="font-heading font-semibold text-lg text-brand-forest dark:text-brand-moss">
+          {preview ? "Active Challenges" : "Challenges"}
+        </h2>
+        {badges.length > 0 && (
+          <span
+            className="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 dark:bg-brand-teal/20 px-2.5 py-1 text-xs font-medium text-brand-teal dark:text-brand-teal-200"
+            aria-label={`${earnedBadges.length} of ${badges.length} badges earned`}
+          >
+            <span aria-hidden="true">🏅</span>
+            {earnedBadges.length}/{badges.length}
+          </span>
+        )}
+      </div>
+
       <div className="space-y-3">
         {displayedChallenges.map((challenge) => (
           <ChallengesCard

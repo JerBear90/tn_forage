@@ -29,6 +29,7 @@ import type {
   CommunityDraft,
   CommunityFlag,
   Challenge,
+  ChallengeBadge,
   FollowLocal,
   ReviewLocal,
   SocialPhoto,
@@ -62,7 +63,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const DB_NAME = 'foragewise';
-export const DB_VERSION = 4;
+export const DB_VERSION = 5;
 
 export interface ForageWiseDB extends DBSchema {
   species: {
@@ -214,6 +215,14 @@ export interface ForageWiseDB extends DBSchema {
     indexes: {
       'by-category': string;
       'by-completedAt': string;
+    };
+  };
+  challengeBadges: {
+    key: string;
+    value: ChallengeBadge;
+    indexes: {
+      'by-challengeId': string;
+      'by-isEarned': string;
     };
   };
   follows: {
@@ -444,6 +453,7 @@ export const STORE_NAMES: (keyof ForageWiseDB)[] = [
   'communityDrafts',
   'communityFlags',
   'challenges',
+  'challengeBadges',
   'follows',
   'reviews',
   'socialPhotos',
@@ -728,6 +738,13 @@ export function getDB(): Promise<IDBPDatabase<ForageWiseDB>> {
           const pushStore = db.createObjectStore('pushSubscriptions', { keyPath: 'id' });
           pushStore.createIndex('by-userId', 'userId');
         }
+
+        // ---- Version 5: Add challengeBadges store ----
+        if (oldVersion < 5) {
+          const badgesStore = db.createObjectStore('challengeBadges', { keyPath: 'id' });
+          badgesStore.createIndex('by-challengeId', 'challengeId');
+          badgesStore.createIndex('by-isEarned', 'isEarned');
+        }
       },
     });
   }
@@ -742,13 +759,14 @@ export type StoreName = 'species' | 'plants' | 'trees' | 'parks' | 'trails'
   | 'routes' | 'trips' | 'expeditionLogs' | 'photos' | 'userProfileLocal'
   | 'membershipLocal' | 'authMetaLocal' | 'syncQueue' | 'settings'
   | 'cachedMapRegions' | 'communityDrafts' | 'communityFlags' | 'challenges'
-  | 'follows' | 'reviews' | 'socialPhotos' | 'achievements' | 'feedItems'
-  | 'reviewAggregations' | 'blogArticles' | 'customRoutes' | 'eventEntries'
-  | 'trailConditionReports' | 'checkIns' | 'guidedTours' | 'journalEntries'
-  | 'harvestEntries' | 'microhabitatPins' | 'foragingProfiles' | 'outingInvitations'
-  | 'usageEvents' | 'beaconSessions' | 'locationSharingSessions'
-  | 'downloadedMapRegions' | 'mapTiles' | 'fruitingForecasts' | 'emergencyContacts'
-  | 'featureFlags' | 'pushSubscriptions';
+  | 'challengeBadges' | 'follows' | 'reviews' | 'socialPhotos' | 'achievements'
+  | 'feedItems' | 'reviewAggregations' | 'blogArticles' | 'customRoutes'
+  | 'eventEntries' | 'trailConditionReports' | 'checkIns' | 'guidedTours'
+  | 'journalEntries' | 'harvestEntries' | 'microhabitatPins' | 'foragingProfiles'
+  | 'outingInvitations' | 'usageEvents' | 'beaconSessions'
+  | 'locationSharingSessions' | 'downloadedMapRegions' | 'mapTiles'
+  | 'fruitingForecasts' | 'emergencyContacts' | 'featureFlags'
+  | 'pushSubscriptions';
 
 // ---------------------------------------------------------------------------
 // Generic CRUD Helpers
