@@ -1132,7 +1132,7 @@ export interface HomepageLayoutConfig {
 }
 
 // --- Community Sub-Sections ---
-export type CommunitySubSection = 'sightings' | 'challenges' | 'blog';
+export type CommunitySubSection = 'feed' | 'sightings' | 'challenges' | 'blog';
 
 // --- Breadcrumb Referrer ---
 export interface BreadcrumbReferrer {

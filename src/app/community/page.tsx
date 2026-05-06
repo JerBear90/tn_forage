@@ -26,6 +26,7 @@ import { applyLocationPrivacy } from '@/services/locationPrivacy';
 import { matchSpeciesImage, type KnownSpeciesRecord } from '@/services/trending';
 import TrendingSpeciesSection from '@/components/community/TrendingSpeciesSection';
 import ChallengesSection from '@/components/ChallengesSection';
+import CommunityFeed from '@/components/community/CommunityFeed';
 import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import type {
   CommunityDraft,
@@ -674,14 +675,14 @@ function SightingCard({ sighting, knownSpecies, onFlag }: SightingCardProps) {
 // Sub-Tab Navigation Helpers
 // ---------------------------------------------------------------------------
 
-const VALID_SECTIONS: CommunitySubSection[] = ['sightings', 'challenges', 'blog'];
+const VALID_SECTIONS: CommunitySubSection[] = ['feed', 'sightings', 'challenges', 'blog'];
 
 function parseHashSection(hash: string): CommunitySubSection {
   const cleaned = hash.replace('#', '').toLowerCase();
   if (VALID_SECTIONS.includes(cleaned as CommunitySubSection)) {
     return cleaned as CommunitySubSection;
   }
-  return 'sightings';
+  return 'feed';
 }
 
 // ---------------------------------------------------------------------------
@@ -788,6 +789,7 @@ interface SubTabNavProps {
 
 function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
   const tabs: { key: CommunitySubSection; label: string }[] = [
+    { key: 'feed', label: 'Feed' },
     { key: 'sightings', label: 'Sightings' },
     { key: 'challenges', label: 'Challenges' },
     { key: 'blog', label: 'Blog' },
@@ -997,6 +999,11 @@ function CommunityContent() {
 
       {/* Sub-tab navigation */}
       <SubTabNav activeSection={activeSection} onSectionChange={handleSectionChange} />
+
+      {/* Feed sub-section */}
+      {activeSection === 'feed' && (
+        <CommunityFeed sightings={sightings} />
+      )}
 
       {/* Sightings sub-section */}
       {activeSection === 'sightings' && (
