@@ -21,9 +21,86 @@ import { getPhotos } from '@/social/photoService';
 import TrailDetailPanel from '@/components/parks/TrailDetailPanel';
 import PhotoTour from '@/components/parks/PhotoTour';
 import ReviewsSection from '@/components/parks/ReviewsSection';
-import type { Park, Trail, TrailExtended, SocialPhoto, SocialPlatform } from '@/types';
+import type { Park, Trail, TrailExtended, SocialPhoto, SocialPlatform, Coordinates } from '@/types';
 
 const TrailMap = dynamic(() => import('@/components/parks/TrailMapRenderer'), { ssr: false });
+
+// ---------------------------------------------------------------------------
+// ParkWeatherCard — live weather for a specific park location
+// ---------------------------------------------------------------------------
+
+function ParkWeatherCard({ coordinates, parkName }: { coordinates: Coordinates; parkName: string }) {
+  const [weather, setWeather] = useState<{ temp: number; forecast: string; icon: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchWeather() {
+      try {
+        const pointRes = await fetch(
+          `https://api.weather.gov/points/${coordinates.lat.toFixed(4)},${coordinates.lng.toFixed(4)}`,
+          { headers: { 'User-Agent': 'ForageWise/1.0 (foragewise-app)' } }
+        );
+        if (!pointRes.ok) throw new Error('Failed');
+        const pointData = await pointRes.json();
+        const forecastUrl = pointData.properties?.forecastHourly;
+        if (!forecastUrl) throw new Error('No forecast');
+
+        const forecastRes = await fetch(forecastUrl, {
+          headers: { 'User-Agent': 'ForageWise/1.0 (foragewise-app)' },
+        });
+        if (!forecastRes.ok) throw new Error('Failed');
+        const forecastData = await forecastRes.json();
+        const period = forecastData.properties?.periods?.[0];
+
+        if (!cancelled && period) {
+          const f = period.shortForecast.toLowerCase();
+          let icon = '🌤️';
+          if (f.includes('thunder') || f.includes('storm')) icon = '⛈️';
+          else if (f.includes('rain') || f.includes('shower')) icon = '🌧️';
+          else if (f.includes('snow')) icon = '🌨️';
+          else if (f.includes('cloud') || f.includes('overcast')) icon = '☁️';
+          else if (f.includes('clear') || f.includes('sunny')) icon = '☀️';
+
+          setWeather({ temp: period.temperature, forecast: period.shortForecast, icon });
+        }
+      } catch {
+        // Silently fail — weather is non-critical
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    fetchWeather();
+    return () => { cancelled = true; };
+  }, [coordinates]);
+
+  if (loading) {
+    return <div className="animate-pulse h-16 rounded-lg bg-brand-charcoal/5 dark:bg-brand-sand/5" />;
+  }
+
+  if (!weather) {
+    return (
+      <a
+        href={buildWeatherUrl(coordinates)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-2.5 text-sm font-medium text-brand-teal hover:bg-brand-teal/10 transition-colors"
+      >
+        Check Weather at {parkName}
+      </a>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-brand-teal/20 bg-brand-teal/5 dark:bg-brand-teal/10 p-3 flex items-center gap-3">
+      <span className="text-3xl" aria-hidden="true">{weather.icon}</span>
+      <div>
+        <p className="text-lg font-bold text-brand-charcoal dark:text-dark-text">{weather.temp}°F</p>
+        <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70">{weather.forecast}</p>
+      </div>
+    </div>
+  );
+}
 
 /** Platform display names for aria-labels */
 const PLATFORM_NAMES: Record<SocialPlatform, string> = {
@@ -81,7 +158,6 @@ export default function ParkDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userPhotos, setUserPhotos] = useState<SocialPhoto[]>([]);
-  const [expandedTrailMap, setExpandedTrailMap] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -287,37 +363,22 @@ export default function ParkDetailPage() {
           </p>
         ) : (
           <div className="space-y-4">
+            {/* All trails map — shows trail overview */}
+            {trails.some((t) => (t as TrailExtended).coordinates?.length) && (
+              <div className="rounded-xl overflow-hidden border border-brand-forest/10 dark:border-dark-border" style={{ height: '250px' }}>
+                <TrailMap
+                  trail={trails.find((t) => (t as TrailExtended).coordinates?.length) as TrailExtended}
+                  trailheads={(trails.find((t) => (t as TrailExtended).trailheads?.length) as TrailExtended)?.trailheads ?? []}
+                />
+              </div>
+            )}
+
+            {/* Trail list */}
             {trails.map((trail) => {
               const ext = trail as TrailExtended;
-              const isMapExpanded = expandedTrailMap === trail.id;
-
               return (
                 <div key={trail.id}>
                   <TrailDetailPanel trail={ext} parkCoordinates={park.coordinates} />
-                  <button
-                    type="button"
-                    onClick={() => setExpandedTrailMap(isMapExpanded ? null : trail.id)}
-                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 min-h-[44px] text-xs font-medium text-brand-teal hover:text-brand-teal/80 hover:bg-brand-teal/5 transition-colors"
-                    aria-expanded={isMapExpanded}
-                    aria-controls={`trail-map-${trail.id}`}
-                  >
-                    <svg
-                      aria-hidden="true"
-                      className={`w-4 h-4 transition-transform ${isMapExpanded ? 'rotate-90' : ''}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                    {isMapExpanded ? 'Hide Map' : 'Show Map'}
-                  </button>
-                  {isMapExpanded && (
-                    <div id={`trail-map-${trail.id}`} className="mt-2">
-                      <TrailMap trail={ext} trailheads={ext.trailheads ?? []} />
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -363,23 +424,16 @@ export default function ParkDetailPage() {
         </section>
       )}
 
-      {/* Weather */}
+      {/* Weather — live conditions based on park location */}
       <section className="mt-6">
         <h2 className="text-lg font-heading font-semibold text-brand-charcoal dark:text-dark-text mb-2">
           Weather
         </h2>
         {isOnline ? (
-          <a
-            href={buildWeatherUrl(park.coordinates)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-2.5 text-sm font-medium text-brand-teal hover:bg-brand-teal/10 transition-colors"
-          >
-            Check Weather at {park.name}
-          </a>
+          <ParkWeatherCard coordinates={park.coordinates} parkName={park.name} />
         ) : (
           <p className="text-sm text-brand-charcoal/60 dark:text-dark-text-muted">
-            Weather data requires an internet connection.
+            Go online to see live weather for this park.
           </p>
         )}
       </section>

@@ -3,14 +3,14 @@
 /**
  * ForageWise — SupportFooter Component
  *
- * A minimal footer link to the support page, shown at the bottom of main pages.
+ * A minimal footer with support link and copyright notice.
  */
 
 import Link from 'next/link';
 
 export default function SupportFooter() {
   return (
-    <footer className="mt-8 pb-4 text-center">
+    <footer className="mt-8 pb-4 text-center space-y-2">
       <Link
         href="/support"
         className="inline-flex items-center gap-1.5 text-xs text-brand-charcoal/50 dark:text-brand-sand/50 hover:text-brand-teal dark:hover:text-brand-teal-300 transition-colors"
@@ -31,6 +31,9 @@ export default function SupportFooter() {
         </svg>
         Need help? Contact Support
       </Link>
+      <p className="text-[10px] text-brand-charcoal/30 dark:text-brand-sand/30">
+        © {new Date().getFullYear()} ForageWise. All rights reserved.
+      </p>
     </footer>
   );
 }
