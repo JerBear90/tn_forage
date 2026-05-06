@@ -46,25 +46,27 @@ export default function QuickCapture() {
       await putRecord('expeditionLogs', {
         id,
         userId: 'local-user',
+        tripId: '',
+        photos: [id],
+        coordinates: geo.position ?? undefined,
         speciesGuess: '',
-        matchedSpeciesId: null,
-        notes: '',
-        locationName: null,
-        coordinates: geo.position,
-        photoIds: [id],
+        notes: 'Quick capture — identify later',
+        visibility: 'private' as const,
+        syncStatus: 'pending' as const,
         createdAt: new Date().toISOString(),
-        syncStatus: 'pending',
       });
 
       // Store the photo blob
       const blob = new Blob([await file.arrayBuffer()], { type: file.type });
       await putRecord('photos', {
         id,
+        expeditionLogId: id,
         blob,
-        mimeType: file.type,
+        mimeType: file.type || 'image/jpeg',
         caption: '',
+        coordinates: geo.position ?? undefined,
         createdAt: new Date().toISOString(),
-        syncStatus: 'pending',
+        syncStatus: 'pending' as const,
       });
 
       setCount((c) => c + 1);
