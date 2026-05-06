@@ -24,6 +24,7 @@ import {
 } from "@/services/identifyScoring";
 import { requiresVerificationChecklist } from "@/services/verificationChecklist";
 import LookalikeVerificationChecklist from "@/components/LookalikeVerificationChecklist";
+import AIConfidenceVisual from "@/components/AIConfidenceVisual";
 import DismissibleDisclaimer from "@/components/DismissibleDisclaimer";
 import { seedDatabase } from "@/data/seedDatabase";
 import { sanitizeSafetyText } from "@/components/edibilityUtils";
@@ -215,24 +216,11 @@ function AIResultCard({ result }: { result: AIResult }) {
 
       {/* Score bar */}
       <div className="mb-3">
-        <div className="flex items-center justify-between text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mb-1">
-          <span>AI Confidence</span>
-          <span>{result.percentage}%</span>
-        </div>
-        <div className="h-1.5 w-full rounded-full bg-brand-charcoal/10 dark:bg-brand-sand/10 overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-300 ${
-              result.percentage >= 70
-                ? "bg-emerald-500"
-                : result.percentage >= 40
-                ? "bg-amber-500"
-                : result.percentage >= 20
-                ? "bg-gray-400"
-                : "bg-red-400"
-            }`}
-            style={{ width: `${Math.max(result.percentage, 2)}%` }}
-          />
-        </div>
+        <AIConfidenceVisual
+          confidence={result.percentage / 100}
+          speciesName={result.commonName}
+          isToxicLookalike={result.hasToxicLookalikes}
+        />
       </div>
 
       {/* Toxic lookalike warning — shown first per safety rules */}
@@ -592,6 +580,8 @@ function AIRecognitionPageInner() {
 
     // Online: run mock AI analysis
     setAnalyzing(true);
+    // Track AI identification usage
+    import('@/services/usageTracker').then(({ trackAiIdentification }) => trackAiIdentification());
     try {
       const aiResults = await mockAIAnalysis(photos);
       setResults(aiResults);

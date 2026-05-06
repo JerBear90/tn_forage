@@ -7,6 +7,10 @@ import OfflineBadge from "@/components/OfflineBadge";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
 import SupportFooter from "@/components/SupportFooter";
+import LocationSetupPrompt from "@/components/LocationSetupPrompt";
+import WeatherPanel from "@/components/WeatherPanel";
+import GuidedIntro from "@/components/GuidedIntro";
+import ShareQR from "@/components/ShareQR";
 import { useWeatherTemp } from "@/hooks/useWeatherTemp";
 import { useAutoSync } from "@/hooks/useAutoSync";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
@@ -45,6 +49,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { syncing, pendingCount } = useAutoSync();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
+  const [weatherPanelOpen, setWeatherPanelOpen] = useState(false);
 
   // Track page views on route changes (Requirements: 2.1, 12.1)
   usePageViewTracking();
@@ -109,15 +114,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Right: Weather + Search + Offline badge + Profile */}
         <div className="flex items-center gap-1.5">
-          {temp !== null && (
-            <span
-              className="text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 tabular-nums flex items-center gap-0.5"
-              aria-label={`Current temperature: ${temp}°F`}
-            >
-              {icon && <span aria-hidden="true">{icon}</span>}
-              {temp}°F
-            </span>
-          )}
+          <button
+            type="button"
+            onClick={() => setWeatherPanelOpen(true)}
+            className="text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 tabular-nums flex items-center gap-0.5 rounded-md px-1.5 py-1 hover:bg-brand-teal/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+            aria-label={temp !== null ? `Weather: ${temp}°F. Tap for details.` : 'Weather and online features'}
+          >
+            {temp !== null ? (
+              <>
+                {icon && <span aria-hidden="true">{icon}</span>}
+                {temp}°F
+              </>
+            ) : (
+              <span aria-hidden="true">🌤️</span>
+            )}
+          </button>
           {pendingCount > 0 && (
             <span
               className={`w-2 h-2 rounded-full ${syncing ? 'bg-amber-400 animate-pulse' : 'bg-brand-teal'}`}
@@ -127,6 +138,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           )}
           <OfflineBadge />
           <GlobalSearchBar />
+          {/* Support email link */}
+          <a
+            href="mailto:studio7inquiry@gmail.com?subject=ForageWise%20Support"
+            aria-label="Contact support"
+            className="shrink-0 flex items-center justify-center h-7 w-7 rounded-full text-brand-charcoal/50 dark:text-brand-sand/50 hover:bg-brand-teal/10 hover:text-brand-teal transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+            </svg>
+          </a>
+          {/* Share app QR */}
+          <ShareQR variant="icon" />
           {/* Profile link — avatar if available, profile icon fallback */}
           <Link
             href="/profile"
@@ -158,6 +181,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {!pathname.startsWith('/admin') && <NotificationSignupPrompt />}
         <main className="min-h-screen">{children}</main>
         <SupportFooter />
+        <LocationSetupPrompt />
+        <WeatherPanel isOpen={weatherPanelOpen} onClose={() => setWeatherPanelOpen(false)} />
+        <GuidedIntro />
       </div>
     </>
   );

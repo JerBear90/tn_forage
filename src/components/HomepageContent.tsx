@@ -6,6 +6,9 @@ import SeasonalHighlights from '@/components/SeasonalHighlights';
 import CommunityFeedPreview from '@/components/CommunityFeedPreview';
 import ChallengesSection from '@/components/ChallengesSection';
 import HomepageCustomizer from '@/components/HomepageCustomizer';
+import OnlineHint from '@/components/OnlineHint';
+import NearbyNow from '@/components/NearbyNow';
+import QuickCapture from '@/components/QuickCapture';
 import type { HomepageSectionKey, HomepageLayoutConfig } from '@/types';
 import { putRecord, getRecord } from '@/offline/db';
 
@@ -222,6 +225,15 @@ export default function HomepageContent() {
         <p className="text-brand-charcoal/70 dark:text-dark-text-muted text-sm">
           Mushroom, plant &amp; trail discovery in Tennessee
         </p>
+      </section>
+
+      <OnlineHint message="Go online to get live weather, sync your data, and see the latest community sightings." />
+
+      <NearbyNow />
+
+      {/* Quick Capture — one-tap field documentation */}
+      <section className="mb-6 px-1">
+        <QuickCapture />
       </section>
 
       {/* Customize button */}

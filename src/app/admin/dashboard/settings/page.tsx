@@ -22,6 +22,14 @@ interface AdminSettings {
     sendgridApiKey: string;
     sendgridFromName: string;
   };
+  integrations: {
+    stripeSecretKey: string;
+    stripeWebhookSecret: string;
+    googleMapsApiKey: string;
+    pocketbaseUrl: string;
+    googleOAuthClientId: string;
+    googleOAuthClientSecret: string;
+  };
   dataRetention: {
     analyticsDays: number;
   };
@@ -45,6 +53,14 @@ const DEFAULT_SETTINGS: AdminSettings = {
     provider: 'none',
     sendgridApiKey: '',
     sendgridFromName: 'ForageWise',
+  },
+  integrations: {
+    stripeSecretKey: '',
+    stripeWebhookSecret: '',
+    googleMapsApiKey: '',
+    pocketbaseUrl: 'http://127.0.0.1:8090',
+    googleOAuthClientId: '',
+    googleOAuthClientSecret: '',
   },
   dataRetention: {
     analyticsDays: 90,
@@ -581,6 +597,63 @@ export default function SettingsPage() {
               aria-label="Maximum notifications per hour"
               className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:focus:border-brand-teal"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Integrations & API Keys */}
+      <section
+        className="rounded-xl border border-brand-charcoal/10 bg-white p-6 shadow-sm dark:border-brand-sand/10 dark:bg-brand-charcoal/50"
+        aria-labelledby="integrations-heading"
+      >
+        <h2
+          id="integrations-heading"
+          className="text-lg font-semibold text-brand-charcoal dark:text-brand-sand"
+        >
+          Integrations & API Keys
+        </h2>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Configure third-party service credentials. All keys are stored locally and never sent to external servers.
+        </p>
+
+        <div className="mt-4 space-y-4">
+          {/* Stripe */}
+          <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 bg-brand-sand/30 dark:bg-brand-charcoal/30 p-4 space-y-3">
+            <p className="text-xs font-semibold text-brand-charcoal dark:text-brand-sand flex items-center gap-2">
+              💳 Stripe (Payments & Membership)
+            </p>
+            <div>
+              <label htmlFor="stripe-secret" className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand">Secret Key</label>
+              <input id="stripe-secret" type="password" value={settings.integrations.stripeSecretKey} onChange={(e) => setSettings(prev => ({ ...prev, integrations: { ...prev.integrations, stripeSecretKey: e.target.value } }))} placeholder="sk_test_••••••••" className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal placeholder-gray-400 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:placeholder-gray-500" />
+            </div>
+            <div>
+              <label htmlFor="stripe-webhook" className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand">Webhook Secret</label>
+              <input id="stripe-webhook" type="password" value={settings.integrations.stripeWebhookSecret} onChange={(e) => setSettings(prev => ({ ...prev, integrations: { ...prev.integrations, stripeWebhookSecret: e.target.value } }))} placeholder="whsec_••••••••" className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal placeholder-gray-400 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:placeholder-gray-500" />
+            </div>
+            <p className="text-[10px] text-gray-400 dark:text-gray-500">Get keys from <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener noreferrer" className="text-brand-teal underline">Stripe Dashboard</a></p>
+          </div>
+
+          {/* Google OAuth */}
+          <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 bg-brand-sand/30 dark:bg-brand-charcoal/30 p-4 space-y-3">
+            <p className="text-xs font-semibold text-brand-charcoal dark:text-brand-sand flex items-center gap-2">
+              🔐 Google OAuth (SSO Login)
+            </p>
+            <div>
+              <label htmlFor="google-client-id" className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand">Client ID</label>
+              <input id="google-client-id" type="text" value={settings.integrations.googleOAuthClientId} onChange={(e) => setSettings(prev => ({ ...prev, integrations: { ...prev.integrations, googleOAuthClientId: e.target.value } }))} placeholder="123456789.apps.googleusercontent.com" className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal placeholder-gray-400 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:placeholder-gray-500" />
+            </div>
+            <div>
+              <label htmlFor="google-client-secret" className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand">Client Secret</label>
+              <input id="google-client-secret" type="password" value={settings.integrations.googleOAuthClientSecret} onChange={(e) => setSettings(prev => ({ ...prev, integrations: { ...prev.integrations, googleOAuthClientSecret: e.target.value } }))} placeholder="GOCSPX-••••••••" className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal placeholder-gray-400 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:placeholder-gray-500" />
+            </div>
+            <p className="text-[10px] text-gray-400 dark:text-gray-500">Configure in <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-brand-teal underline">Google Cloud Console</a>. Also add to PocketBase admin → Auth providers.</p>
+          </div>
+
+          {/* PocketBase URL */}
+          <div>
+            <label htmlFor="pocketbase-url" className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand">PocketBase URL</label>
+            <input id="pocketbase-url" type="url" value={settings.integrations.pocketbaseUrl} onChange={(e) => setSettings(prev => ({ ...prev, integrations: { ...prev.integrations, pocketbaseUrl: e.target.value } }))} placeholder="http://127.0.0.1:8090" className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal placeholder-gray-400 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:placeholder-gray-500" />
+            <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">Admin panel: <a href="http://127.0.0.1:8090/_/" target="_blank" rel="noopener noreferrer" className="text-brand-teal underline">Open PocketBase Admin</a></p>
           </div>
         </div>
       </section>

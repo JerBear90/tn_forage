@@ -46,7 +46,7 @@ export async function getMissingImageReports(): Promise<MissingImageReport[]> {
     const reports: MissingImageReport[] = [];
 
     for (const setting of allSettings) {
-      const raw = (setting as Record<string, unknown>)._missingImage;
+      const raw = setting._missingImage;
       if (typeof raw === 'string') {
         try {
           const parsed = JSON.parse(raw);

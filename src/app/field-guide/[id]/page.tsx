@@ -15,6 +15,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import OnlineHint from "@/components/OnlineHint";
 import {
   useSpeciesDetail,
   type SpeciesDetailRecord,
@@ -27,6 +28,7 @@ import SeasonChart from "@/components/SeasonChart";
 import ForagingTipSection from "@/components/ForagingTipSection";
 import VoicePronunciationButton from "@/components/VoicePronunciationButton";
 import BreadcrumbNavigator from "@/components/BreadcrumbNavigator";
+import INaturalistSection from "@/components/INaturalistSection";
 import { writeReferrer } from "@/utils/breadcrumbReferrer";
 import { useAssociatedSpeciesLookup } from "@/hooks/useAssociatedSpeciesLookup";
 import type {
@@ -453,6 +455,9 @@ function SpeciesOrPlantDetail({
         </Section>
       )}
 
+      {/* iNaturalist Community Data */}
+      <INaturalistSection scientificName={d.scientificName} commonName={d.commonName} />
+
     </>
   );
 }
@@ -652,6 +657,8 @@ export default function SpeciesDetailPage() {
         currentTitle={currentTitle}
         currentCategory={currentCategory}
       />
+
+      <OnlineHint message="You're viewing cached data. Go online to check for updated species info, new images, and community sightings." />
 
       {/* Error state */}
       {error && (

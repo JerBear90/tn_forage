@@ -78,6 +78,20 @@ function CreateTripPageInner() {
   // Track selected park name for collapsed display
   const [selectedParkName, setSelectedParkName] = useState<string | null>(initialParkName);
 
+  // Load park name from IndexedDB if parkId is provided but parkName is not
+  useEffect(() => {
+    if (initialParkId && !initialParkName) {
+      const loadName = async () => {
+        try {
+          const { getRecord } = await import('@/offline/db');
+          const park = await getRecord('parks', initialParkId);
+          if (park) setSelectedParkName(park.name);
+        } catch { /* silently fail */ }
+      };
+      loadName();
+    }
+  }, [initialParkId, initialParkName]);
+
   // Ref for auto-scrolling to form when park is pre-selected
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -327,11 +341,11 @@ function CreateTripPageInner() {
         {locationMode === 'park' && (
           <>
             {/* Park Picker — collapsed when pre-selected */}
-            {parkPickerCollapsed && selectedParkName ? (
+            {parkPickerCollapsed && (selectedParkName || initialParkId) ? (
               <div className="rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-3 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
-                    🏞️ {selectedParkName}
+                    🏞️ {selectedParkName || 'Loading park...'}
                   </p>
                   <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">Selected park</p>
                 </div>

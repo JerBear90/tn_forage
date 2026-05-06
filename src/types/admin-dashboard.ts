@@ -103,6 +103,7 @@ export interface AdminUser {
   name: string;
   email: string;
   role: 'free' | 'member' | 'super_user';
+  membershipPlan: 'free' | 'monthly' | 'yearly' | 'lifetime';
   lastActiveAt: string;
   totalSessions: number;
   accountStatus: 'active' | 'disabled';
