@@ -72,11 +72,15 @@ export default function PrivateMapPins({ onPinsChanged }: PrivateMapPinsProps) {
         id: generateId(),
         userId: 'local-user',
         coordinates: geo.position,
-        label: label.trim(),
-        notes: notes.trim(),
-        category,
-        createdAt: new Date().toISOString(),
+        nearWater: false,
+        dominantTrees: [],
+        substrate: 'soil',
+        notes: `${label.trim()}${notes.trim() ? ' — ' + notes.trim() : ''} [${category}]`,
+        photos: [],
+        visits: [],
+        syncPreference: 'local-only',
         syncStatus: 'pending',
+        createdAt: new Date().toISOString(),
       };
 
       await putRecord('microhabitatPins', pin);
@@ -166,28 +170,33 @@ export default function PrivateMapPins({ onPinsChanged }: PrivateMapPinsProps) {
       {/* Pin list */}
       {pins.length > 0 && !showForm && (
         <div className="space-y-1.5 max-h-40 overflow-y-auto">
-          {pins.slice(-5).reverse().map((pin) => (
-            <div key={pin.id} className="flex items-center justify-between rounded-lg bg-brand-charcoal/5 dark:bg-brand-sand/5 px-3 py-2">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-brand-charcoal dark:text-dark-text truncate">
-                  {pin.category === 'mushroom' ? '🍄' : pin.category === 'plant' ? '🌿' : '🌳'} {pin.label}
-                </p>
-                <p className="text-[10px] text-brand-charcoal/40 dark:text-brand-sand/40">
-                  {new Date(pin.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                </p>
+          {pins.slice(-5).reverse().map((pin) => {
+            // Extract label from notes (stored as "label — notes [category]")
+            const displayLabel = pin.notes.split(' — ')[0].replace(/\s*\[.*\]$/, '') || 'Pin';
+            const pinCategory = pin.notes.match(/\[(mushroom|plant|tree)\]/)?.[1] || 'mushroom';
+            return (
+              <div key={pin.id} className="flex items-center justify-between rounded-lg bg-brand-charcoal/5 dark:bg-brand-sand/5 px-3 py-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-brand-charcoal dark:text-dark-text truncate">
+                    {pinCategory === 'mushroom' ? '🍄' : pinCategory === 'plant' ? '🌿' : '🌳'} {displayLabel}
+                  </p>
+                  <p className="text-[10px] text-brand-charcoal/40 dark:text-brand-sand/40">
+                    {new Date(pin.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(pin.id)}
+                  className="shrink-0 text-red-400 hover:text-red-600 p-1"
+                  aria-label={`Delete pin: ${displayLabel}`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => handleDelete(pin.id)}
-                className="shrink-0 text-red-400 hover:text-red-600 p-1"
-                aria-label={`Delete pin: ${pin.label}`}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
