@@ -633,8 +633,8 @@ function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
   ];
 
   return (
-    <nav aria-label="Community sub-sections" className="mb-6">
-      <div className="flex gap-1 rounded-xl bg-brand-charcoal/5 dark:bg-brand-sand/5 p-1">
+    <nav aria-label="Community sub-sections" className="mb-4">
+      <div className="flex gap-1 rounded-lg bg-brand-charcoal/5 dark:bg-brand-sand/5 p-0.5">
         {tabs.map((tab) => {
           const isActive = activeSection === tab.key;
           return (
@@ -644,7 +644,7 @@ function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
               onClick={() => onSectionChange(tab.key)}
               aria-label={`View ${tab.label} section`}
               aria-current={isActive ? 'page' : undefined}
-              className={`flex-1 rounded-lg text-sm font-medium py-3 min-h-[44px] min-w-[44px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
+              className={`flex-1 rounded-md text-xs font-medium py-2 min-h-[36px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
                 isActive
                   ? 'bg-brand-teal text-white shadow-sm'
                   : 'text-brand-charcoal/70 dark:text-brand-sand/70 hover:bg-brand-teal/10 hover:text-brand-teal'
