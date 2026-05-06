@@ -105,7 +105,7 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load feed items: public sightings + shared trips
+  // Load feed items: from PocketBase (shared) + local fallback
   useEffect(() => {
     setLikedIds(getLikedIds());
     setFollowedUsers(getFollowedUsers());
@@ -113,9 +113,35 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
     async function loadFeed() {
       const items: FeedItem[] = [];
 
-      // Public sightings (including check-ins)
+      // Try loading from PocketBase first (shared feed)
+      try {
+        const { fetchCommunityPosts } = await import('@/services/communityPostService');
+        const { posts } = await fetchCommunityPosts(1, 50);
+        if (posts.length > 0) {
+          for (const post of posts) {
+            items.push({
+              id: post.id,
+              type: post.postType,
+              userId: post.userId,
+              displayName: post.displayName,
+              avatarUrl: post.avatarUrl,
+              title: post.speciesGuess,
+              notes: post.notes || '',
+              photos: post.photos, // Already full URLs from PocketBase
+              coordinates: post.coordinates,
+              createdAt: post.created,
+              parkName: post.postType === 'checkin' ? post.speciesGuess : undefined,
+            });
+          }
+        }
+      } catch {
+        // PocketBase unavailable — fall back to local
+      }
+
+      // Also include local posts not yet synced (from IndexedDB)
       const publicPosts = sightings
         .filter((s) => s.visibility === 'public')
+        .filter((s) => !items.some((item) => item.id === s.id)) // Avoid duplicates
         .map((s): FeedItem => ({
           id: s.id,
           type: s.notes?.startsWith('[Check-in]') ? 'checkin' : 'sighting',
@@ -330,23 +356,32 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   const lastTapRef = useRef<number>(0);
   const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load all photos from IndexedDB
+  // Load photos — if they're URLs (from PocketBase), use directly; otherwise load from IndexedDB
   useEffect(() => {
     let cancelled = false;
     if (item.photos.length > 0) {
-      Promise.all(item.photos.map((id) => loadPhotoUrl(id))).then((urls) => {
-        if (!cancelled) {
-          setPhotoUrls(urls.filter((u): u is string => u !== null));
-        }
-      });
+      // Check if photos are already URLs (from PocketBase)
+      const allAreUrls = item.photos.every((p) => p.startsWith('http://') || p.startsWith('https://'));
+      if (allAreUrls) {
+        setPhotoUrls(item.photos);
+      } else {
+        // Load from IndexedDB
+        Promise.all(item.photos.map((id) => loadPhotoUrl(id))).then((urls) => {
+          if (!cancelled) {
+            setPhotoUrls(urls.filter((u): u is string => u !== null));
+          }
+        });
+      }
     }
     return () => { cancelled = true; };
   }, [item.photos]);
 
-  // Clean up object URLs on unmount
+  // Clean up object URLs on unmount (only for blob URLs, not http URLs)
   useEffect(() => {
     return () => {
-      photoUrls.forEach((url) => URL.revokeObjectURL(url));
+      photoUrls.forEach((url) => {
+        if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+      });
     };
   }, [photoUrls]);
 

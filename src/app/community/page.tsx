@@ -186,7 +186,29 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
       updatedAt: now,
     };
 
+    // Save locally
     await putRecord('communityDrafts', draft);
+
+    // Sync to PocketBase (so other users can see it)
+    try {
+      const { createCommunityPost } = await import('@/services/communityPostService');
+      const photoFilesForUpload = photoFiles
+        .filter((p) => p.file)
+        .map((p) => p.file!);
+      await createCommunityPost({
+        userId: user?.id || 'local-user',
+        displayName: user?.displayName || undefined,
+        avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
+        speciesGuess: speciesGuess.trim() || undefined,
+        notes: notes.trim() || undefined,
+        coordinates: coords,
+        postType: 'sighting',
+        photoFiles: photoFilesForUpload,
+      });
+    } catch {
+      // Offline — post saved locally, will need manual sync later
+    }
+
     onSave(draft);
     setSaving(false);
   }

@@ -65,7 +65,7 @@ function CheckInContent() {
     setSaving(true);
     const now = new Date().toISOString();
 
-    // Create a community draft as a check-in post
+    // Create a community draft as a check-in post (local)
     await putRecord('communityDrafts', {
       id: generateId(),
       userId: user?.id || 'local-user',
@@ -78,6 +78,23 @@ function CheckInContent() {
       createdAt: now,
       updatedAt: now,
     });
+
+    // Sync to PocketBase if sharing publicly
+    if (sharePublicly) {
+      try {
+        const { createCommunityPost } = await import('@/services/communityPostService');
+        await createCommunityPost({
+          userId: user?.id || 'local-user',
+          displayName: user?.displayName || undefined,
+          avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
+          speciesGuess: parkName,
+          notes: `Checked in at ${parkName}${notes ? '. ' + notes.trim() : ''}`,
+          postType: 'checkin',
+        });
+      } catch {
+        // Offline — saved locally
+      }
+    }
 
     setSaved(true);
     setSaving(false);
