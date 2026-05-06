@@ -31,7 +31,6 @@ import type {
   CommunitySubSection,
   BlogArticle,
   FlagReason,
-  LogVisibility,
   Coordinates,
 } from '@/types';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -102,7 +101,6 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
   const { user } = useAuth();
   const [speciesGuess, setSpeciesGuess] = useState('');
   const [notes, setNotes] = useState('');
-  const [visibility, setVisibility] = useState<LogVisibility>('private');
   const [saving, setSaving] = useState(false);
   const [locationMode, setLocationMode] = useState<'gps' | 'manual'>('gps');
   const geo = useGeolocation();
@@ -149,8 +147,8 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
         ? { lat: geo.position.lat, lng: geo.position.lng }
         : undefined;
 
-    // Apply location privacy — fuzz for public, keep exact for private
-    const coords = applyLocationPrivacy(rawCoords, visibility);
+    // Apply location privacy — fuzz coordinates for public posts
+    const coords = applyLocationPrivacy(rawCoords, 'public');
 
     // Save photo blobs to IndexedDB photos store
     const photoIds: string[] = [];
@@ -183,7 +181,7 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
       photos: photoIds,
       coordinates: coords,
       notes: notes.trim(),
-      visibility,
+      visibility: 'public',
       createdAt: now,
       updatedAt: now,
     };
@@ -349,44 +347,6 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
             placeholder="Describe what you found, habitat, nearby trees…"
             className="w-full rounded-lg border border-brand-teal/20 bg-white/60 dark:bg-brand-charcoal/40 px-4 py-2.5 text-sm text-brand-charcoal dark:text-brand-sand placeholder:text-brand-charcoal/40 dark:placeholder:text-brand-sand/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 resize-none"
           />
-        </div>
-
-        {/* Visibility (14.4) */}
-        <div>
-          <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand mb-2">
-            Visibility
-          </p>
-          <div className="flex gap-2" role="radiogroup" aria-label="Sighting visibility">
-            <button
-              type="button"
-              role="radio"
-              aria-checked={visibility === 'private'}
-              onClick={() => setVisibility('private')}
-              className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
-                visibility === 'private'
-                  ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
-                  : 'border-brand-teal/20 bg-white/60 dark:bg-brand-charcoal/40 text-brand-charcoal/70 dark:text-brand-sand/70 hover:bg-brand-teal/5'
-              }`}
-            >
-              🔒 Private
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={visibility === 'public'}
-              onClick={() => setVisibility('public')}
-              className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
-                visibility === 'public'
-                  ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
-                  : 'border-brand-teal/20 bg-white/60 dark:bg-brand-charcoal/40 text-brand-charcoal/70 dark:text-brand-sand/70 hover:bg-brand-teal/5'
-              }`}
-            >
-              🌐 Public
-            </button>
-          </div>
-          <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mt-1">
-            Sightings are private by default. Public sightings have GPS coordinates fuzzed for privacy.
-          </p>
         </div>
 
         {/* Actions */}
