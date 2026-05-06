@@ -33,6 +33,7 @@ const adminLinks = [
   { href: "/admin/dashboard/onboarding", label: "Onboarding", icon: "🚀" },
   { href: "/admin/dashboard/revenue", label: "Revenue", icon: "💰" },
   { href: "/admin/dashboard/alerts", label: "Alerts", icon: "🚨" },
+  { href: "/admin/dashboard/challenges", label: "Challenges", icon: "🏆" },
   { href: "/admin/dashboard/releases", label: "Releases", icon: "📋" },
   { href: "/admin/dashboard/reviews", label: "Reviews", icon: "⭐" },
   { href: "/admin/dashboard/feedback", label: "Feedback", icon: "💬" },
