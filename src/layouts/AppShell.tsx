@@ -137,6 +137,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           )}
           <OfflineBadge />
           <GlobalSearchBar />
+          {/* Support email link */}
+          <a
+            href="mailto:studio7inquiry@gmail.com?subject=ForageWise%20Support"
+            aria-label="Contact support"
+            className="shrink-0 flex items-center justify-center h-7 w-7 rounded-full text-brand-charcoal/50 dark:text-brand-sand/50 hover:bg-brand-teal/10 hover:text-brand-teal transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+            </svg>
+          </a>
           {/* Profile link — avatar if available, profile icon fallback */}
           <Link
             href="/profile"

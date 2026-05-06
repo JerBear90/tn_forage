@@ -7,6 +7,7 @@ import CommunityFeedPreview from '@/components/CommunityFeedPreview';
 import ChallengesSection from '@/components/ChallengesSection';
 import HomepageCustomizer from '@/components/HomepageCustomizer';
 import OnlineHint from '@/components/OnlineHint';
+import NearbyNow from '@/components/NearbyNow';
 import type { HomepageSectionKey, HomepageLayoutConfig } from '@/types';
 import { putRecord, getRecord } from '@/offline/db';
 
@@ -226,6 +227,8 @@ export default function HomepageContent() {
       </section>
 
       <OnlineHint message="Go online to get live weather, sync your data, and see the latest community sightings." />
+
+      <NearbyNow />
 
       {/* Customize button */}
       <div className="flex justify-end mb-4">

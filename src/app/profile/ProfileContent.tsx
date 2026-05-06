@@ -10,6 +10,7 @@ import { getFollowerCount, getFollowingCount } from "@/social/followService";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileTabs from "@/components/profile/ProfileTabs";
 import FindsTimeline from "@/components/profile/FindsTimeline";
+import LifeList from "@/components/LifeList";
 import type { UserProfileLocal, UserProfileExtended } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -605,6 +606,11 @@ export default function ProfileContent() {
           }
           isOwnProfile={true}
         />
+      </section>
+
+      {/* ── Life List Stats ── */}
+      <section className="mb-6 rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-4">
+        <LifeList userId={profile?.id || "local-user"} />
       </section>
 
       {/* ── Profile Tabs ── */}
