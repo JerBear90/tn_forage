@@ -19,6 +19,7 @@ import { badgesSeed } from '@/data/badgesSeed';
 import { blogSeed } from '@/data/blogSeed';
 import { tourSeed } from '@/data/tourSeed';
 import { featureFlagsSeed } from '@/data/featureFlagsSeed';
+import { communitySeed } from '@/data/communitySeed';
 
 /**
  * Bump this version whenever seed data changes (new images, new entries, etc.).
@@ -197,6 +198,16 @@ export async function seedDatabase(): Promise<{
     }
     await tx.done;
     featureFlagsSeeded = featureFlagsSeed.length;
+  }
+
+  // --- Seed community sightings (demo posts) ---
+  const communityCount = await countRecords('communityDrafts');
+  if (communityCount === 0) {
+    const tx = db.transaction('communityDrafts', 'readwrite');
+    for (const draft of communitySeed) {
+      await tx.store.put(draft);
+    }
+    await tx.done;
   }
 
   // --- Update seed data version ---
