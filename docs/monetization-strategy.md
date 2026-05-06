@@ -40,6 +40,15 @@ ForageWise is an offline-first foraging companion app for Tennessee. The monetiz
 | Premium species packs | $1.99 each | Rare/advanced species with detailed ID guides |
 | Offline map bundles | $0.99 each | High-res topographic tiles for specific parks |
 
+**Architecture Decision: One App, All States**
+
+Ship one app with Tennessee free. Additional states are unlocked via state packs ($2.99) or included in Pro membership. Reasons:
+- Single codebase to maintain
+- Users who travel don't need multiple apps
+- Better App Store ranking (one app with more downloads)
+- State packs = recurring revenue from existing users
+- Data architecture already supports it — just add seed data per state
+
 ### 3. Affiliate Revenue (Passive)
 
 - Link to foraging gear on Amazon (knife, basket, field guides)
@@ -120,6 +129,10 @@ import MonetizationGate from '@/components/MonetizationGate';
 - [x] Offline map download infrastructure
 - [x] AI identification page
 - [x] Community with auth gating
+- [x] Usage tracking (AI IDs per day counter, feature usage, sessions)
+- [x] Admin can manually set user membership from dashboard
+- [x] Terms of Service page
+- [x] Privacy Policy page
 
 ### To Build for Launch:
 - [ ] Usage tracking (AI IDs per day counter)
@@ -176,13 +189,18 @@ import MonetizationGate from '@/components/MonetizationGate';
 
 ## Key Metrics to Track (Already in Admin Dashboard)
 
+All metrics below are tracked via the usage tracker (`src/services/usageTracker.ts`) and admin analytics:
+
 - **Conversion rate:** Free → Pro (target: 5%)
 - **Churn rate:** Monthly Pro cancellations (target: <5%)
-- **LTV:** Lifetime value per subscriber
-- **CAC:** Cost to acquire a paying user
-- **DAU/MAU:** Daily/monthly active users
-- **Feature usage:** Which premium features drive upgrades
-- **Trial-to-paid:** 7-day trial conversion rate
+- **LTV:** Lifetime value per subscriber (Pro monthly avg 8 months = $40, Lifetime = $50-80)
+- **CAC:** Cost to acquire a paying user (target: <$10 via organic/SEO)
+- **DAU/MAU:** Daily/monthly active users (tracked via session counter)
+- **Feature usage:** Which premium features drive upgrades (AI IDs, map downloads, community posts)
+- **Trial-to-paid:** 7-day trial conversion rate (target: 20%)
+- **AI ID usage:** Daily count per user (free limit: 3/day, tracked in localStorage)
+- **Retention:** Day 1, Day 7, Day 30 return rates
+- **Offline usage:** How often users access the app without internet
 
 ---
 
