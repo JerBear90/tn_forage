@@ -157,7 +157,17 @@ async function loadCachedUserProfile(): Promise<UserProfileLocal | undefined> {
 /**
  * Map a PocketBase auth record to our local UserProfileLocal type.
  */
-function mapPbUserToLocal(record: Record<string, unknown>): UserProfileLocal {
+function mapPbUserToLocal(record: Record<string, unknown>, oauthAvatarUrl?: string): UserProfileLocal {
+  // Avatar priority: PocketBase file > OAuth avatar URL > undefined
+  let avatar: string | undefined;
+  if (record.avatar) {
+    avatar = String(record.avatar);
+  } else if (record.avatarUrl) {
+    avatar = String(record.avatarUrl);
+  } else if (oauthAvatarUrl) {
+    avatar = oauthAvatarUrl;
+  }
+
   return {
     id: record.id as string,
     email: (record.email as string) ?? '',
@@ -166,7 +176,7 @@ function mapPbUserToLocal(record: Record<string, unknown>): UserProfileLocal {
       (record.displayName as string) ??
       (record.email as string) ??
       '',
-    avatar: record.avatar ? String(record.avatar) : undefined,
+    avatar,
     role: ((record.role as string) ?? 'free') as UserRole,
     createdAt: (record.created as string) ?? new Date().toISOString(),
     updatedAt: (record.updated as string) ?? new Date().toISOString(),
@@ -365,7 +375,24 @@ export async function handleSSOCallback(
         params.redirectUrl,
       );
 
-    const user = mapPbUserToLocal(authData.record as unknown as Record<string, unknown>);
+    // If the OAuth provider returned an avatar URL and the user doesn't have one stored,
+    // save the OAuth avatar URL to the user record
+    const meta = authData.meta as Record<string, unknown> | undefined;
+    const oauthAvatarUrl = meta?.avatarUrl as string | undefined;
+    const record = authData.record as unknown as Record<string, unknown>;
+
+    if (oauthAvatarUrl && !record.avatar) {
+      // Store the OAuth avatar URL in a custom field so the app can use it
+      try {
+        await pb.collection('users').update(record.id as string, {
+          avatarUrl: oauthAvatarUrl,
+        });
+      } catch {
+        // Non-critical — avatar is nice-to-have
+      }
+    }
+
+    const user = mapPbUserToLocal(record, oauthAvatarUrl);
     await persistSession(user, params.provider);
     transitionState('authenticated-online', user);
 
