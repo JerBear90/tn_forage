@@ -208,15 +208,21 @@ export default function ExpeditionPage() {
 
       // Reset form
       setSaved(true);
-      setPhotos([]);
-      setSpeciesGuess('');
-      setHabitat('');
-      setTreeNearby('');
-      setVisibility('private');
-      setNotes('');
-      setManualLocation('');
-      setSelectedTripId('');
-      setDateTime(toDateTimeLocal(new Date()));
+      // Scroll to top so user sees the success banner
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Keep the success state visible — don't reset form immediately
+      // so the user sees confirmation before the form clears
+      setTimeout(() => {
+        setPhotos([]);
+        setSpeciesGuess('');
+        setHabitat('');
+        setTreeNearby('');
+        setVisibility('private');
+        setNotes('');
+        setManualLocation('');
+        setSelectedTripId('');
+        setDateTime(toDateTimeLocal(new Date()));
+      }, 100);
     } catch {
       setError('Failed to save log entry. Please try again.');
     } finally {
@@ -245,9 +251,15 @@ export default function ExpeditionPage() {
       {saved && (
         <div
           role="status"
-          className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-700 dark:text-green-300"
+          className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 px-4 py-4 text-center"
         >
-          Log entry saved! It will sync when you&apos;re back online.
+          <span className="text-2xl block mb-1" aria-hidden="true">✅</span>
+          <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+            Log entry saved successfully!
+          </p>
+          <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+            It will sync when you&apos;re back online. You can add another entry below.
+          </p>
         </div>
       )}
 
