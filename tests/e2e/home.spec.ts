@@ -30,9 +30,9 @@ test.describe('Home Page', () => {
   });
 
   test('should display the ForageWise name and tagline', async ({ page }) => {
-    await expect(page.getByText('ForageWise')).toBeVisible();
+    await expect(page.getByText('ForageWise').first()).toBeVisible();
     await expect(
-      page.getByText(/mushroom.*plant.*trail.*discovery.*tennessee/i)
+      page.getByText(/mushroom.*plant.*trail.*discovery/i)
     ).toBeVisible();
   });
 

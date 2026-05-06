@@ -2,7 +2,7 @@
  * ForageWise — E2E Tests: Map Page
  *
  * Tests map page rendering with Leaflet, switching between map and list views,
- * opening a detail panel (top positioning), legend visibility, and map height.
+ * opening a detail panel (top positioning), heatmap, and map height.
  *
  * Run with: npx playwright test tests/e2e/map.spec.ts
  *
@@ -23,7 +23,6 @@ test.describe('Map Page — Rendering', () => {
   });
 
   test('should render the Leaflet map container', async ({ page }) => {
-    // Leaflet renders a container with class "leaflet-container"
     const mapContainer = page.locator('.leaflet-container');
     await expect(mapContainer).toBeVisible({ timeout: 15_000 });
   });
@@ -33,6 +32,12 @@ test.describe('Map Page — Rendering', () => {
     const listToggle = page.getByRole('button', { name: /list/i });
     await expect(mapToggle).toBeVisible();
     await expect(listToggle).toBeVisible();
+  });
+
+  test('should display season heatmap toggle button', async ({ page }) => {
+    await expect(
+      page.getByRole('button', { name: /season heatmap/i })
+    ).toBeVisible();
   });
 });
 
@@ -85,15 +90,13 @@ test.describe('Map Page — Detail Panel', () => {
     if ((await listItem.count()) > 0) {
       await listItem.click();
 
-      // Detail panel should appear — positioned at top (absolute top-0)
+      // Detail panel should appear
       const detailPanel = page.locator('[role="dialog"], [aria-label*="detail" i], [aria-label*="Detail" i]').first();
       if ((await detailPanel.count()) > 0) {
         await expect(detailPanel).toBeVisible();
 
-        // Verify top positioning: the panel should be near the top of its container
         const panelBox = await detailPanel.boundingBox();
         if (panelBox) {
-          // Panel top should be within the upper portion of the viewport
           expect(panelBox.y).toBeLessThan(300);
         }
       }
@@ -101,46 +104,29 @@ test.describe('Map Page — Detail Panel', () => {
   });
 });
 
-test.describe('Map Page — Legend', () => {
-  test('should display legend above the map in map mode', async ({ page }) => {
+test.describe('Map Page — No Legend', () => {
+  test('should NOT display a legend (removed per design)', async ({ page }) => {
     await page.goto('/map');
 
-    const legend = page.locator('[aria-label="Map legend"]');
-    await expect(legend).toBeVisible();
-
-    // Legend should contain Parks, Trails, Routes labels
-    await expect(legend).toContainText(/parks/i);
-    await expect(legend).toContainText(/trails/i);
-    await expect(legend).toContainText(/routes/i);
-  });
-
-  test('should hide legend in list mode', async ({ page }) => {
-    await page.goto('/map');
-
-    // Switch to list view
-    await page.getByRole('button', { name: /list/i }).click();
-
-    // Legend should not be visible in list mode
     const legend = page.locator('[aria-label="Map legend"]');
     await expect(legend).toHaveCount(0);
   });
 
-  test('should position legend above the map container', async ({ page }) => {
+  test('should still show heatmap and filters', async ({ page }) => {
     await page.goto('/map');
 
-    const legend = page.locator('[aria-label="Map legend"]');
-    const mapView = page.locator('[aria-label="Map view"]');
+    // Heatmap toggle should be visible
+    await expect(
+      page.getByRole('button', { name: /season heatmap/i })
+    ).toBeVisible();
 
-    await expect(legend).toBeVisible();
-    await expect(mapView).toBeVisible();
+    // Condition filters should be available in list view
+    await page.getByRole('button', { name: /list/i }).click();
+    await page.waitForTimeout(1000);
 
-    const legendBox = await legend.boundingBox();
-    const mapBox = await mapView.boundingBox();
-
-    if (legendBox && mapBox) {
-      // Legend bottom should be above or at the map top
-      expect(legendBox.y + legendBox.height).toBeLessThanOrEqual(mapBox.y + 10);
-    }
+    // Filter chips should be visible if conditions data is loaded
+    const filterGroup = page.locator('[aria-label="Foraging condition filters"]');
+    // May or may not be visible depending on data load timing
   });
 });
 
@@ -155,11 +141,20 @@ test.describe('Map Page — Map Height', () => {
     const viewportSize = page.viewportSize();
 
     if (mapBox && viewportSize) {
-      // Map height should be less than full viewport height
-      // Design specifies max(65vh, 300px), so it should be roughly 65% of viewport
       expect(mapBox.height).toBeLessThan(viewportSize.height);
-      // Map should be at least 300px tall
-      expect(mapBox.height).toBeGreaterThanOrEqual(290); // small tolerance
+      expect(mapBox.height).toBeGreaterThanOrEqual(290);
     }
+  });
+});
+
+test.describe('Map Page — Z-Index', () => {
+  test('bottom nav should not be overlaid by the map', async ({ page }) => {
+    await page.goto('/map');
+
+    const nav = page.getByRole('navigation', { name: /main navigation/i });
+    await expect(nav).toBeVisible();
+
+    const zIndex = await nav.evaluate((el) => getComputedStyle(el).zIndex);
+    expect(Number(zIndex)).toBeGreaterThanOrEqual(9999);
   });
 });

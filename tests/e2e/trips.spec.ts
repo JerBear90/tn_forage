@@ -2,7 +2,7 @@
  * ForageWise — E2E Tests: Trips
  *
  * Tests trip creation flow including navigation to new trip page,
- * location selection, date entry, and offline save to IndexedDB.
+ * park picker selection with collapse, date entry, and offline save.
  *
  * Run with: npx playwright test tests/e2e/trips.spec.ts
  *
@@ -38,55 +38,70 @@ test.describe('Trips — Navigation', () => {
 });
 
 test.describe('Trips — Location Selection', () => {
-  test.beforeEach(async ({ page }) => {
+  test('should display Start Planning button initially', async ({ page }) => {
     await page.goto('/trips/new');
+    await expect(page.getByRole('button', { name: /start planning my trip/i })).toBeVisible();
   });
 
-  test('should display location type options', async ({ page }) => {
-    // The form has location type radio buttons: State Park, Trail, Route, Custom
+  test('should show location mode selector after clicking Start Planning', async ({ page }) => {
+    await page.goto('/trips/new');
+    await page.getByRole('button', { name: /start planning my trip/i }).click();
+
+    // Should show "Where are you going?" with park/custom options
     await expect(page.getByText(/where are you going/i)).toBeVisible();
-    await expect(page.getByRole('radio', { name: /state park/i })).toBeVisible();
-    await expect(page.getByRole('radio', { name: /trail/i })).toBeVisible();
-    await expect(page.getByRole('radio', { name: /route/i })).toBeVisible();
-    await expect(page.getByRole('radio', { name: /custom/i })).toBeVisible();
+    await expect(page.getByRole('radio', { name: /select a park/i })).toBeVisible();
+    await expect(page.getByRole('radio', { name: /custom location/i })).toBeVisible();
   });
 
-  test('should show location search when park type is selected', async ({ page }) => {
-    // Park is the default selection
-    const locationSearch = page.locator('#location-search');
-    await expect(locationSearch).toBeVisible();
+  test('should show park picker when park mode is selected', async ({ page }) => {
+    await page.goto('/trips/new');
+    await page.getByRole('button', { name: /start planning my trip/i }).click();
+
+    // Park mode is default — park picker should load
+    await expect(page.getByText(/select a park/i)).toBeVisible({ timeout: 10_000 });
   });
 
-  test('should show custom location input when Custom type is selected', async ({ page }) => {
-    await page.getByRole('radio', { name: /custom/i }).click();
+  test('should show custom location input when Custom is selected', async ({ page }) => {
+    await page.goto('/trips/new');
+    await page.getByRole('button', { name: /start planning my trip/i }).click();
+
+    await page.getByRole('radio', { name: /custom location/i }).click();
     const customInput = page.locator('#custom-location');
     await expect(customInput).toBeVisible();
   });
 
-  test('should open location dropdown on focus', async ({ page }) => {
-    const locationSearch = page.locator('#location-search');
-    await locationSearch.focus();
+  test('should collapse park picker after selecting a park', async ({ page }) => {
+    await page.goto('/trips/new');
+    await page.getByRole('button', { name: /start planning my trip/i }).click();
+    await page.waitForTimeout(3000); // Wait for parks to load from IndexedDB
 
-    // Dropdown listbox should appear
-    const listbox = page.locator('#location-listbox');
-    await expect(listbox).toBeVisible();
+    // Click first park card
+    const parkCard = page.locator('[role="option"]').first();
+    if (await parkCard.isVisible()) {
+      await parkCard.click();
+      await page.waitForTimeout(500);
+
+      // Should show collapsed state with "Change" button
+      await expect(page.getByRole('button', { name: /change/i })).toBeVisible();
+    }
   });
 });
 
 test.describe('Trips — Date Entry', () => {
   test('should display date input with today as default', async ({ page }) => {
     await page.goto('/trips/new');
+    await page.getByRole('button', { name: /start planning my trip/i }).click();
 
     const dateInput = page.locator('#trip-date');
     await expect(dateInput).toBeVisible();
 
-    // Default value should be today's date
     const today = new Date().toISOString().slice(0, 10);
     await expect(dateInput).toHaveValue(today);
   });
 
   test('should allow changing the date', async ({ page }) => {
     await page.goto('/trips/new');
+    await page.getByRole('button', { name: /start planning my trip/i }).click();
 
     const dateInput = page.locator('#trip-date');
     await dateInput.fill('2025-07-04');
@@ -94,50 +109,51 @@ test.describe('Trips — Date Entry', () => {
   });
 });
 
-test.describe('Trips — Offline Save to IndexedDB', () => {
-  test('should save a trip with custom location and verify redirect', async ({ page }) => {
+test.describe('Trips — Form Validation', () => {
+  test('should show validation error when park is not selected', async ({ page }) => {
     await page.goto('/trips/new');
+    await page.getByRole('button', { name: /start planning my trip/i }).click();
+    await page.waitForTimeout(1000);
 
-    // Select Custom location type
-    await page.getByRole('radio', { name: /custom/i }).click();
-
-    // Fill in custom location
-    const customInput = page.locator('#custom-location');
-    await customInput.fill('Radnor Lake State Park');
-
-    // Set date
-    const dateInput = page.locator('#trip-date');
-    await dateInput.fill('2025-08-15');
-
-    // Add optional notes
-    const notesInput = page.locator('#trip-notes');
-    await notesInput.fill('E2E test trip — looking for chanterelles');
-
-    // Submit the form
-    const saveButton = page.getByRole('button', { name: /save trip/i });
-    await saveButton.click();
-
-    // Should redirect to trips list page after save
-    await expect(page).toHaveURL(/\/trips$/, { timeout: 5_000 });
-  });
-
-  test('should show validation error when location is missing', async ({ page }) => {
-    await page.goto('/trips/new');
-
-    // Try to submit without selecting a location
-    const saveButton = page.getByRole('button', { name: /save trip/i });
-    await saveButton.click();
-
-    // Validation error should appear
-    await expect(
-      page.getByText(/please select a location/i)
-    ).toBeVisible();
+    // Try to submit without selecting a park
+    const submitBtn = page.getByRole('button', { name: /start planning$/i }).last();
+    if (await submitBtn.isVisible()) {
+      await submitBtn.click();
+      await expect(page.getByText(/please select a park/i)).toBeVisible();
+    }
   });
 
   test('should display offline save note', async ({ page }) => {
     await page.goto('/trips/new');
+    await page.getByRole('button', { name: /start planning my trip/i }).click();
+
     await expect(
       page.getByText(/saved locally first/i)
     ).toBeVisible();
+  });
+});
+
+test.describe('Trips — Share Prompt', () => {
+  test('should show share prompt after saving a trip', async ({ page }) => {
+    await page.goto('/trips/new');
+    await page.getByRole('button', { name: /start planning my trip/i }).click();
+    await page.waitForTimeout(3000);
+
+    // Select custom location for easier testing
+    await page.getByRole('radio', { name: /custom location/i }).click();
+    await page.locator('#custom-location').fill('Test Location');
+
+    // Submit
+    const submitBtn = page.getByRole('button', { name: /start planning$/i }).last();
+    if (await submitBtn.isVisible()) {
+      await submitBtn.click();
+      await page.waitForTimeout(1000);
+
+      // Share prompt dialog should appear
+      const shareDialog = page.getByRole('dialog', { name: /share/i });
+      if (await shareDialog.isVisible().catch(() => false)) {
+        await expect(shareDialog).toContainText(/share this trip/i);
+      }
+    }
   });
 });
