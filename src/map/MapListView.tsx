@@ -144,6 +144,9 @@ function ParkCard({
                 <span className={`text-[9px] font-medium rounded-full px-1.5 py-0.5 ${badge.bg}`}>
                   {badge.label} foraging
                 </span>
+                <span className="text-[9px] text-brand-charcoal/50 dark:text-dark-text-muted italic">
+                  Based on weather &amp; moisture
+                </span>
               </div>
             )}
           </div>
@@ -183,12 +186,6 @@ function ParkCard({
               {park.trails.length} trail{park.trails.length !== 1 ? 's' : ''}
             </span>
           </div>
-          {/* Foraging score explanation */}
-          {badge && condition && (
-            <p className="text-[10px] text-brand-charcoal/50 dark:text-dark-text-muted mt-1.5 italic">
-              Scores based on recent weather, moisture, and seasonal conditions (1-10 scale)
-            </p>
-          )}
         </div>
       </button>
     </li>
@@ -289,7 +286,7 @@ export default function MapListView({
     : filteredParks;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       {/* Tab bar */}
       <div
         className="shrink-0 flex border-b border-brand-forest/10 dark:border-dark-border px-1"
@@ -335,7 +332,7 @@ export default function MapListView({
         id="tabpanel-parks"
         role="tabpanel"
         aria-labelledby="tab-parks"
-        className={`flex-1 overflow-y-auto overscroll-contain ${activeTab === 'parks' ? '' : 'hidden'}`}
+        className={`${activeTab === 'parks' ? '' : 'hidden'}`}
       >
         {/* Condition filter chips */}
         {conditionsMap && Object.keys(conditionsMap).length > 0 && onConditionFilterChange && (
@@ -398,7 +395,7 @@ export default function MapListView({
         id="tabpanel-trails"
         role="tabpanel"
         aria-labelledby="tab-trails"
-        className={`flex-1 overflow-y-auto overscroll-contain ${activeTab === 'trails' ? '' : 'hidden'}`}
+        className={`${activeTab === 'trails' ? '' : 'hidden'}`}
       >
         {trails.length === 0 ? (
           <p className="text-sm text-brand-charcoal/50 dark:text-dark-text-muted text-center py-8">

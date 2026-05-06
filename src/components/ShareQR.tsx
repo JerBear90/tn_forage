@@ -78,11 +78,12 @@ export default function ShareQR({ url, variant = 'button' }: ShareQRProps) {
         <div
           role="dialog"
           aria-label="Share ForageWise"
-          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 px-4"
+          className="fixed top-0 left-0 right-0 bottom-0 z-[10000] flex items-center justify-center bg-black/50 p-6 overflow-y-auto"
+          style={{ minHeight: '100dvh' }}
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-xs rounded-2xl bg-white dark:bg-dark-surface shadow-2xl p-6 text-center"
+            className="w-full max-w-xs rounded-2xl bg-white dark:bg-dark-surface shadow-2xl p-6 text-center my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="font-heading font-bold text-lg text-brand-forest dark:text-brand-moss mb-1">

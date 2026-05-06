@@ -15,6 +15,7 @@ import { parksSeed } from '@/data/parksSeed';
 import { trailsSeed } from '@/data/trailsSeed';
 import { routesSeed } from '@/data/routesSeed';
 import { challengesSeed } from '@/data/challengesSeed';
+import { badgesSeed } from '@/data/badgesSeed';
 import { blogSeed } from '@/data/blogSeed';
 import { tourSeed } from '@/data/tourSeed';
 import { featureFlagsSeed } from '@/data/featureFlagsSeed';
@@ -23,7 +24,7 @@ import { featureFlagsSeed } from '@/data/featureFlagsSeed';
  * Bump this version whenever seed data changes (new images, new entries, etc.).
  * This triggers a re-seed of reference stores on next app load.
  */
-const SEED_DATA_VERSION = 8;
+const SEED_DATA_VERSION = 9;
 
 /**
  * Seed the IndexedDB database with local species, plant, tree, park, trail, and route data.
@@ -42,6 +43,7 @@ export async function seedDatabase(): Promise<{
   trailsSeeded: number;
   routesSeeded: number;
   challengesSeeded: number;
+  badgesSeeded: number;
   blogArticlesSeeded: number;
   guidedToursSeeded: number;
   featureFlagsSeeded: number;
@@ -55,6 +57,7 @@ export async function seedDatabase(): Promise<{
   let trailsSeeded = 0;
   let routesSeeded = 0;
   let challengesSeeded = 0;
+  let badgesSeeded = 0;
   let blogArticlesSeeded = 0;
   let guidedToursSeeded = 0;
   let featureFlagsSeeded = 0;
@@ -148,6 +151,18 @@ export async function seedDatabase(): Promise<{
     challengesSeeded = challengesSeed.length;
   }
 
+  // --- Seed challenge badges ---
+  const badgesCount = await countRecords('challengeBadges');
+  if (badgesCount === 0 || needsReseed) {
+    if (badgesCount > 0) await clearStore('challengeBadges');
+    const tx = db.transaction('challengeBadges', 'readwrite');
+    for (const badge of badgesSeed) {
+      await tx.store.put(badge);
+    }
+    await tx.done;
+    badgesSeeded = badgesSeed.length;
+  }
+
   // --- Seed blog articles ---
   const blogCount = await countRecords('blogArticles');
   if (blogCount === 0 || needsReseed) {
@@ -197,6 +212,7 @@ export async function seedDatabase(): Promise<{
     trailsSeeded,
     routesSeeded,
     challengesSeeded,
+    badgesSeeded,
     blogArticlesSeeded,
     guidedToursSeeded,
     featureFlagsSeeded,

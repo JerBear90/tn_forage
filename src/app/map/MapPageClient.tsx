@@ -369,8 +369,7 @@ export default function MapPageClient() {
       {/* List view — shown when in list mode */}
       {viewMode === 'list' && (
         <div
-          className="flex-1 mx-4 mb-4 rounded-xl overflow-hidden border border-brand-forest/10 dark:border-dark-border bg-brand-sand/50 dark:bg-dark-surface/80 relative"
-          style={{ height: 'calc(100vh - 200px)', minHeight: '400px' }}
+          className="mx-4 mb-4 rounded-xl border border-brand-forest/10 dark:border-dark-border bg-brand-sand/50 dark:bg-dark-surface/80 relative"
           role="region"
           aria-label="List view"
         >

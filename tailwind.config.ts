@@ -113,6 +113,21 @@ const config: Config = {
         sans: ["var(--font-inter)", "var(--font-nunito-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         heading: ["var(--font-poppins)", "var(--font-nunito-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
+      keyframes: {
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "badge-pop": {
+          "0%": { opacity: "0", transform: "scale(0.5)" },
+          "60%": { opacity: "1", transform: "scale(1.05)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+      },
+      animation: {
+        "fade-in": "fade-in 0.2s ease-out",
+        "badge-pop": "badge-pop 0.4s ease-out",
+      },
     },
   },
   plugins: [],

@@ -30,7 +30,7 @@ export default function AssociatedSpeciesLink({
     return (
       <Link
         href={`/field-guide/${speciesId}`}
-        className="inline-flex items-center rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2.5 py-1.5 text-xs text-brand-teal dark:text-brand-teal-300 hover:bg-brand-teal/10 hover:border-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors min-h-[44px] min-w-[44px]"
+        className="inline-flex items-center justify-center rounded-full border border-brand-teal/20 bg-brand-teal/5 px-3 py-1.5 text-xs text-brand-teal dark:text-brand-teal-300 hover:bg-brand-teal/10 hover:border-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors min-h-[44px]"
         aria-label={`View ${speciesName} in field guide`}
       >
         <svg
@@ -54,7 +54,7 @@ export default function AssociatedSpeciesLink({
 
   return (
     <span
-      className="inline-block rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2.5 py-0.5 text-xs text-brand-teal dark:text-brand-teal-300"
+      className="inline-flex items-center justify-center rounded-full border border-brand-teal/20 bg-brand-teal/5 px-3 py-1.5 text-xs text-brand-teal dark:text-brand-teal-300 min-h-[44px]"
       role="listitem"
     >
       {speciesName}

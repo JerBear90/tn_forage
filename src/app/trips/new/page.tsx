@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/auth/useAuth';
 import type { LocationType, Trip, Species } from '@/types';
 import { putRecord, batchGetRecords } from '@/offline/db';
 import ParkPicker from '@/components/trip/ParkPicker';
@@ -35,6 +36,7 @@ export default function CreateTripPage() {
 function CreateTripPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated } = useAuth();
 
   // --- Location mode: park-based or custom ---
   const [locationMode, setLocationMode] = useState<LocationMode>('park');
@@ -579,9 +581,14 @@ function CreateTripPageInner() {
             <h2 className="font-heading font-bold text-lg text-brand-forest dark:text-brand-moss mb-2">
               Trip saved!
             </h2>
-            <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mb-6">
+            <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mb-2">
               Would you like to share this trip with the community?
             </p>
+            {!isAuthenticated && (
+              <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 mb-4">
+                You&apos;ll need to sign in or create an account to share with the community. Click &quot;Yes, share it&quot; to continue to the login screen.
+              </p>
+            )}
             <div className="flex gap-3">
               <button
                 type="button"
@@ -594,7 +601,13 @@ function CreateTripPageInner() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push('/community')}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    router.push('/login?returnTo=/community');
+                  } else {
+                    router.push('/community');
+                  }
+                }}
                 aria-label="Yes, share this trip"
                 className="flex-1 rounded-lg bg-brand-teal px-4 py-3 text-sm font-semibold text-white hover:bg-brand-teal/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
                 style={{ minHeight: '44px' }}

@@ -3,14 +3,15 @@
 /**
  * ForageWise — FindsTimeline Component
  *
- * Shows a chronological timeline of species the user has found/logged.
- * Pulls from expedition logs and trip data in IndexedDB.
+ * Instagram-style grid showing the user's community posts and expedition finds.
+ * Each card shows a photo (or placeholder), species name, date, and location.
+ * Clickable to view the species detail or expedition log.
  */
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getAllRecords } from '@/offline/db';
-import type { ExpeditionLog } from '@/types';
+import type { ExpeditionLog, CommunityDraft } from '@/types';
 
 interface FindEntry {
   id: string;
@@ -19,6 +20,7 @@ interface FindEntry {
   date: string;
   location: string | null;
   photoUrl: string | null;
+  type: 'expedition' | 'community';
 }
 
 export default function FindsTimeline({ userId }: { userId: string }) {
@@ -30,10 +32,9 @@ export default function FindsTimeline({ userId }: { userId: string }) {
 
     async function loadFinds() {
       try {
+        // Load expedition logs
         const logs = await getAllRecords('expeditionLogs');
-        if (cancelled) return;
-
-        const entries: FindEntry[] = logs
+        const expeditionEntries: FindEntry[] = logs
           .filter((log) => (log as ExpeditionLog).userId === userId || userId === 'local-user')
           .map((log) => {
             const l = log as ExpeditionLog;
@@ -43,12 +44,34 @@ export default function FindsTimeline({ userId }: { userId: string }) {
               speciesId: null,
               date: l.createdAt || '',
               location: l.habitat || null,
-              photoUrl: null,
+              photoUrl: l.photos?.[0] || null,
+              type: 'expedition' as const,
             };
-          })
+          });
+
+        // Load community drafts (shared sightings)
+        const drafts = await getAllRecords('communityDrafts');
+        const communityEntries: FindEntry[] = drafts
+          .filter((d) => (d as CommunityDraft).userId === userId || userId === 'local-user')
+          .map((d) => {
+            const draft = d as CommunityDraft;
+            return {
+              id: draft.id,
+              speciesName: draft.speciesGuess || 'Community Post',
+              speciesId: null,
+              date: draft.createdAt || '',
+              location: null,
+              photoUrl: draft.photos?.[0] || null,
+              type: 'community' as const,
+            };
+          });
+
+        if (cancelled) return;
+
+        const allFinds = [...expeditionEntries, ...communityEntries]
           .sort((a, b) => b.date.localeCompare(a.date));
 
-        setFinds(entries);
+        setFinds(allFinds);
       } catch {
         // IndexedDB may not be available
       } finally {
@@ -62,15 +85,9 @@ export default function FindsTimeline({ userId }: { userId: string }) {
 
   if (loading) {
     return (
-      <div className="space-y-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse flex gap-3">
-            <div className="w-10 h-10 rounded-full bg-brand-charcoal/10 dark:bg-brand-sand/10" />
-            <div className="flex-1 space-y-1">
-              <div className="h-3 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-32" />
-              <div className="h-2 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-20" />
-            </div>
-          </div>
+      <div className="grid grid-cols-3 gap-1">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="aspect-square rounded-lg bg-brand-charcoal/10 dark:bg-brand-sand/10 animate-pulse" />
         ))}
       </div>
     );
@@ -81,61 +98,105 @@ export default function FindsTimeline({ userId }: { userId: string }) {
       <div className="text-center py-8">
         <span className="text-3xl mb-2 block" aria-hidden="true">🍄</span>
         <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60">
-          No finds yet. Start logging your discoveries in the Expedition Log!
+          No posts yet. Share your discoveries with the community!
         </p>
-        <Link
-          href="/expedition"
-          className="inline-block mt-3 text-xs font-medium text-brand-teal hover:underline"
-        >
-          Go to Expedition Log →
-        </Link>
+        <div className="flex gap-3 justify-center mt-3">
+          <Link
+            href="/expedition"
+            className="inline-block text-xs font-medium text-brand-teal hover:underline min-h-[44px] flex items-center"
+          >
+            Log a Find →
+          </Link>
+          <Link
+            href="/community"
+            className="inline-block text-xs font-medium text-brand-moss hover:underline min-h-[44px] flex items-center"
+          >
+            View Community →
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-1">
-      {finds.map((find, i) => (
-        <div key={find.id} className="flex gap-3 relative">
-          {/* Timeline line */}
-          {i < finds.length - 1 && (
-            <div className="absolute left-[19px] top-10 bottom-0 w-px bg-brand-charcoal/10 dark:bg-brand-sand/10" />
-          )}
+    <div className="space-y-3">
+      {/* Instagram-style grid */}
+      <div className="grid grid-cols-3 gap-1" role="list" aria-label="Your finds and posts">
+        {finds.map((find) => (
+          <FindCard key={find.id} find={find} />
+        ))}
+      </div>
 
-          {/* Dot */}
-          <div className="shrink-0 w-10 h-10 rounded-full bg-brand-teal/10 flex items-center justify-center mt-0.5">
-            <span className="text-sm" aria-hidden="true">🍄</span>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0 pb-4">
-            {find.speciesId ? (
-              <Link
-                href={`/field-guide/${find.speciesId}`}
-                className="text-sm font-medium text-brand-charcoal dark:text-dark-text hover:text-brand-teal transition-colors"
-              >
-                {find.speciesName}
-              </Link>
-            ) : (
-              <p className="text-sm font-medium text-brand-charcoal dark:text-dark-text">
-                {find.speciesName}
-              </p>
-            )}
-            <div className="flex items-center gap-2 mt-0.5">
-              {find.date && (
-                <span className="text-[11px] text-brand-charcoal/50 dark:text-brand-sand/50">
-                  {new Date(find.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                </span>
-              )}
-              {find.location && (
-                <span className="text-[11px] text-brand-charcoal/40 dark:text-brand-sand/40">
-                  📍 {find.location}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      ))}
+      {/* View all link */}
+      <div className="text-center pt-2">
+        <Link
+          href="/community"
+          className="text-xs font-medium text-brand-teal hover:underline"
+        >
+          View all in Community →
+        </Link>
+      </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Find Card (Instagram-style square)
+// ---------------------------------------------------------------------------
+
+function FindCard({ find }: { find: FindEntry }) {
+  const href = find.speciesId
+    ? `/field-guide/${find.speciesId}`
+    : find.type === 'expedition'
+      ? '/expedition'
+      : '/community';
+
+  return (
+    <Link
+      href={href}
+      role="listitem"
+      aria-label={`${find.speciesName} — ${find.date ? new Date(find.date).toLocaleDateString() : 'No date'}`}
+      className="relative aspect-square rounded-lg overflow-hidden bg-brand-charcoal/5 dark:bg-brand-charcoal/20 group hover:ring-2 hover:ring-brand-teal/40 transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+    >
+      {/* Photo or placeholder */}
+      {find.photoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={find.photoUrl}
+          alt={find.speciesName}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-teal/10 to-brand-moss/10 dark:from-brand-teal/20 dark:to-brand-moss/20">
+          <span className="text-2xl" aria-hidden="true">
+            {find.type === 'community' ? '👥' : '🍄'}
+          </span>
+        </div>
+      )}
+
+      {/* Overlay with species name */}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 pt-6">
+        <p className="text-[10px] font-medium text-white leading-tight truncate">
+          {find.speciesName}
+        </p>
+        {find.date && (
+          <p className="text-[9px] text-white/70">
+            {new Date(find.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+          </p>
+        )}
+      </div>
+
+      {/* Type badge */}
+      <div className="absolute top-1.5 right-1.5">
+        <span className={`inline-block rounded-full px-1.5 py-0.5 text-[8px] font-bold ${
+          find.type === 'community'
+            ? 'bg-brand-moss/80 text-white'
+            : 'bg-brand-teal/80 text-white'
+        }`}>
+          {find.type === 'community' ? 'POST' : 'LOG'}
+        </span>
+      </div>
+    </Link>
   );
 }

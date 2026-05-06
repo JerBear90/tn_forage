@@ -10,14 +10,16 @@
  */
 
 import { useState, useEffect } from "react";
-import { getDB } from "@/offline/db";
+import { getDB, getAllRecords } from "@/offline/db";
 import { getAchievements } from "@/social/achievementTracker";
 import { filterPublicItems } from "@/social/visibilityFilter";
+import BadgesGrid from "@/components/profile/BadgesGrid";
 import type {
   Trip,
   AchievementLocal,
   ReviewLocal,
   SocialPhoto,
+  ChallengeBadge,
 } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -28,6 +30,7 @@ import type {
 export const TAB_NAMES = [
   "Completed Trips",
   "Achievements",
+  "Badges",
   "Reviews",
   "Photos",
 ] as const;
@@ -53,6 +56,7 @@ export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) 
   const [achievements, setAchievements] = useState<AchievementLocal[]>([]);
   const [reviews, setReviews] = useState<ReviewLocal[]>([]);
   const [photos, setPhotos] = useState<SocialPhoto[]>([]);
+  const [badges, setBadges] = useState<ChallengeBadge[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Load data from IndexedDB
@@ -76,11 +80,15 @@ export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) 
         // Load photos
         const allPhotos = await db.getAllFromIndex("socialPhotos", "by-userId", userId);
 
+        // Load badges
+        const allBadges = await getAllRecords("challengeBadges");
+
         if (!cancelled) {
           setTrips(allTrips);
           setAchievements(allAchievements);
           setReviews(allReviews);
           setPhotos(allPhotos);
+          setBadges(allBadges);
         }
       } catch {
         // IndexedDB may not be available
@@ -205,6 +213,20 @@ export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) 
                     ))}
                   </ul>
                 )}
+              </div>
+            )}
+
+            {/* Badges */}
+            {activeTab === "Badges" && (
+              <div
+                role="tabpanel"
+                id="tabpanel-badges"
+                aria-label="Badges"
+              >
+                <BadgesGrid
+                  badges={badges}
+                  earnedCount={badges.filter((b) => b.isEarned).length}
+                />
               </div>
             )}
 

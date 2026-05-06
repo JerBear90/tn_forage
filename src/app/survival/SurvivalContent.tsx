@@ -9,10 +9,10 @@ export default function SurvivalContent() {
     <main className="flex min-h-screen flex-col px-4 py-6 max-w-lg mx-auto pb-28">
       <header className="mb-6">
         <Link
-          href="/"
+          href="/profile"
           className="text-sm text-brand-teal hover:underline mb-2 inline-block"
         >
-          ← Home
+          ← Back to Profile
         </Link>
         <h1 className="text-2xl font-bold text-brand-forest dark:text-brand-moss font-heading">
           Survival Toolkit

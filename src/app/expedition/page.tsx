@@ -2,6 +2,8 @@
 
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/auth/useAuth';
 import type {
   ExpeditionLog,
   Photo,
@@ -64,6 +66,9 @@ interface PhotoPreview {
 // ---------------------------------------------------------------------------
 
 export default function ExpeditionPage() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
   // --- Photo state ---
   const [photos, setPhotos] = useState<PhotoPreview[]>([]);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -206,17 +211,10 @@ export default function ExpeditionPage() {
 
       await putRecord('expeditionLogs', log);
 
-      // Reset form
+      // Show the summary modal instead of clearing immediately
       setSaved(true);
-      setPhotos([]);
-      setSpeciesGuess('');
-      setHabitat('');
-      setTreeNearby('');
-      setVisibility('private');
-      setNotes('');
-      setManualLocation('');
-      setSelectedTripId('');
-      setDateTime(toDateTimeLocal(new Date()));
+      setSaving(false);
+      return; // Don't reset form — modal handles next steps
     } catch {
       setError('Failed to save log entry. Please try again.');
     } finally {
@@ -241,13 +239,107 @@ export default function ExpeditionPage() {
         </p>
       </header>
 
-      {/* Success banner */}
+      {/* Save confirmation modal */}
       {saved && (
         <div
-          role="status"
-          className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-700 dark:text-green-300"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Entry saved"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
         >
-          Log entry saved! It will sync when you&apos;re back online.
+          <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-dark-surface shadow-2xl p-6 max-h-[80vh] overflow-y-auto">
+            <div className="text-center mb-4">
+              <span className="text-3xl" aria-hidden="true">✅</span>
+              <h2 className="font-heading font-bold text-lg text-brand-forest dark:text-brand-moss mt-2">
+                Entry Saved!
+              </h2>
+            </div>
+
+            {/* Summary */}
+            <div className="rounded-lg bg-brand-sand/50 dark:bg-brand-charcoal/40 border border-brand-teal/10 p-4 space-y-2 mb-5">
+              <h3 className="text-xs font-semibold text-brand-charcoal/60 dark:text-brand-sand/60 uppercase tracking-wide">Summary</h3>
+              {speciesGuess && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Species:</span> {speciesGuess}
+                </p>
+              )}
+              {dateTime && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Date:</span> {new Date(dateTime).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              )}
+              {habitat && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Habitat:</span> {habitat}
+                </p>
+              )}
+              {treeNearby && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Tree nearby:</span> {treeNearby}
+                </p>
+              )}
+              {resolvedCoordinates && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Location:</span> {resolvedCoordinates.lat.toFixed(4)}, {resolvedCoordinates.lng.toFixed(4)}
+                </p>
+              )}
+              {photos.length > 0 && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Photos:</span> {photos.length} attached
+                </p>
+              )}
+              <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                <span className="font-medium">Visibility:</span> {visibility === 'public' ? '🌐 Public' : '🔒 Private'}
+              </p>
+              {notes && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Notes:</span> {notes}
+                </p>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  // Edit — just close the modal, form still has the data
+                  setSaved(false);
+                }}
+                aria-label="Go back and edit this entry"
+                className="w-full min-h-[44px] rounded-lg border border-brand-teal/30 bg-white dark:bg-dark-surface px-4 py-3 text-sm font-semibold text-brand-teal hover:bg-brand-teal/5 transition-colors"
+              >
+                ✏️ Edit Entry
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Add new entry — reset form
+                  setSaved(false);
+                  setPhotos([]);
+                  setSpeciesGuess('');
+                  setHabitat('');
+                  setTreeNearby('');
+                  setVisibility('private');
+                  setNotes('');
+                  setManualLocation('');
+                  setSelectedTripId('');
+                  setDateTime(toDateTimeLocal(new Date()));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                aria-label="Add another log entry"
+                className="w-full min-h-[44px] rounded-lg bg-brand-teal px-4 py-3 text-sm font-semibold text-white hover:bg-brand-teal/90 transition-colors"
+              >
+                ➕ Add New Entry
+              </button>
+              <Link
+                href="/profile"
+                className="w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 dark:border-brand-sand/20 px-4 py-3 text-sm font-medium text-brand-charcoal dark:text-brand-sand hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center"
+              >
+                Done — Back to Profile
+              </Link>
+            </div>
+          </div>
         </div>
       )}
 
@@ -585,7 +677,17 @@ export default function ExpeditionPage() {
                 type="button"
                 role="radio"
                 aria-checked={visibility === 'public'}
-                onClick={() => setVisibility('public')}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    // Save form data to sessionStorage so it persists through login
+                    sessionStorage.setItem('fw_pending_expedition', JSON.stringify({
+                      speciesGuess, habitat, treeNearby, notes, dateTime, visibility: 'public',
+                    }));
+                    router.push('/login?returnTo=/expedition&autoPost=true');
+                    return;
+                  }
+                  setVisibility('public');
+                }}
                 className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
                   visibility === 'public'
                     ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
@@ -596,8 +698,9 @@ export default function ExpeditionPage() {
               </button>
             </div>
             <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mt-1">
-              Logs are private by default. Public logs have GPS coordinates
-              fuzzed for privacy.
+              {isAuthenticated
+                ? 'Logs are private by default. Public logs have GPS coordinates fuzzed for privacy.'
+                : 'Logs are private by default. Sign in to share publicly with the community.'}
             </p>
           </div>
 
