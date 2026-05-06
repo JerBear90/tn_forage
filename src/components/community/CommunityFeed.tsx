@@ -216,21 +216,7 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
   }
 
   return (
-    <div className="space-y-4">
-      {/* Add Post button */}
-      {onAddPost && (
-        <button
-          type="button"
-          onClick={onAddPost}
-          className="w-full rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] min-h-[48px] flex items-center justify-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Add Post
-        </button>
-      )}
-
+    <div className="space-y-4 pb-20">
       {/* Not signed in prompt */}
       {!isAuthenticated && (
         <div className="rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-3 text-center">
@@ -280,6 +266,22 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
           onShare={() => handleShare(item)}
         />
       ))}
+
+      {/* Fixed Add Post button at bottom */}
+      {onAddPost && (
+        <div className="fixed bottom-20 left-0 right-0 z-40 px-4 max-w-lg mx-auto">
+          <button
+            type="button"
+            onClick={onAddPost}
+            className="w-full rounded-full bg-brand-teal text-white font-semibold text-sm py-3.5 shadow-lg shadow-brand-teal/30 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-all active:scale-[0.97] min-h-[48px] flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Add Post
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -514,72 +516,114 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
         </time>
       </div>
 
-      {/* Expanded image + comments modal */}
+      {/* Expanded image + comments modal — Instagram-style bottom sheet */}
       {expanded && (
         <div
-          className="fixed inset-0 z-50 flex flex-col bg-black/90 p-4"
+          className="fixed inset-0 z-[9999] flex flex-col"
           role="dialog"
           aria-modal="true"
           aria-label="Post detail with comments"
         >
-          <button
-            type="button"
-            onClick={() => setExpanded(false)}
-            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center min-h-[44px] min-w-[44px]"
-            aria-label="Close"
-          >
-            ✕
-          </button>
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/80" onClick={() => setExpanded(false)} />
 
-          {/* Image */}
-          <div className="flex-1 flex items-center justify-center overflow-hidden">
-            {photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={photoUrl}
-                alt={item.title || 'Post photo'}
-                className="max-w-full max-h-[50vh] object-contain rounded-lg"
-              />
-            ) : (
-              <div className="w-full max-w-sm aspect-[4/3] bg-white/10 rounded-lg flex items-center justify-center">
-                <p className="text-white/50 text-sm">No photo</p>
+          {/* Content — full screen like Instagram post view */}
+          <div className="relative flex flex-col h-full z-10">
+            {/* Top bar */}
+            <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-brand-charcoal border-b border-brand-charcoal/10 dark:border-brand-sand/10">
+              <button
+                type="button"
+                onClick={() => setExpanded(false)}
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6 text-brand-charcoal dark:text-brand-sand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <span className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">
+                Comments
+              </span>
+              <div className="w-11" />
+            </div>
+
+            {/* Post image */}
+            <div className="w-full bg-black flex items-center justify-center" style={{ maxHeight: '40vh' }}>
+              {photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={photoUrl}
+                  alt={item.title || 'Post photo'}
+                  className="w-full h-full object-contain"
+                  style={{ maxHeight: '40vh' }}
+                />
+              ) : (
+                <div className="w-full aspect-[4/3] flex items-center justify-center" style={{ maxHeight: '40vh' }}>
+                  <svg className="w-12 h-12 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            {/* Caption */}
+            {(item.title || item.notes) && (
+              <div className="px-4 py-2 bg-white dark:bg-brand-charcoal border-b border-brand-charcoal/5 dark:border-brand-sand/5">
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-semibold">{displayName}</span>{' '}
+                  {item.title && !item.title.startsWith('[') ? item.title : ''}{item.notes ? ` ${item.notes}` : ''}
+                </p>
               </div>
             )}
-          </div>
 
-          {/* Comments section */}
-          <div className="mt-4 max-h-[40vh] overflow-y-auto rounded-xl bg-white dark:bg-brand-charcoal p-4">
-            <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-3">
-              Comments
-            </h3>
-            {comments.length === 0 ? (
-              <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 text-center py-4">
-                No comments yet. Be the first!
-              </p>
-            ) : (
-              <div className="space-y-2 mb-3">
-                {comments.map((c, i) => (
-                  <div key={i} className="rounded-lg bg-brand-sand/50 dark:bg-brand-charcoal/60 px-3 py-2">
-                    <p className="text-xs text-brand-charcoal dark:text-brand-sand">{c}</p>
-                  </div>
-                ))}
+            {/* Comments list — scrollable */}
+            <div className="flex-1 overflow-y-auto bg-white dark:bg-brand-charcoal px-4 py-3">
+              {comments.length === 0 ? (
+                <p className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40 text-center py-8">
+                  No comments yet. Start the conversation.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {comments.map((c, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-3.5 h-3.5 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                          <span className="font-semibold text-xs">You</span>{' '}
+                          <span className="text-xs">{c}</span>
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Comment input — fixed at bottom */}
+            <div className="bg-white dark:bg-brand-charcoal border-t border-brand-charcoal/10 dark:border-brand-sand/10 px-4 py-3 flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                </svg>
               </div>
-            )}
-            <div className="flex gap-2">
               <input
                 type="text"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleAddComment(); }}
                 placeholder="Add a comment..."
-                className="flex-1 rounded-lg border border-brand-teal/20 bg-white/80 dark:bg-brand-charcoal/40 px-3 py-2 text-sm text-brand-charcoal dark:text-brand-sand placeholder:text-brand-charcoal/40 dark:placeholder:text-brand-sand/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 min-h-[44px]"
+                className="flex-1 rounded-full border border-brand-charcoal/15 dark:border-brand-sand/15 bg-brand-sand/30 dark:bg-brand-charcoal/60 px-4 py-2.5 text-sm text-brand-charcoal dark:text-brand-sand placeholder:text-brand-charcoal/40 dark:placeholder:text-brand-sand/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 min-h-[44px]"
                 aria-label="Write a comment"
               />
               <button
                 type="button"
                 onClick={handleAddComment}
                 disabled={!comment.trim()}
-                className="rounded-lg bg-brand-teal px-4 py-2 text-sm font-medium text-white hover:bg-brand-teal/90 disabled:opacity-50 min-h-[44px] min-w-[44px]"
+                className="text-sm font-semibold text-brand-teal disabled:text-brand-charcoal/30 dark:disabled:text-brand-sand/30 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label="Post comment"
               >
                 Post
