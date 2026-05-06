@@ -74,6 +74,7 @@ interface FeedItem {
   type: 'sighting' | 'trip' | 'checkin';
   userId: string;
   displayName?: string;
+  avatarUrl?: string;
   title?: string;
   notes: string;
   photos: string[]; // photo IDs
@@ -120,6 +121,7 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
           type: s.notes?.startsWith('[Check-in]') ? 'checkin' : 'sighting',
           userId: s.userId,
           displayName: s.displayName,
+          avatarUrl: s.avatarUrl,
           title: s.speciesGuess,
           notes: s.notes?.replace('[Check-in] ', '') || '',
           photos: s.photos || [],
@@ -379,10 +381,15 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
       {/* Header: avatar, name, follow */}
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-brand-moss/20 dark:bg-brand-moss/30 flex items-center justify-center flex-shrink-0">
-            <svg className="w-5 h-5 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-            </svg>
+          <div className="w-9 h-9 rounded-full bg-brand-moss/20 dark:bg-brand-moss/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {item.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+            ) : (
+              <svg className="w-5 h-5 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+              </svg>
+            )}
           </div>
           <div>
             <span className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand block">
@@ -645,7 +652,7 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
             </div>
 
             {/* Comment input — pinned at very bottom, above everything */}
-            <div className="shrink-0 bg-white dark:bg-brand-charcoal border-t border-brand-charcoal/10 dark:border-brand-sand/10 px-4 py-3 pb-[env(safe-area-inset-bottom,12px)] flex items-center gap-2">
+            <div className="shrink-0 bg-white dark:bg-brand-charcoal border-t border-brand-charcoal/10 dark:border-brand-sand/10 px-4 py-3 mb-5 flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />

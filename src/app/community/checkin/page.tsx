@@ -58,6 +58,7 @@ function CheckInContent() {
       id: generateId(),
       userId: user?.id || 'local-user',
       displayName: user?.displayName || undefined,
+      avatarUrl: user?.avatar || undefined,
       speciesGuess: parkName,
       photos: [],
       notes: `[Check-in] Checked in at ${parkName}${notes ? '. ' + notes.trim() : ''}`,

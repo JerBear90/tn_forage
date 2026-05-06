@@ -164,6 +164,7 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
       id: generateId(),
       userId: user?.id || 'local-user',
       displayName: user?.displayName || undefined,
+      avatarUrl: user?.avatar || undefined,
       speciesGuess: speciesGuess.trim() || undefined,
       photos: photoIds,
       coordinates: coords,

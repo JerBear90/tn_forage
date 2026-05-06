@@ -468,6 +468,7 @@ export interface CommunityDraft {
   id: string;
   userId: string;
   displayName?: string;
+  avatarUrl?: string;
   speciesGuess?: string;
   photos: string[];
   coordinates?: Coordinates;
