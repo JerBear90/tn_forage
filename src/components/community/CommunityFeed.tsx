@@ -531,7 +531,7 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
       {/* Expanded image + comments modal — Instagram-style full screen */}
       {expanded && (
         <div
-          className="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex flex-col bg-white dark:bg-brand-charcoal"
+          className="fixed top-0 left-0 right-0 bottom-0 z-[10000] flex flex-col bg-white dark:bg-brand-charcoal"
           role="dialog"
           aria-modal="true"
           aria-label="Post detail with comments"
