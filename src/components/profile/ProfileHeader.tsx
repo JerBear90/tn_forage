@@ -116,6 +116,9 @@ export default function ProfileHeader({
               </span>
             </Link>
           </div>
+          <p className="text-[10px] text-brand-charcoal/40 dark:text-brand-sand/40 mt-1">
+            Tap to view your followers or following
+          </p>
         </div>
       </div>
 

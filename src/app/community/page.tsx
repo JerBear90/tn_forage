@@ -793,7 +793,7 @@ function CommunityContent() {
             >
               !
             </button>
-            <div className="absolute left-0 top-7 z-50 hidden group-hover:block group-focus-within:block w-64 rounded-lg bg-white dark:bg-brand-charcoal border border-amber-200 dark:border-amber-800 shadow-lg p-3 text-xs text-amber-700 dark:text-amber-300">
+            <div className="absolute left-1/2 -translate-x-1/2 top-7 z-50 hidden group-hover:block group-focus-within:block w-64 rounded-lg bg-white dark:bg-brand-charcoal border border-amber-200 dark:border-amber-800 shadow-lg p-3 text-xs text-amber-700 dark:text-amber-300">
               Community posts are user-submitted and not verified by experts. Always verify with a qualified expert before consuming any wild species.
             </div>
           </div>
