@@ -9,7 +9,7 @@
  * Photos are loaded from IndexedDB blobs and displayed as object URLs.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/auth/useAuth';
 import type { CommunityDraft, Trip } from '@/types';
@@ -300,6 +300,11 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   const displayName = item.userId ? `Forager ${item.userId.slice(0, 6)}` : 'Anonymous';
   const timeAgo = getRelativeTime(item.createdAt);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [showHeart, setShowHeart] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [comment, setComment] = useState('');
+  const [comments, setComments] = useState<string[]>([]);
+  const lastTapRef = useRef<number>(0);
 
   // Load first photo from IndexedDB
   useEffect(() => {
@@ -318,6 +323,34 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
       if (photoUrl) URL.revokeObjectURL(photoUrl);
     };
   }, [photoUrl]);
+
+  // Load comments from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`fw_comments_${item.id}`);
+      if (stored) setComments(JSON.parse(stored));
+    } catch { /* ignore */ }
+  }, [item.id]);
+
+  // Double-tap to like
+  const handleDoubleTap = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      if (!isLiked) onLike();
+      setShowHeart(true);
+      setTimeout(() => setShowHeart(false), 800);
+    }
+    lastTapRef.current = now;
+  }, [isLiked, onLike]);
+
+  // Add comment
+  const handleAddComment = useCallback(() => {
+    if (!comment.trim()) return;
+    const updated = [...comments, comment.trim()];
+    setComments(updated);
+    localStorage.setItem(`fw_comments_${item.id}`, JSON.stringify(updated));
+    setComment('');
+  }, [comment, comments, item.id]);
 
   // Type badge
   const typeBadge = item.type === 'trip' ? '🗺️ Trip Plan' : item.type === 'checkin' ? '📍 Check-in' : null;
@@ -362,7 +395,14 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
       {item.type === 'trip' ? (
         <TripCard item={item} />
       ) : (
-        <div className="relative w-full aspect-[4/3] bg-brand-charcoal/5 dark:bg-brand-sand/5">
+        <div
+          className="relative w-full aspect-[4/3] bg-brand-charcoal/5 dark:bg-brand-sand/5 cursor-pointer select-none"
+          onClick={handleDoubleTap}
+          role="button"
+          tabIndex={0}
+          aria-label="Double-tap to like, tap to expand"
+          onKeyDown={(e) => { if (e.key === 'Enter') setExpanded(true); }}
+        >
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -383,10 +423,18 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
               </svg>
             </div>
           )}
+          {/* Double-tap heart animation */}
+          {showHeart && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none animate-ping-once">
+              <svg className="w-20 h-20 text-red-500 drop-shadow-lg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+              </svg>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Actions: like, share */}
+      {/* Actions: like, comment, share */}
       <div className="flex items-center gap-2 px-4 pt-3">
         <button
           type="button"
@@ -403,6 +451,16 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
             </svg>
           )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          aria-label="View comments"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5"
+        >
+          <svg className="w-6 h-6 text-brand-charcoal/60 dark:text-brand-sand/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z" />
+          </svg>
         </button>
         <button
           type="button"
@@ -453,6 +511,81 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
           {timeAgo}
         </time>
       </div>
+
+      {/* Expanded image + comments modal */}
+      {expanded && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col bg-black/90 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Post detail with comments"
+        >
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center min-h-[44px] min-w-[44px]"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+
+          {/* Image */}
+          <div className="flex-1 flex items-center justify-center overflow-hidden">
+            {photoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photoUrl}
+                alt={item.title || 'Post photo'}
+                className="max-w-full max-h-[50vh] object-contain rounded-lg"
+              />
+            ) : (
+              <div className="w-full max-w-sm aspect-[4/3] bg-white/10 rounded-lg flex items-center justify-center">
+                <p className="text-white/50 text-sm">No photo</p>
+              </div>
+            )}
+          </div>
+
+          {/* Comments section */}
+          <div className="mt-4 max-h-[40vh] overflow-y-auto rounded-xl bg-white dark:bg-brand-charcoal p-4">
+            <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-3">
+              Comments
+            </h3>
+            {comments.length === 0 ? (
+              <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 text-center py-4">
+                No comments yet. Be the first!
+              </p>
+            ) : (
+              <div className="space-y-2 mb-3">
+                {comments.map((c, i) => (
+                  <div key={i} className="rounded-lg bg-brand-sand/50 dark:bg-brand-charcoal/60 px-3 py-2">
+                    <p className="text-xs text-brand-charcoal dark:text-brand-sand">{c}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleAddComment(); }}
+                placeholder="Add a comment..."
+                className="flex-1 rounded-lg border border-brand-teal/20 bg-white/80 dark:bg-brand-charcoal/40 px-3 py-2 text-sm text-brand-charcoal dark:text-brand-sand placeholder:text-brand-charcoal/40 dark:placeholder:text-brand-sand/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 min-h-[44px]"
+                aria-label="Write a comment"
+              />
+              <button
+                type="button"
+                onClick={handleAddComment}
+                disabled={!comment.trim()}
+                className="rounded-lg bg-brand-teal px-4 py-2 text-sm font-medium text-white hover:bg-brand-teal/90 disabled:opacity-50 min-h-[44px] min-w-[44px]"
+                aria-label="Post comment"
+              >
+                Post
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </article>
   );
 }

@@ -138,7 +138,6 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
           ref={fileRef}
           type="file"
           accept="image/*"
-          capture="environment"
           className="hidden"
           onChange={(e) => handlePhoto(e.target.files)}
         />

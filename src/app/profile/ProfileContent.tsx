@@ -792,6 +792,37 @@ export default function ProfileContent() {
           </span>
         </div>
 
+        {/* Reset password */}
+        {isAuthenticated && (
+          <div className="flex items-center justify-between rounded-lg bg-white/60 dark:bg-brand-charcoal/40 border border-brand-forest/10 px-4 py-3">
+            <div>
+              <p className="font-semibold text-sm text-brand-charcoal dark:text-brand-sand">
+                Reset Password
+              </p>
+              <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
+                Send a password reset email
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!email) return;
+                try {
+                  const { pb } = await import('@/auth/authService');
+                  await pb.collection('users').requestPasswordReset(email);
+                  alert('Password reset email sent! Check your inbox.');
+                } catch {
+                  alert('Failed to send reset email. Try again later.');
+                }
+              }}
+              className="rounded-lg border border-brand-teal/30 bg-brand-teal/10 px-3 py-2 text-xs font-medium text-brand-teal hover:bg-brand-teal/20 transition-colors min-h-[44px]"
+              aria-label="Send password reset email"
+            >
+              Send Reset
+            </button>
+          </div>
+        )}
+
         {/* Account delete request */}
         {isAuthenticated && (
           <div className="rounded-lg bg-white/60 dark:bg-brand-charcoal/40 border border-brand-forest/10 px-4 py-3">
