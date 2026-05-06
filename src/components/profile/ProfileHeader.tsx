@@ -10,6 +10,7 @@
  */
 
 import { useState } from "react";
+import Link from "next/link";
 import type { UserProfileExtended } from "@/types";
 import { pb } from "@/auth/authService";
 
@@ -96,19 +97,28 @@ export default function ProfileHeader({
 
           {/* Follower / Following counts */}
           <div className="flex items-center gap-4 mt-2">
-            <span className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80">
+            <Link
+              href="/profile/follows?tab=followers"
+              className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 hover:text-brand-teal transition-colors"
+            >
               <span className="font-semibold">{profile.followerCount ?? 0}</span>{" "}
               <span className="text-brand-charcoal/60 dark:text-brand-sand/60">
                 {profile.followerCount === 1 ? "follower" : "followers"}
               </span>
-            </span>
-            <span className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80">
+            </Link>
+            <Link
+              href="/profile/follows?tab=following"
+              className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 hover:text-brand-teal transition-colors"
+            >
               <span className="font-semibold">{profile.followingCount ?? 0}</span>{" "}
               <span className="text-brand-charcoal/60 dark:text-brand-sand/60">
                 following
               </span>
-            </span>
+            </Link>
           </div>
+          <p className="text-[10px] text-brand-charcoal/40 dark:text-brand-sand/40 mt-1">
+            Tap to view your followers or following
+          </p>
         </div>
       </div>
 

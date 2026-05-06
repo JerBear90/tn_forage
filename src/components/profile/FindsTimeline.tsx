@@ -10,7 +10,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getAllRecords } from '@/offline/db';
+import { getAllRecords, getDB } from '@/offline/db';
 import type { ExpeditionLog, CommunityDraft } from '@/types';
 
 interface FindEntry {
@@ -19,7 +19,7 @@ interface FindEntry {
   speciesId: string | null;
   date: string;
   location: string | null;
-  photoUrl: string | null;
+  photoId: string | null;
   type: 'expedition' | 'community';
 }
 
@@ -44,7 +44,7 @@ export default function FindsTimeline({ userId }: { userId: string }) {
               speciesId: null,
               date: l.createdAt || '',
               location: l.habitat || null,
-              photoUrl: l.photos?.[0] || null,
+              photoId: l.photos?.[0] || null,
               type: 'expedition' as const,
             };
           });
@@ -61,7 +61,7 @@ export default function FindsTimeline({ userId }: { userId: string }) {
               speciesId: null,
               date: draft.createdAt || '',
               location: null,
-              photoUrl: draft.photos?.[0] || null,
+              photoId: draft.photos?.[0] || null,
               type: 'community' as const,
             };
           });
@@ -145,6 +145,30 @@ export default function FindsTimeline({ userId }: { userId: string }) {
 // ---------------------------------------------------------------------------
 
 function FindCard({ find }: { find: FindEntry }) {
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  // Load photo blob from IndexedDB
+  useEffect(() => {
+    let cancelled = false;
+    if (find.photoId) {
+      (async () => {
+        try {
+          const db = await getDB();
+          const photo = await db.get('photos', find.photoId!);
+          if (!cancelled && photo?.blob) {
+            setPhotoUrl(URL.createObjectURL(photo.blob));
+          }
+        } catch { /* ignore */ }
+      })();
+    }
+    return () => { cancelled = true; };
+  }, [find.photoId]);
+
+  // Clean up object URL
+  useEffect(() => {
+    return () => { if (photoUrl) URL.revokeObjectURL(photoUrl); };
+  }, [photoUrl]);
+
   const href = find.speciesId
     ? `/field-guide/${find.speciesId}`
     : find.type === 'expedition'
@@ -159,10 +183,10 @@ function FindCard({ find }: { find: FindEntry }) {
       className="relative aspect-square rounded-lg overflow-hidden bg-brand-charcoal/5 dark:bg-brand-charcoal/20 group hover:ring-2 hover:ring-brand-teal/40 transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
     >
       {/* Photo or placeholder */}
-      {find.photoUrl ? (
+      {photoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={find.photoUrl}
+          src={photoUrl}
           alt={find.speciesName}
           className="w-full h-full object-cover"
           loading="lazy"

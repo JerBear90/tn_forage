@@ -100,6 +100,7 @@ export default function ProfileContent() {
   // --- Social profile ---
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [tripCount, setTripCount] = useState(0);
 
   // The effective profile: auth user first, then cached
   const profile = user ?? cachedProfile;
@@ -169,12 +170,29 @@ export default function ProfileContent() {
           getFollowingCount(effectiveId),
         ]);
         if (!cancelled) {
+          // Also check localStorage feed follows as fallback
+          let lsFollowing = 0;
+          try {
+            const raw = localStorage.getItem('foragewise_feed_follows');
+            if (raw) lsFollowing = JSON.parse(raw).length;
+          } catch { /* ignore */ }
           setFollowerCount(followers);
-          setFollowingCount(following);
+          setFollowingCount(Math.max(following, lsFollowing));
         }
       } catch {
-        // IndexedDB may not be available
+        // Fallback to localStorage only
+        try {
+          const raw = localStorage.getItem('foragewise_feed_follows');
+          if (raw && !cancelled) setFollowingCount(JSON.parse(raw).length);
+        } catch { /* ignore */ }
       }
+
+      // Load trip count
+      try {
+        const { getAllRecords } = await import("@/offline/db");
+        const trips = await getAllRecords("trips");
+        if (!cancelled) setTripCount(trips.length);
+      } catch { /* ignore */ }
     }
     loadSocialCounts();
     return () => {
@@ -599,13 +617,47 @@ export default function ProfileContent() {
               bio: "",
               followerCount,
               followingCount,
-              completedTripCount: 0,
+              completedTripCount: tripCount,
               achievementCount: 0,
               defaultVisibility: "private",
             } as UserProfileExtended
           }
           isOwnProfile={true}
         />
+      </section>
+
+      {/* ── Stats Grid (Trips, Achievements, Badges) ── */}
+      <section className="mb-6">
+        <div className="grid grid-cols-4 gap-2">
+          <Link
+            href="/trips"
+            className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">{tripCount}</span>
+            <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Trips</span>
+          </Link>
+          <Link
+            href="/community#challenges"
+            className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">0</span>
+            <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Badges</span>
+          </Link>
+          <Link
+            href="/community#challenges"
+            className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">0</span>
+            <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Achievements</span>
+          </Link>
+          <Link
+            href="/community#feed"
+            className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">0</span>
+            <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Reviews</span>
+          </Link>
+        </div>
       </section>
 
       {/* ── Life List Stats ── */}
@@ -791,6 +843,37 @@ export default function ProfileContent() {
                 membership.plan.slice(1)}
           </span>
         </div>
+
+        {/* Reset password */}
+        {isAuthenticated && (
+          <div className="flex items-center justify-between rounded-lg bg-white/60 dark:bg-brand-charcoal/40 border border-brand-forest/10 px-4 py-3">
+            <div>
+              <p className="font-semibold text-sm text-brand-charcoal dark:text-brand-sand">
+                Reset Password
+              </p>
+              <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
+                Send a password reset email
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!email) return;
+                try {
+                  const { pb } = await import('@/auth/authService');
+                  await pb.collection('users').requestPasswordReset(email);
+                  alert('Password reset email sent! Check your inbox.');
+                } catch {
+                  alert('Failed to send reset email. Try again later.');
+                }
+              }}
+              className="rounded-lg border border-brand-teal/30 bg-brand-teal/10 px-3 py-2 text-xs font-medium text-brand-teal hover:bg-brand-teal/20 transition-colors min-h-[44px]"
+              aria-label="Send password reset email"
+            >
+              Send Reset
+            </button>
+          </div>
+        )}
 
         {/* Account delete request */}
         {isAuthenticated && (
