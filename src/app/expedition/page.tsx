@@ -2,6 +2,8 @@
 
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/auth/useAuth';
 import type {
   ExpeditionLog,
   Photo,
@@ -64,6 +66,9 @@ interface PhotoPreview {
 // ---------------------------------------------------------------------------
 
 export default function ExpeditionPage() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
   // --- Photo state ---
   const [photos, setPhotos] = useState<PhotoPreview[]>([]);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -672,7 +677,17 @@ export default function ExpeditionPage() {
                 type="button"
                 role="radio"
                 aria-checked={visibility === 'public'}
-                onClick={() => setVisibility('public')}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    // Save form data to sessionStorage so it persists through login
+                    sessionStorage.setItem('fw_pending_expedition', JSON.stringify({
+                      speciesGuess, habitat, treeNearby, notes, dateTime, visibility: 'public',
+                    }));
+                    router.push('/login?returnTo=/expedition&autoPost=true');
+                    return;
+                  }
+                  setVisibility('public');
+                }}
                 className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
                   visibility === 'public'
                     ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
@@ -683,8 +698,9 @@ export default function ExpeditionPage() {
               </button>
             </div>
             <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mt-1">
-              Logs are private by default. Public logs have GPS coordinates
-              fuzzed for privacy.
+              {isAuthenticated
+                ? 'Logs are private by default. Public logs have GPS coordinates fuzzed for privacy.'
+                : 'Logs are private by default. Sign in to share publicly with the community.'}
             </p>
           </div>
 
