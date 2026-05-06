@@ -7,7 +7,7 @@
  * share it publicly on the community feed.
  */
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { putRecord } from '@/offline/db';
@@ -22,6 +22,14 @@ function generateId(): string {
 }
 
 export default function CheckInPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-teal border-t-transparent" /></div>}>
+      <CheckInContent />
+    </Suspense>
+  );
+}
+
+function CheckInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuth();
