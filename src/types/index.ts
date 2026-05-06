@@ -467,6 +467,7 @@ export interface CachedMapRegion {
 export interface CommunityDraft {
   id: string;
   userId: string;
+  displayName?: string;
   speciesGuess?: string;
   photos: string[];
   coordinates?: Coordinates;

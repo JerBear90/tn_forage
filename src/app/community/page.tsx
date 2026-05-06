@@ -85,6 +85,7 @@ interface NewSightingFormProps {
 }
 
 function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
+  const { user } = useAuth();
   const [speciesGuess, setSpeciesGuess] = useState('');
   const [notes, setNotes] = useState('');
   const [visibility, setVisibility] = useState<LogVisibility>('private');
@@ -161,7 +162,8 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
 
     const draft: CommunityDraft = {
       id: generateId(),
-      userId: 'local-user', // placeholder until auth wired
+      userId: user?.id || 'local-user',
+      displayName: user?.displayName || undefined,
       speciesGuess: speciesGuess.trim() || undefined,
       photos: photoIds,
       coordinates: coords,

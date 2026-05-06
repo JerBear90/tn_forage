@@ -73,6 +73,7 @@ interface FeedItem {
   id: string;
   type: 'sighting' | 'trip' | 'checkin';
   userId: string;
+  displayName?: string;
   title?: string;
   notes: string;
   photos: string[]; // photo IDs
@@ -118,6 +119,7 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
           id: s.id,
           type: s.notes?.startsWith('[Check-in]') ? 'checkin' : 'sighting',
           userId: s.userId,
+          displayName: s.displayName,
           title: s.speciesGuess,
           notes: s.notes?.replace('[Check-in] ', '') || '',
           photos: s.photos || [],
@@ -297,7 +299,7 @@ interface FeedCardProps {
 }
 
 function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onShare }: FeedCardProps) {
-  const displayName = item.userId ? `Forager ${item.userId.slice(0, 6)}` : 'Anonymous';
+  const displayName = item.displayName || (item.userId && item.userId !== 'local-user' ? `Forager ${item.userId.slice(0, 6)}` : 'Anonymous');
   const timeAgo = getRelativeTime(item.createdAt);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [showHeart, setShowHeart] = useState(false);

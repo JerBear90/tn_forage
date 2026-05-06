@@ -32,7 +32,7 @@ export default function CheckInPage() {
 function CheckInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const parkId = searchParams.get('parkId') || '';
   const parkName = searchParams.get('parkName') || 'Unknown Park';
@@ -56,7 +56,8 @@ function CheckInContent() {
     // Create a community draft as a check-in post
     await putRecord('communityDrafts', {
       id: generateId(),
-      userId: 'local-user',
+      userId: user?.id || 'local-user',
+      displayName: user?.displayName || undefined,
       speciesGuess: parkName,
       photos: [],
       notes: `[Check-in] Checked in at ${parkName}${notes ? '. ' + notes.trim() : ''}`,
