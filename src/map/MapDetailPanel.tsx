@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type { Park, Trail, Route, TrailDifficulty } from '@/types';
 import type { ParkCondition, ConditionRating } from '@/hooks/useForagingConditions';
 
@@ -465,7 +466,7 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
                   <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9zm3.75 11.625a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                   </svg>
-                  View Details
+                  View More
                 </button>
                 <button
                   type="button"
@@ -510,8 +511,18 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
                 />
               )}
 
-              {/* Plan a Visit button at bottom of expanded view too */}
-              <div className="mt-4 pt-3 border-t border-brand-forest/5 dark:border-dark-border">
+              {/* View Full Details + Plan a Visit buttons at bottom of expanded view */}
+              <div className="mt-4 pt-3 border-t border-brand-forest/5 dark:border-dark-border space-y-2">
+                <Link
+                  href={item.type === 'park' ? `/parks/${item.data.id}` : `/field-guide`}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-brand-teal/30 bg-white dark:bg-dark-surface px-3 py-2.5 text-sm font-semibold text-brand-teal hover:bg-brand-teal/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal touch-manipulation"
+                  style={{ minHeight: '44px' }}
+                >
+                  <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                  </svg>
+                  View Full Details
+                </Link>
                 <button
                   type="button"
                   onClick={() => router.push(`/trips/new?parkId=${planVisitId}&parkName=${encodeURIComponent(planVisitName)}`)}
