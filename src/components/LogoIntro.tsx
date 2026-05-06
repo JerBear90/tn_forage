@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 
-const STORAGE_KEY = "forageflow-intro-seen";
+const STORAGE_KEY = "foragewise-intro-seen";
 const ANIMATION_DURATION = 2500; // 2.5 seconds total
 const FADE_OUT_DURATION = 400; // fade-out transition time
 
@@ -84,7 +84,7 @@ export default function LogoIntro() {
     <div
       className={`logo-intro ${fadingOut ? "logo-intro--hidden" : ""}`}
       role="dialog"
-      aria-label="ForageFlow welcome animation"
+      aria-label="ForageWise welcome animation"
     >
       {/* Animated logo */}
       <div className="logo-intro__logo" aria-hidden="true">
@@ -92,7 +92,7 @@ export default function LogoIntro() {
           src="/branding/mush_logo.png"
           width={120}
           height={120}
-          alt="ForageFlow logo"
+          alt="ForageWise logo"
           className="logo-intro__icon"
         />
 
@@ -123,7 +123,7 @@ export default function LogoIntro() {
 
       {/* Brand name — fades in after a short delay */}
       <p className="logo-intro__title" aria-hidden="true">
-        ForageFlow
+        ForageWise
       </p>
 
       {/* Tagline */}

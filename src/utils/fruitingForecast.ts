@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Fruiting Forecast Calculator
+ * ForageWise — Fruiting Forecast Calculator
  *
  * Calculates fruiting predictions for mushroom species based on
  * current weather conditions and species-specific fruiting triggers.

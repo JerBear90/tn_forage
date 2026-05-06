@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Voice ID Natural Language Parser
+ * ForageWise — Voice ID Natural Language Parser
  *
  * Parses natural language descriptions of mushrooms into structured
  * IdentificationWizardAnswers. Extracts cap color, shape, gill type,

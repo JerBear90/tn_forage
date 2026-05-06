@@ -1,6 +1,6 @@
 {
-  "name": "ForageFlow",
-  "short_name": "ForageFlow",
+  "name": "ForageWise",
+  "short_name": "ForageWise",
   "description": "Offline-first field app for mushroom, plant, tree, park, trail, and expedition discovery in Tennessee.",
   "start_url": "/",
   "scope": "/",

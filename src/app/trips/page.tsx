@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — Trips Page
+ * ForageWise — Trips Page
  *
  * Lists all saved trips from IndexedDB with search/filter, sync status
  * badges, delete with confirmation, loading skeleton, and empty state.
@@ -512,6 +512,21 @@ export default function TripsPage() {
       <p className="text-xs text-center text-brand-charcoal/50 dark:text-brand-sand/50 mt-auto pt-6">
         Trips are saved locally and sync when you&apos;re back online.
       </p>
+
+      {/* Fixed "Plan a Visit" button at bottom */}
+      <div className="fixed bottom-20 left-0 right-0 px-4 pb-4 pointer-events-none">
+        <div className="max-w-lg mx-auto pointer-events-auto">
+          <Link
+            href="/trips/new"
+            className="w-full flex items-center justify-center gap-2 rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 shadow-lg hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] min-h-[44px]"
+          >
+            <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </svg>
+            Plan a Visit
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

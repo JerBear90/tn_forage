@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Profile Header Component
+ * ForageWise — Profile Header Component
  *
  * Displays user avatar, display name, bio, follower/following counts,
  * and a follow/unfollow button when viewing another user's profile.
@@ -9,7 +9,27 @@
  * Requirements: 13.1, 13.2, 13.5, 1.1, 1.2, 1.6
  */
 
+import { useState } from "react";
 import type { UserProfileExtended } from "@/types";
+import { pb } from "@/auth/authService";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Constructs the full PocketBase file URL for a user's avatar.
+ * PocketBase stores files at: {baseURL}/api/files/{collectionId}/{recordId}/{filename}
+ */
+function getAvatarUrl(userId: string, avatarFilename: string | undefined): string | null {
+  if (!avatarFilename) return null;
+  // If it's already a full URL, use as-is
+  if (avatarFilename.startsWith('http://') || avatarFilename.startsWith('https://') || avatarFilename.startsWith('/')) {
+    return avatarFilename;
+  }
+  // Construct PocketBase file URL
+  return `${pb.baseURL}/api/files/_pb_users_auth_/${userId}/${avatarFilename}`;
+}
 
 // ---------------------------------------------------------------------------
 // Props
@@ -34,34 +54,30 @@ export default function ProfileHeader({
   onFollow,
   onUnfollow,
 }: ProfileHeaderProps) {
+  const [imgError, setImgError] = useState(false);
+  const avatarUrl = getAvatarUrl(profile.id, profile.avatar);
+  const initials = profile.displayName
+    ? profile.displayName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    : '?';
+
   return (
     <div className="rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-5">
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <div className="flex-shrink-0">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-brand-teal/20 bg-brand-teal/10 flex items-center justify-center">
-            {profile.avatar ? (
+            {avatarUrl && !imgError ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={profile.avatar}
+                src={avatarUrl}
                 alt={`${profile.displayName}'s avatar`}
                 className="w-full h-full object-cover"
+                onError={() => setImgError(true)}
               />
             ) : (
-              <svg
-                aria-hidden="true"
-                className="w-8 h-8 text-brand-teal/40"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                />
-              </svg>
+              <span className="text-lg font-bold text-brand-teal/60" aria-hidden="true">
+                {initials}
+              </span>
             )}
           </div>
         </div>

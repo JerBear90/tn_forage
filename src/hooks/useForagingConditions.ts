@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — useForagingConditions Hook
+ * ForageWise — useForagingConditions Hook
  *
  * Fetches weather for a representative Tennessee location and scores
  * each park's foraging conditions based on current weather + season.

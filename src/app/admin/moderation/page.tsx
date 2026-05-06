@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Content Moderation Page
+ * ForageWise — Content Moderation Page
  *
  * Structural page for content moderation tools. Provides the layout
  * and sections for:

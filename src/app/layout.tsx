@@ -7,6 +7,7 @@ import PwaSplash from "@/components/PwaSplash";
 import LogoIntro from "@/components/LogoIntro";
 import AppShell from "@/layouts/AppShell";
 import AuthProvider from "@/auth/AuthProvider";
+import FeedbackProvider from "@/components/FeedbackProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,7 +23,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "ForageFlow",
+  title: "ForageWise",
   description:
     "Offline-first field app for mushroom, plant, tree, park, trail, and expedition discovery in Tennessee.",
   manifest: "/manifest.json",
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "ForageFlow",
+    title: "ForageWise",
     startupImage: [
       // iPhone SE / 8 (750x1334 @2x)
       {
@@ -118,7 +119,7 @@ export const viewport: Viewport = {
 const themeInitScript = `
 (function(){
   try {
-    var t = localStorage.getItem("forageflow-theme");
+    var t = localStorage.getItem("foragewise-theme");
     if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
       document.documentElement.classList.add("dark");
     }
@@ -139,10 +140,12 @@ export default function RootLayout({
       <body className="antialiased min-h-screen bg-brand-sand text-brand-charcoal font-sans dark:bg-dark-surface dark:text-dark-text pb-20">
         <ThemeProvider>
           <AuthProvider>
-            <LogoIntro />
-            <PwaSplash />
-            <AppShell>{children}</AppShell>
-            <BottomNav />
+            <FeedbackProvider>
+              <LogoIntro />
+              <PwaSplash />
+              <AppShell>{children}</AppShell>
+              <BottomNav />
+            </FeedbackProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — VoicePronunciationButton Component
+ * ForageWise — VoicePronunciationButton Component
  *
  * Speaker button that reads species common and scientific names aloud
  * using the Web Speech API SpeechSynthesis interface. Works offline.

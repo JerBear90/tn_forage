@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Privacy Policy — ForageFlow" };
+export const metadata: Metadata = { title: "Privacy Policy — ForageWise" };
 
 /**
  * Privacy Policy page.
@@ -15,7 +15,7 @@ export default function PrivacyPage() {
       <div className="prose prose-sm text-gray-700 space-y-4">
         <section>
           <h2 className="text-sm font-semibold text-gray-800">1. Data We Collect</h2>
-          <p className="text-xs">ForageFlow stores data primarily on your device using IndexedDB. Data collected includes: account information (email, display name), foraging journal entries, harvest logs, microhabitat pins, trip plans, and usage analytics (if not opted out).</p>
+          <p className="text-xs">ForageWise stores data primarily on your device using IndexedDB. Data collected includes: account information (email, display name), foraging journal entries, harvest logs, microhabitat pins, trip plans, and usage analytics (if not opted out).</p>
         </section>
 
         <section>
@@ -45,12 +45,12 @@ export default function PrivacyPage() {
 
         <section>
           <h2 className="text-sm font-semibold text-gray-800">7. Third-Party Services</h2>
-          <p className="text-xs">ForageFlow uses weather.gov (public weather data) and may use recreation.gov (park information). These services have their own privacy policies. No personal data is shared with these services.</p>
+          <p className="text-xs">ForageWise uses weather.gov (public weather data) and may use recreation.gov (park information). These services have their own privacy policies. No personal data is shared with these services.</p>
         </section>
 
         <section>
           <h2 className="text-sm font-semibold text-gray-800">8. Contact</h2>
-          <p className="text-xs">For privacy questions or data requests, contact us at privacy@forageflow.app.</p>
+          <p className="text-xs">For privacy questions or data requests, contact us at privacy@foragewise.app.</p>
         </section>
       </div>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Membership Page
+ * ForageWise — Membership Page
  *
  * Displays current plan, status indicator, and upgrade/downgrade options.
  * Protected route — requires authentication.

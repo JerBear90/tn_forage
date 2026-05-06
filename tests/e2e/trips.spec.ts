@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Trips
+ * ForageWise — E2E Tests: Trips
  *
  * Tests trip creation flow including navigation to new trip page,
  * location selection, date entry, and offline save to IndexedDB.

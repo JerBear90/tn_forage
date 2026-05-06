@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Account Deletion Utility
+ * ForageWise — Account Deletion Utility
  *
  * Deletes all user data from all IndexedDB stores.
  * Revokes the current session and queues server-side deletion.

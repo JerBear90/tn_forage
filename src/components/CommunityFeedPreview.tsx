@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — CommunityFeedPreview Component
+ * ForageWise — CommunityFeedPreview Component
  *
  * Displays the 3 most recent public community sightings on the home page.
  * Each sighting shows species guess, notes preview, and timestamp.

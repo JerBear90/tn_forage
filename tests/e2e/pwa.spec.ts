@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: PWA Install Prompt
+ * ForageWise — E2E Tests: PWA Install Prompt
  *
  * Tests PWA install prompt display when not in standalone mode,
  * dismissal storing a timestamp, and suppression within 7 days.
@@ -11,7 +11,7 @@
 
 import { test, expect } from '@playwright/test';
 
-const DISMISSAL_KEY = 'forageflow-pwa-prompt-dismissed';
+const DISMISSAL_KEY = 'foragewise-pwa-prompt-dismissed';
 
 test.describe('PWA Install Prompt — Display', () => {
   test.beforeEach(async ({ page }) => {
@@ -25,8 +25,8 @@ test.describe('PWA Install Prompt — Display', () => {
     // after clearing the dismissal key
     await page.reload();
 
-    // The PwaInstallPrompt renders with aria-label "Install ForageFlow"
-    const prompt = page.locator('[aria-label="Install ForageFlow"]');
+    // The PwaInstallPrompt renders with aria-label "Install ForageWise"
+    const prompt = page.locator('[aria-label="Install ForageWise"]');
 
     // The prompt should be visible (browser is not standalone by default in Playwright)
     await expect(prompt).toBeVisible({ timeout: 5_000 });
@@ -35,10 +35,10 @@ test.describe('PWA Install Prompt — Display', () => {
   test('should display platform-specific instructions', async ({ page }) => {
     await page.reload();
 
-    const prompt = page.locator('[aria-label="Install ForageFlow"]');
+    const prompt = page.locator('[aria-label="Install ForageWise"]');
     if (await prompt.isVisible().catch(() => false)) {
-      // Should contain "Add ForageFlow to Home Screen" heading
-      await expect(prompt).toContainText(/add forageflow to home screen/i);
+      // Should contain "Add ForageWise to Home Screen" heading
+      await expect(prompt).toContainText(/add foragewise to home screen/i);
 
       // Should contain some installation instructions
       // (platform-specific: iOS shows "Share", Android shows "menu", other shows generic)
@@ -54,7 +54,7 @@ test.describe('PWA Install Prompt — Display', () => {
   test('should display a dismiss button', async ({ page }) => {
     await page.reload();
 
-    const prompt = page.locator('[aria-label="Install ForageFlow"]');
+    const prompt = page.locator('[aria-label="Install ForageWise"]');
     if (await prompt.isVisible().catch(() => false)) {
       const dismissButton = page.getByRole('button', {
         name: /dismiss install prompt/i,
@@ -72,7 +72,7 @@ test.describe('PWA Install Prompt — Dismissal', () => {
   });
 
   test('should store dismissal timestamp in localStorage when dismissed', async ({ page }) => {
-    const prompt = page.locator('[aria-label="Install ForageFlow"]');
+    const prompt = page.locator('[aria-label="Install ForageWise"]');
 
     if (await prompt.isVisible().catch(() => false)) {
       const dismissButton = page.getByRole('button', {
@@ -98,7 +98,7 @@ test.describe('PWA Install Prompt — Dismissal', () => {
   });
 
   test('should hide prompt after dismissal', async ({ page }) => {
-    const prompt = page.locator('[aria-label="Install ForageFlow"]');
+    const prompt = page.locator('[aria-label="Install ForageWise"]');
 
     if (await prompt.isVisible().catch(() => false)) {
       const dismissButton = page.getByRole('button', {
@@ -126,7 +126,7 @@ test.describe('PWA Install Prompt — 7-Day Cooldown', () => {
     await page.reload();
 
     // Prompt should NOT be visible (dismissed less than 7 days ago)
-    const prompt = page.locator('[aria-label="Install ForageFlow"]');
+    const prompt = page.locator('[aria-label="Install ForageWise"]');
     await expect(prompt).not.toBeVisible({ timeout: 3_000 });
   });
 
@@ -143,7 +143,7 @@ test.describe('PWA Install Prompt — 7-Day Cooldown', () => {
     await page.reload();
 
     // Prompt should be visible again (dismissed more than 7 days ago)
-    const prompt = page.locator('[aria-label="Install ForageFlow"]');
+    const prompt = page.locator('[aria-label="Install ForageWise"]');
     await expect(prompt).toBeVisible({ timeout: 5_000 });
   });
 
@@ -160,7 +160,7 @@ test.describe('PWA Install Prompt — 7-Day Cooldown', () => {
     await page.reload();
 
     // Prompt should NOT be visible (still within 7-day cooldown)
-    const prompt = page.locator('[aria-label="Install ForageFlow"]');
+    const prompt = page.locator('[aria-label="Install ForageWise"]');
     await expect(prompt).not.toBeVisible({ timeout: 3_000 });
   });
 });

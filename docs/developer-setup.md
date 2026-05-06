@@ -15,7 +15,7 @@
 ```bash
 # 1. Clone the repository
 git clone <repo-url>
-cd forageflow
+cd foragewise
 
 # 2. Install dependencies
 npm install
@@ -34,7 +34,7 @@ npm run dev
 
 ## Environment Variables
 
-ForageFlow uses three environment example files. Copy the appropriate one and fill in your values.
+ForageWise uses three environment example files. Copy the appropriate one and fill in your values.
 
 ### Environment Files
 
@@ -50,7 +50,7 @@ ForageFlow uses three environment example files. Copy the appropriate one and fi
 Variables prefixed with `NEXT_PUBLIC_` are included in the browser bundle:
 
 ```env
-NEXT_PUBLIC_APP_NAME=ForageFlow
+NEXT_PUBLIC_APP_NAME=ForageWise
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_replace_me
@@ -211,7 +211,7 @@ Before submitting changes:
 - Check `NEXT_PUBLIC_POCKETBASE_URL` in `.env.local`
 
 ### IndexedDB Issues
-- Clear IndexedDB in browser DevTools: Application → IndexedDB → forageflow → Delete
+- Clear IndexedDB in browser DevTools: Application → IndexedDB → foragewise → Delete
 - The database will be recreated and re-seeded on next page load
 
 ### Service Worker Issues
@@ -224,7 +224,7 @@ Before submitting changes:
 
 ## Related Documentation
 
-- [What Is ForageFlow?](what-is-forageflow.md) — Project overview
+- [What Is ForageWise?](what-is-foragewise.md) — Project overview
 - [Admin Credentials](admin-credentials.md) — PocketBase admin access
 - [SSO Configuration](sso-configuration.md) — OAuth provider setup
 - [Architecture](wiki/architecture.md) — System architecture and data flow

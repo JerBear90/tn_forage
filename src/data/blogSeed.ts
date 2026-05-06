@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Blog Seed Data
+ * ForageWise — Blog Seed Data
  *
  * Initial curated articles for the Blog Feed covering foraging topics
  * relevant to Tennessee: poisonous mushrooms, tree-mushroom associations,
@@ -25,7 +25,7 @@ export const blogSeed: BlogArticle[] = [
   {
     id: 'blog-poisonous-mushrooms-tn',
     title: 'Common Poisonous Mushrooms in Tennessee: What Every Forager Should Know',
-    author: 'ForageFlow Editorial',
+    author: 'ForageWise Editorial',
     publishedAt: '2025-01-15T09:00:00Z',
     summary:
       'An overview of the most frequently encountered toxic mushroom species in Tennessee forests, including identification features and the dangers they pose.',
@@ -94,7 +94,7 @@ Content derived from cited sources and paraphrased for educational use.
   {
     id: 'blog-tree-mushroom-associations',
     title: 'Tree-Mushroom Associations: How Tennessee Trees Guide Your Foraging',
-    author: 'ForageFlow Editorial',
+    author: 'ForageWise Editorial',
     publishedAt: '2025-01-22T09:00:00Z',
     summary:
       'Understanding mycorrhizal and saprotrophic relationships between Tennessee trees and mushrooms can dramatically improve your ability to locate target species.',
@@ -163,7 +163,7 @@ Content derived from cited sources and paraphrased for educational use.
   {
     id: 'blog-spring-foraging-guide',
     title: 'Spring Foraging in Tennessee: A Seasonal Guide',
-    author: 'ForageFlow Editorial',
+    author: 'ForageWise Editorial',
     publishedAt: '2025-02-05T09:00:00Z',
     summary:
       'A guide to spring foraging in Tennessee covering morels, ramps, and other early-season species, with tips on timing, habitat, and responsible harvesting.',
@@ -230,7 +230,7 @@ Content derived from cited sources and paraphrased for educational use.
   {
     id: 'blog-plant-identification-tips',
     title: 'Plant Identification Tips for Tennessee Foragers',
-    author: 'ForageFlow Editorial',
+    author: 'ForageWise Editorial',
     publishedAt: '2025-02-12T09:00:00Z',
     summary:
       'Practical tips for identifying wild plants in Tennessee, including key features to observe, common look-alike dangers, and resources for building your skills.',

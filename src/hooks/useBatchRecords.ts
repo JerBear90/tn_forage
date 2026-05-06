@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — useBatchRecords Hook
+ * ForageWise — useBatchRecords Hook
  *
  * Generic hook that reads multiple IndexedDB stores in parallel via
  * `Promise.all`. Returns records keyed by store name along with

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Profile Tabs Component
+ * ForageWise — Profile Tabs Component
  *
  * Tabbed interface showing: Completed Trips, Achievements, Reviews, Photos.
  * When viewing another user's profile, filters to public-visibility items only.

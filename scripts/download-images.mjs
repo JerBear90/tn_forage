@@ -83,7 +83,7 @@ function download(url, dest) {
       return;
     }
     const proto = url.startsWith('https') ? https : http;
-    const req = proto.get(url, { headers: { 'User-Agent': 'ForageFlow/1.0 (field-guide-app; contact@forageflow.app)' } }, (res) => {
+    const req = proto.get(url, { headers: { 'User-Agent': 'ForageWise/1.0 (field-guide-app; contact@foragewise.app)' } }, (res) => {
       // Follow redirects
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         console.log(`  REDIRECT: ${res.headers.location}`);

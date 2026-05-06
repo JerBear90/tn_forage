@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Tennessee Trails Seed Data
+ * ForageWise — Tennessee Trails Seed Data
  *
  * Comprehensive seed data for trails within Tennessee State Parks.
  * This data is loaded into IndexedDB on first run.

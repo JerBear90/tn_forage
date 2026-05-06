@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This feature extends ForageFlow with two complementary capabilities: (1) a social layer that lets users follow other foragers, view an activity feed, share photos, write reviews, and track completed trips and achievements; and (2) a rich park and trail detail experience that surfaces trail length, elevation, difficulty, surface type, trailhead locations, estimated hiking time, user reviews, trail maps, photo tours, directions, weather links, top sights, and park contact information. Both areas must preserve ForageFlow's offline-first, mobile-first, and safety-first principles.
+This feature extends ForageWise with two complementary capabilities: (1) a social layer that lets users follow other foragers, view an activity feed, share photos, write reviews, and track completed trips and achievements; and (2) a rich park and trail detail experience that surfaces trail length, elevation, difficulty, surface type, trailhead locations, estimated hiking time, user reviews, trail maps, photo tours, directions, weather links, top sights, and park contact information. Both areas must preserve ForageWise's offline-first, mobile-first, and safety-first principles.
 
 ## Glossary
 

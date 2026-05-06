@@ -1,5 +1,5 @@
 /**
- * ForageFlow — IndexedDB Search Utility
+ * ForageWise — IndexedDB Search Utility
  *
  * Searches across species, plants, trees, parks, and trails stores
  * using case-insensitive substring matching on specified fields.

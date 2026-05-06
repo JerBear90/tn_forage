@@ -4,7 +4,7 @@ import { useChallenges } from "@/hooks/useChallenges";
 import ChallengesCard from "@/components/ChallengesCard";
 
 /**
- * ForageFlow — ChallengesSection Component
+ * ForageWise — ChallengesSection Component
  *
  * Displays a list of challenges using ChallengesCard.
  * Accepts an optional `preview` prop:

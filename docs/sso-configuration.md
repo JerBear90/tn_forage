@@ -2,7 +2,7 @@
 
 ## Overview
 
-ForageFlow supports Single Sign-On (SSO) with Google, Apple, and Microsoft via PocketBase's built-in OAuth2 integration. All SSO credentials are configured in the PocketBase admin panel — no OAuth secrets are stored in the frontend codebase.
+ForageWise supports Single Sign-On (SSO) with Google, Apple, and Microsoft via PocketBase's built-in OAuth2 integration. All SSO credentials are configured in the PocketBase admin panel — no OAuth secrets are stored in the frontend codebase.
 
 ## Where SSO Is Configured
 

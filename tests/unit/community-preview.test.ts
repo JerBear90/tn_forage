@@ -61,7 +61,7 @@ const arbCommunityDraft: fc.Arbitrary<CommunityDraft> = fc.record({
 // Property 5: Community feed preview returns most recent public sightings
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 5: Community feed preview returns most recent public sightings", () => {
+describe("Feature: foragewise-enhancements, Property 5: Community feed preview returns most recent public sightings", () => {
   /**
    * **Validates: Requirements 11.2**
    */

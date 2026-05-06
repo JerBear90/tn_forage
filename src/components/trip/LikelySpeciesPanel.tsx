@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — LikelySpeciesPanel Component
+ * ForageWise — LikelySpeciesPanel Component
  *
  * Species recommendations based on trail/park data during trip planning.
  * Resolves species from the trail `likelySpecies` array, displays each

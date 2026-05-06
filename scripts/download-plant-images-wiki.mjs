@@ -15,8 +15,8 @@ import sharp from 'sharp';
 const PLANTS_DIR = join(process.cwd(), 'public', 'images', 'plants');
 mkdirSync(PLANTS_DIR, { recursive: true });
 
-const USER_AGENT = 'ForageFlowBot/1.0 (https://github.com/forageflow; forageflow-app@example.com)';
-const DOWNLOAD_USER_AGENT = 'Mozilla/5.0 (compatible; ForageFlowBot/1.0; +https://github.com/forageflow)';
+const USER_AGENT = 'ForageWiseBot/1.0 (https://github.com/foragewise; foragewise-app@example.com)';
+const DOWNLOAD_USER_AGENT = 'Mozilla/5.0 (compatible; ForageWiseBot/1.0; +https://github.com/foragewise)';
 
 // [plantId, Wikipedia article title (from scientific name)]
 const PLANTS = [

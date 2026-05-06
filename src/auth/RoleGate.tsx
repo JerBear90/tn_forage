@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — RoleGate
+ * ForageWise — RoleGate
  *
  * Wrapper component that restricts content based on user role.
  *

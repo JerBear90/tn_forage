@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Fruiting Triggers Seed Data
+ * ForageWise — Fruiting Triggers Seed Data
  *
  * Species-specific environmental conditions that trigger fruiting.
  * Used by the fruiting forecast system to predict when species are

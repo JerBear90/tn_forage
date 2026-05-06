@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design extends ForageFlow with two complementary feature sets:
+This design extends ForageWise with two complementary feature sets:
 
 1. **Social Layer** — Follow system, activity feed, photo sharing, reviews, achievements, and public user profiles. These features let foragers connect, share discoveries, and track progress.
 2. **Enhanced Park & Trail Details** — Rich trail metadata (elevation, surface, type, estimated time), interactive trail maps, reviews/ratings display, photo tours, directions, weather links, top sights, and contact information.

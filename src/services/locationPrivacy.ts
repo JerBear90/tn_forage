@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Location Privacy Service
+ * ForageWise — Location Privacy Service
  *
  * Provides GPS coordinate fuzzing for public community posts.
  * Private posts keep exact coordinates; public posts get a random

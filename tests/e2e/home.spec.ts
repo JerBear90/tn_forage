@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Home Page
+ * ForageWise — E2E Tests: Home Page
  *
  * Tests the redesigned home page with seasonal highlights,
  * community feed preview, challenges preview, logo/tagline,
@@ -21,7 +21,7 @@ test.describe('Home Page', () => {
   // Logo and Tagline
   // -------------------------------------------------------------------------
 
-  test('should display the ForageFlow logo', async ({ page }) => {
+  test('should display the ForageWise logo', async ({ page }) => {
     const logo = page.locator('img[src="/branding/mush_logo.png"]');
 
     // The logo should be present in the DOM
@@ -29,8 +29,8 @@ test.describe('Home Page', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('should display the ForageFlow name and tagline', async ({ page }) => {
-    await expect(page.getByText('ForageFlow')).toBeVisible();
+  test('should display the ForageWise name and tagline', async ({ page }) => {
+    await expect(page.getByText('ForageWise')).toBeVisible();
     await expect(
       page.getByText(/mushroom.*plant.*trail.*discovery.*tennessee/i)
     ).toBeVisible();

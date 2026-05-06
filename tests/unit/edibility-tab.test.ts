@@ -73,7 +73,7 @@ const arbAdversarialString: fc.Arbitrary<string> = fc.oneof(
 // Property 9: Edibility tab content matches label
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 9: Edibility tab content matches label", () => {
+describe("Feature: foragewise-enhancements, Property 9: Edibility tab content matches label", () => {
   /**
    * **Validates: Requirements 14.3, 14.4**
    *
@@ -135,7 +135,7 @@ describe("Feature: forageflow-enhancements, Property 9: Edibility tab content ma
 // Property 10: Safety language invariant
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 10: Safety language invariant", () => {
+describe("Feature: foragewise-enhancements, Property 10: Safety language invariant", () => {
   /**
    * **Validates: Requirements 14.5**
    *
@@ -199,7 +199,7 @@ describe("Feature: forageflow-enhancements, Property 10: Safety language invaria
 // Property 11: Toxic lookalikes appear before edibility content
 // ---------------------------------------------------------------------------
 
-describe("Feature: forageflow-enhancements, Property 11: Toxic lookalikes appear before edibility content", () => {
+describe("Feature: foragewise-enhancements, Property 11: Toxic lookalikes appear before edibility content", () => {
   /**
    * **Validates: Requirements 14.6**
    *

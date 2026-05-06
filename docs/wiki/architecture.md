@@ -1,8 +1,8 @@
-# ForageFlow Architecture
+# ForageWise Architecture
 
 ## Overview
 
-ForageFlow is an offline-first Progressive Web App built with Next.js 14 (App Router), React, TailwindCSS, and TypeScript. The architecture prioritizes offline reliability, mobile usability, and mushroom/plant safety.
+ForageWise is an offline-first Progressive Web App built with Next.js 14 (App Router), React, TailwindCSS, and TypeScript. The architecture prioritizes offline reliability, mobile usability, and mushroom/plant safety.
 
 ## System Layers
 
@@ -69,7 +69,7 @@ ForageFlow is an offline-first Progressive Web App built with Next.js 14 (App Ro
 - `verificationChecklist.ts` — Lookalike verification before showing edible notes
 
 ### Map (`src/map/`)
-- `ForageFlowMap.tsx` — Leaflet map with parks, trails, routes layers
+- `ForageWiseMap.tsx` — Leaflet map with parks, trails, routes layers
 - `MapDetailPanel.tsx` — Clickable marker detail panels (persistent until closed)
 - `MapListView.tsx` — Thumbnail list view alongside map
 
@@ -137,7 +137,7 @@ User checks criterion
 
 ### IndexedDB Stores (18 total)
 
-**Database name:** `forageflow`
+**Database name:** `foragewise`
 **Version:** 2 (upgraded from 1 in Phase 2 to add the `challenges` store)
 
 | Store | Key | Indexes | Purpose |

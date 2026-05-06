@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Location Privacy Service Tests
+ * ForageWise — Location Privacy Service Tests
  *
  * Tests for GPS coordinate fuzzing logic used to protect user privacy
  * on public community sightings.

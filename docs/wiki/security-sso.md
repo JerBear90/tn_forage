@@ -1,4 +1,4 @@
-# ForageFlow Security & SSO
+# ForageWise Security & SSO
 
 ## Authentication Architecture
 
@@ -33,7 +33,7 @@ unknown → guest
 
 ## SSO Providers
 
-ForageFlow supports three SSO providers via PocketBase's OAuth2 integration:
+ForageWise supports three SSO providers via PocketBase's OAuth2 integration:
 
 | Provider | PocketBase Name | Notes |
 |----------|----------------|-------|
@@ -43,7 +43,7 @@ ForageFlow supports three SSO providers via PocketBase's OAuth2 integration:
 
 ### Redirect-Based OAuth Flow
 
-ForageFlow uses redirect-based OAuth (not popup) for PWA and mobile reliability:
+ForageWise uses redirect-based OAuth (not popup) for PWA and mobile reliability:
 
 1. User clicks SSO button on `/login`
 2. `authService.startSSO(provider)` is called
@@ -114,7 +114,7 @@ Convenience wrapper that requires `super_user` role:
 
 ### Public (exposed to browser)
 ```env
-NEXT_PUBLIC_APP_NAME=ForageFlow
+NEXT_PUBLIC_APP_NAME=ForageWise
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...

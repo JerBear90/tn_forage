@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Identification Scoring Service
+ * ForageWise — Identification Scoring Service
  *
  * Pure function module (no React hooks) that scores species against
  * wizard answers from the Guided ID Wizard.

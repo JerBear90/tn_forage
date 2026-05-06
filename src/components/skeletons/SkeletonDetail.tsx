@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — SkeletonDetail Component
+ * ForageWise — SkeletonDetail Component
  *
  * Full-page skeleton loading placeholder matching the species/plant detail
  * page layout. Displays animated placeholders for:

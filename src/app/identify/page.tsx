@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useIdentifyWizard,
   WIZARD_STEP_LABELS,
@@ -32,6 +33,7 @@ import WizardExampleHint from "@/components/WizardExampleHint";
 import {
   UNDERSIDE_EXAMPLES,
   GROWTH_EXAMPLES,
+  NEARBY_TREE_EXAMPLES,
   CAP_SHAPE_EXAMPLES,
   STEM_EXAMPLES,
   BRUISING_EXAMPLES,
@@ -478,6 +480,7 @@ function ConfidenceBadge({
 }
 
 function ResultCard({ result }: { result: IdentificationResult }) {
+  const router = useRouter();
   const isToxic = result.edibilityLabel === "toxic";
   const needsChecklist = requiresVerificationChecklist(result);
   const [showChecklist, setShowChecklist] = useState(false);
@@ -498,8 +501,8 @@ function ResultCard({ result }: { result: IdentificationResult }) {
 
   const handleChecklistProceed = useCallback(() => {
     // Navigate programmatically after checklist is completed
-    window.location.href = `/field-guide/${result.speciesId}`;
-  }, [result.speciesId]);
+    router.push(`/field-guide/${result.speciesId}`);
+  }, [result.speciesId, router]);
 
   const handleChecklistDismiss = useCallback(() => {
     setShowChecklist(false);
@@ -655,7 +658,7 @@ function ResultsDisplay({
   return (
     <div className="space-y-4">
       {/* Safety disclaimer — dismissible */}
-      <DismissibleDisclaimer storageKey="forageflow-identify-disclaimer-ack" variant="earth">
+      <DismissibleDisclaimer storageKey="foragewise-identify-disclaimer-ack" variant="earth">
         <p className="text-xs font-semibold">
           Important Safety Notice
         </p>
@@ -743,6 +746,7 @@ function ResultsDisplay({
 // ---------------------------------------------------------------------------
 
 export default function IdentifyPage() {
+  const router = useRouter();
   const wizard = useIdentifyWizard();
   const stepRef = useRef<HTMLDivElement>(null);
   const [results, setResults] = useState<IdentificationResult[] | null>(null);
@@ -832,6 +836,7 @@ export default function IdentifyPage() {
                 />
               ))}
             </div>
+            <WizardExampleHint examples={NEARBY_TREE_EXAMPLES} selectedOption={wizard.answers.nearbyTree} />
           </fieldset>
         );
 
@@ -1177,7 +1182,7 @@ export default function IdentifyPage() {
       )}
 
       {/* Safety reminder (dismissible) */}
-      <DismissibleDisclaimer storageKey="forageflow-identify-disclaimer-ack" variant="earth">
+      <DismissibleDisclaimer storageKey="foragewise-identify-disclaimer-ack" variant="earth">
         <p className="text-xs font-medium leading-relaxed">
           Results are possible matches only. Never consume a wild species based
           solely on app results. Verify with a qualified expert before consuming.

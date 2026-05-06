@@ -1,7 +1,7 @@
-# ForageFlow Brand Guide
+# ForageWise Brand Guide
 
 ## Brand Name
-**ForageFlow**
+**ForageWise**
 
 ## Positioning
 A safe, offline-first field companion for mushroom, plant, tree, park, trail, and expedition discovery in Tennessee.
@@ -10,7 +10,7 @@ A safe, offline-first field companion for mushroom, plant, tree, park, trail, an
 Discover. Identify. Explore safely.
 
 ## Tone
-Clear, grounded, safety-first, field-ready. ForageFlow speaks with the confidence of a knowledgeable trail companion — helpful and direct, never reckless or overpromising.
+Clear, grounded, safety-first, field-ready. ForageWise speaks with the confidence of a knowledgeable trail companion — helpful and direct, never reckless or overpromising.
 
 ---
 

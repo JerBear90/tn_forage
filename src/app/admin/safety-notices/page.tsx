@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Safety Notice Management Page
+ * ForageWise — Safety Notice Management Page
  *
  * Structural page for creating and editing safety notices for species.
  * Provides the layout and sections for:

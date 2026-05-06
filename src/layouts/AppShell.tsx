@@ -8,6 +8,10 @@ import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
 import { useWeatherTemp } from "@/hooks/useWeatherTemp";
 import { useAutoSync } from "@/hooks/useAutoSync";
+import { usePageViewTracking } from "@/hooks/usePageViewTracking";
+import { useErrorCapture } from "@/hooks/useErrorCapture";
+import { useSessionTracking } from "@/hooks/useSessionTracking";
+import NotificationSignupPrompt from "@/components/NotificationSignupPrompt";
 import { getAllRecords } from "@/offline/db";
 
 /** Pages where the app shell header should be hidden (auth screens). */
@@ -40,6 +44,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { syncing, pendingCount } = useAutoSync();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
+
+  // Track page views on route changes (Requirements: 2.1, 12.1)
+  usePageViewTracking();
+
+  // Initialize global error capture (Requirements: 5.1, 5.7, 12.3)
+  useErrorCapture();
+
+  // Track session duration and page count (Requirements: 4.1, 4.4)
+  useSessionTracking();
 
   // Load user avatar from IndexedDB on mount
   useEffect(() => {
@@ -90,7 +103,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
             />
           </svg>
-          <span className="text-sm font-heading font-semibold hidden sm:inline">ForageFlow</span>
+          <span className="text-sm font-heading font-semibold hidden sm:inline">ForageWise</span>
         </Link>
 
         {/* Right: Weather + Search + Offline badge + Profile */}
@@ -140,6 +153,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Content wrapper — padded for fixed header (top) and bottom nav */}
       <div className="pt-12">
         <SafetyDisclaimer />
+        {/* Notification signup prompt — only on non-admin pages */}
+        {!pathname.startsWith('/admin') && <NotificationSignupPrompt />}
         <main className="min-h-screen">{children}</main>
       </div>
     </>

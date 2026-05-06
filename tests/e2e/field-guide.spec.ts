@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Field Guide
+ * ForageWise — E2E Tests: Field Guide
  *
  * Tests field guide page navigation, species list filtering by category,
  * season, and region, and species detail page rendering from list click.

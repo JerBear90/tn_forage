@@ -1,4 +1,4 @@
-# ForageFlow Sitemap
+# ForageWise Sitemap
 
 All routes implemented in the Next.js App Router (`src/app/`).
 

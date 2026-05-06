@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — ForagingConditionsLayer
+ * ForageWise — ForagingConditionsLayer
  *
  * Map overlay that shows colored circles on parks based on current
  * foraging conditions (weather + season). Larger, brighter circles

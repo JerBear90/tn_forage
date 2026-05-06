@@ -14,7 +14,7 @@ import sharp from 'sharp';
 const PARKS_DIR = join(process.cwd(), 'public', 'images', 'parks');
 mkdirSync(PARKS_DIR, { recursive: true });
 
-const USER_AGENT = 'ForageFlowBot/1.0 (https://github.com/forageflow; forageflow-app@example.com) node-https';
+const USER_AGENT = 'ForageWiseBot/1.0 (https://github.com/foragewise; foragewise-app@example.com) node-https';
 
 // Park names to search for on Wikimedia Commons
 const PARKS = [

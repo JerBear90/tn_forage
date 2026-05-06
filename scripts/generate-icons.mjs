@@ -1,6 +1,6 @@
 /**
  * Generate placeholder PWA icons as PNG files.
- * Creates simple teal squares with "FF" text for ForageFlow.
+ * Creates simple teal squares with "FF" text for ForageWise.
  * These are placeholders — replace with proper icons before production.
  */
 

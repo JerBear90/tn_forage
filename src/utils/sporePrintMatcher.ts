@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Spore Print Color Matcher
+ * ForageWise — Spore Print Color Matcher
  *
  * Client-side spore print color matching using Canvas API.
  * Extracts the dominant color from an image, calculates Euclidean RGB

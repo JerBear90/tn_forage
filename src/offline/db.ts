@@ -1,5 +1,5 @@
 /**
- * ForageFlow — IndexedDB Database Wrapper
+ * ForageWise — IndexedDB Database Wrapper
  *
  * Offline-first data layer using the `idb` library.
  * This module defines the typed database schema, opens the database,
@@ -61,10 +61,10 @@ import type {
 // Database Schema
 // ---------------------------------------------------------------------------
 
-export const DB_NAME = 'forageflow';
+export const DB_NAME = 'foragewise';
 export const DB_VERSION = 4;
 
-export interface ForageFlowDB extends DBSchema {
+export interface ForageWiseDB extends DBSchema {
   species: {
     key: string;
     value: Species;
@@ -425,7 +425,7 @@ export interface ForageFlowDB extends DBSchema {
 // Store Names (useful for iteration / validation)
 // ---------------------------------------------------------------------------
 
-export const STORE_NAMES: (keyof ForageFlowDB)[] = [
+export const STORE_NAMES: (keyof ForageWiseDB)[] = [
   'species',
   'plants',
   'trees',
@@ -476,17 +476,17 @@ export const STORE_NAMES: (keyof ForageFlowDB)[] = [
 // Database Initialization
 // ---------------------------------------------------------------------------
 
-let dbPromise: Promise<IDBPDatabase<ForageFlowDB>> | null = null;
+let dbPromise: Promise<IDBPDatabase<ForageWiseDB>> | null = null;
 
 /**
- * Open (or return the cached handle to) the ForageFlow IndexedDB database.
+ * Open (or return the cached handle to) the ForageWise IndexedDB database.
  *
  * The database is created lazily on first call. Subsequent calls return the
  * same promise so only one connection is held open at a time.
  */
-export function getDB(): Promise<IDBPDatabase<ForageFlowDB>> {
+export function getDB(): Promise<IDBPDatabase<ForageWiseDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<ForageFlowDB>(DB_NAME, DB_VERSION, {
+    dbPromise = openDB<ForageWiseDB>(DB_NAME, DB_VERSION, {
       upgrade(db, oldVersion) {
         // ---- Version 1: Create all original stores ----
         if (oldVersion < 1) {
@@ -759,8 +759,8 @@ export type StoreName = 'species' | 'plants' | 'trees' | 'parks' | 'trails'
  */
 export async function getRecord<S extends StoreName>(
   storeName: S,
-  key: ForageFlowDB[S]['key'],
-): Promise<ForageFlowDB[S]['value'] | undefined> {
+  key: ForageWiseDB[S]['key'],
+): Promise<ForageWiseDB[S]['value'] | undefined> {
   const db = await getDB();
   return db.get(storeName, key);
 }
@@ -770,7 +770,7 @@ export async function getRecord<S extends StoreName>(
  */
 export async function getAllRecords<S extends StoreName>(
   storeName: S,
-): Promise<ForageFlowDB[S]['value'][]> {
+): Promise<ForageWiseDB[S]['value'][]> {
   const db = await getDB();
   return db.getAll(storeName);
 }
@@ -780,8 +780,8 @@ export async function getAllRecords<S extends StoreName>(
  */
 export async function putRecord<S extends StoreName>(
   storeName: S,
-  value: ForageFlowDB[S]['value'],
-): Promise<ForageFlowDB[S]['key']> {
+  value: ForageWiseDB[S]['value'],
+): Promise<ForageWiseDB[S]['key']> {
   const db = await getDB();
   return db.put(storeName, value);
 }
@@ -791,7 +791,7 @@ export async function putRecord<S extends StoreName>(
  */
 export async function deleteRecord<S extends StoreName>(
   storeName: S,
-  key: ForageFlowDB[S]['key'],
+  key: ForageWiseDB[S]['key'],
 ): Promise<void> {
   const db = await getDB();
   return db.delete(storeName, key);
@@ -827,8 +827,8 @@ export async function countRecords<S extends StoreName>(
  */
 export async function batchGetRecords<S extends StoreName>(
   storeName: S,
-  keys: ForageFlowDB[S]['key'][],
-): Promise<ForageFlowDB[S]['value'][]> {
+  keys: ForageWiseDB[S]['key'][],
+): Promise<ForageWiseDB[S]['value'][]> {
   const db = await getDB();
   const tx = db.transaction(storeName, 'readonly');
   const store = tx.objectStore(storeName);
@@ -838,5 +838,5 @@ export async function batchGetRecords<S extends StoreName>(
 
   return results.filter(
     (record) => record !== undefined,
-  ) as ForageFlowDB[S]['value'][];
+  ) as ForageWiseDB[S]['value'][];
 }

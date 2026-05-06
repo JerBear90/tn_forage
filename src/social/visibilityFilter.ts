@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Visibility Filter Utility
+ * ForageWise — Visibility Filter Utility
  *
  * Filters items by visibility for use in profile components.
  * When viewing another user's profile, only public items are shown.

@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Follow Service
+ * ForageWise — Follow Service
  *
  * Handles directional follow relationships between users.
  * All data is persisted to IndexedDB and queued for sync when offline.

@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Weather Service
+ * ForageWise — Weather Service
  *
  * Fetches current weather data from the weather.gov API (free, no key required).
  * Caches weather snapshots in IndexedDB for offline access.
@@ -49,7 +49,7 @@ async function fetchFromWeatherGov(
     // Step 1: Get the forecast office and grid coordinates
     const pointsUrl = `https://api.weather.gov/points/${coords.lat.toFixed(4)},${coords.lng.toFixed(4)}`;
     const pointsRes = await fetch(pointsUrl, {
-      headers: { 'User-Agent': 'ForageFlow/1.0 (forageflow@example.com)' },
+      headers: { 'User-Agent': 'ForageWise/1.0 (foragewise@example.com)' },
     });
 
     if (!pointsRes.ok) return null;
@@ -61,7 +61,7 @@ async function fetchFromWeatherGov(
 
     // Step 2: Get the hourly forecast
     const forecastRes = await fetch(forecastHourlyUrl, {
-      headers: { 'User-Agent': 'ForageFlow/1.0 (forageflow@example.com)' },
+      headers: { 'User-Agent': 'ForageWise/1.0 (foragewise@example.com)' },
     });
 
     if (!forecastRes.ok) return null;

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — SuperUserGate
+ * ForageWise — SuperUserGate
  *
  * Convenience wrapper around RoleGate that restricts content to super_user role.
  *

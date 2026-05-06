@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Core TypeScript type definitions
+ * ForageWise — Core TypeScript type definitions
  *
  * These types define the shape of data stored in IndexedDB and used
  * throughout the application. They map 1-to-1 with the IndexedDB stores
@@ -155,6 +155,8 @@ export interface Species {
   // Phase 3.2 — Spore print color and fruiting triggers
   sporePrintColor?: string;
   fruitingTriggers?: FruitingTrigger;
+  // Phase 3.4 — Species summary for calendar view
+  summary?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -204,6 +206,10 @@ export interface Tree {
   sourceUrl?: string;
   regions?: TnRegion[];
   lastUpdated: string;
+  // Phase 3.4 — Tree close-ups and lookalikes
+  similarTrees?: TreeLookalike[];
+  barkCloseUpImages?: string[];
+  leafCloseUpImages?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -235,6 +241,8 @@ export interface Park {
   // Phase 3.2 — Entry fees and plants
   entryFees?: ParkEntryFee[];
   plants?: string[];
+  // Phase 3.4 — Park social profiles
+  socialProfiles?: ParkSocialProfiles;
 }
 
 // ---------------------------------------------------------------------------
@@ -1075,4 +1083,56 @@ export interface FeedbackSubmission {
   };
   createdAt: string;
   syncStatus: SyncStatus;
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3.4 Enhancements
+// ---------------------------------------------------------------------------
+
+// --- Tree Lookalike ---
+export interface TreeLookalike {
+  treeId: string;
+  commonName: string;
+  thumbnailImage?: string;
+  differentiatingFeatures: string;
+}
+
+// --- Park Social Profiles ---
+export type SocialPlatform = 'facebook' | 'instagram' | 'x' | 'youtube' | 'tiktok';
+
+export interface ParkSocialProfiles {
+  facebook?: string;
+  instagram?: string;
+  x?: string;
+  youtube?: string;
+  tiktok?: string;
+}
+
+// --- Homepage Layout ---
+export type HomepageSectionKey =
+  | 'seasonal-highlights'
+  | 'community-feed'
+  | 'challenges'
+  | 'comparison'
+  | 'routes'
+  | 'mushroom-spots'
+  | 'fruiting-forecast'
+  | 'mushroom-calendar'
+  | 'blog-preview';
+
+export interface HomepageLayoutConfig {
+  /** Ordered list of visible section keys */
+  sections: HomepageSectionKey[];
+  /** Last modified timestamp */
+  updatedAt: string;
+}
+
+// --- Community Sub-Sections ---
+export type CommunitySubSection = 'sightings' | 'challenges' | 'blog';
+
+// --- Breadcrumb Referrer ---
+export interface BreadcrumbReferrer {
+  href: string;
+  title: string;
+  category: string;
 }

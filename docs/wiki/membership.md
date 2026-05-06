@@ -1,8 +1,8 @@
-# ForageFlow Membership System
+# ForageWise Membership System
 
 ## Overview
 
-ForageFlow uses a role-based membership system with Stripe as the source of truth for paid access. The frontend displays cached membership data but cannot grant or modify membership directly.
+ForageWise uses a role-based membership system with Stripe as the source of truth for paid access. The frontend displays cached membership data but cannot grant or modify membership directly.
 
 ## Roles
 

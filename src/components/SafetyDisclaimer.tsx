@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const STORAGE_KEY = "forageflow-safety-dismissed";
+const STORAGE_KEY = "foragewise-safety-dismissed";
 
 /**
  * Global safety disclaimer banner shown on first use.
@@ -75,7 +75,7 @@ export default function SafetyDisclaimer() {
             Important Safety Notice
           </h2>
           <p className="mt-1.5 text-sm leading-relaxed text-brand-charcoal/85 dark:text-brand-sand/85">
-            ForageFlow provides identification assistance only. Species results
+            ForageWise provides identification assistance only. Species results
             are <strong>possible matches</strong>, not confirmations. Always{" "}
             <strong>verify with a qualified expert before consuming</strong> any
             wild mushroom or plant.

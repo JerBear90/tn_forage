@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — SeasonHeatmap Component
+ * ForageWise — SeasonHeatmap Component
  *
  * Multi-species grid comparing seasonality across species.
  * Renders species names on the Y-axis and months on the X-axis.

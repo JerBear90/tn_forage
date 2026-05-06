@@ -2,7 +2,7 @@
 
 ## Overview
 
-ForageFlow uses PocketBase as its backend for authentication, data storage, and file management. PocketBase has its own admin panel that is separate from the ForageFlow application.
+ForageWise uses PocketBase as its backend for authentication, data storage, and file management. PocketBase has its own admin panel that is separate from the ForageWise application.
 
 ## Admin Panel Access
 
@@ -18,7 +18,7 @@ On first run, PocketBase prompts you to create a super admin account. This accou
 
 Admin credentials are configured in two places:
 
-1. **PocketBase internal database** — The super admin email and password are stored by PocketBase itself in its `pb_data` directory. These are not part of the ForageFlow frontend codebase.
+1. **PocketBase internal database** — The super admin email and password are stored by PocketBase itself in its `pb_data` directory. These are not part of the ForageWise frontend codebase.
 
 2. **Server-side environment variables** — For the Stripe webhook handler and other server-side operations that need PocketBase admin access, the admin email and password are referenced via environment variables. See the `.env.local.example` file for the variable names:
    - `POCKETBASE_ADMIN_EMAIL`

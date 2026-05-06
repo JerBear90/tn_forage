@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Tennessee Tree Seed Data
+ * ForageWise — Tennessee Tree Seed Data
  *
  * Comprehensive seed data for native tree species found in Tennessee.
  * Data sourced from UT Extension, TN Dept of Agriculture, and USDA
@@ -35,6 +35,22 @@ export const treesSeed: Tree[] = [
     sourceUrl: 'https://extension.tennessee.edu/publications/Documents/SP511-A.pdf',
     regions: ['East TN', 'Middle TN', 'West TN'],
     lastUpdated: '2025-01-15',
+    similarTrees: [
+      {
+        treeId: 'tree-post-oak',
+        commonName: 'Post Oak',
+        thumbnailImage: '/images/trees/tree-post-oak.jpg',
+        differentiatingFeatures: 'Post Oak has a distinctive cross-shaped leaf with thick, leathery texture; White Oak leaves have more numerous, evenly spaced rounded lobes.',
+      },
+      {
+        treeId: 'tree-chestnut-oak',
+        commonName: 'Chestnut Oak',
+        thumbnailImage: '/images/trees/tree-chestnut-oak.jpg',
+        differentiatingFeatures: 'Chestnut Oak has wavy-toothed leaf margins resembling chestnut leaves; White Oak has deeply lobed leaves with rounded tips.',
+      },
+    ],
+    barkCloseUpImages: ['/images/trees/bark-white-oak.jpg'],
+    leafCloseUpImages: ['/images/trees/leaf-white-oak.jpg'],
   },
   {
     id: 'tree-northern-red-oak',
@@ -55,6 +71,22 @@ export const treesSeed: Tree[] = [
     sourceUrl: 'https://extension.tennessee.edu/publications/Documents/SP511-A.pdf',
     regions: ['East TN', 'Middle TN', 'West TN'],
     lastUpdated: '2025-01-15',
+    similarTrees: [
+      {
+        treeId: 'tree-black-oak',
+        commonName: 'Black Oak',
+        thumbnailImage: '/images/trees/tree-black-oak.jpg',
+        differentiatingFeatures: 'Black Oak has yellow-orange inner bark and variable leaf sinuses; Northern Red Oak has reddish inner bark and sinuses extending about halfway to the midrib.',
+      },
+      {
+        treeId: 'tree-scarlet-oak',
+        commonName: 'Scarlet Oak',
+        thumbnailImage: '/images/trees/tree-scarlet-oak.jpg',
+        differentiatingFeatures: 'Scarlet Oak has very deeply cut sinuses extending nearly to the midrib giving a lacy look; Northern Red Oak sinuses are shallower.',
+      },
+    ],
+    barkCloseUpImages: ['/images/trees/bark-northern-red-oak.jpg'],
+    leafCloseUpImages: ['/images/trees/leaf-northern-red-oak.jpg'],
   },
   {
     id: 'tree-chestnut-oak',
@@ -132,6 +164,22 @@ export const treesSeed: Tree[] = [
     sourceUrl: 'https://extension.tennessee.edu/publications/Documents/SP511-A.pdf',
     regions: ['East TN', 'Middle TN', 'West TN'],
     lastUpdated: '2025-01-15',
+    similarTrees: [
+      {
+        treeId: 'tree-northern-red-oak',
+        commonName: 'Northern Red Oak',
+        thumbnailImage: '/images/trees/tree-northern-red-oak.jpg',
+        differentiatingFeatures: 'Northern Red Oak has reddish inner bark and shallower leaf sinuses; Black Oak has distinctly yellow-orange inner bark.',
+      },
+      {
+        treeId: 'tree-scarlet-oak',
+        commonName: 'Scarlet Oak',
+        thumbnailImage: '/images/trees/tree-scarlet-oak.jpg',
+        differentiatingFeatures: 'Scarlet Oak has deeply cut, lacy leaves with sinuses nearly reaching the midrib; Black Oak leaves are more variable with shallower sinuses.',
+      },
+    ],
+    barkCloseUpImages: ['/images/trees/bark-black-oak.jpg'],
+    leafCloseUpImages: ['/images/trees/leaf-black-oak.jpg'],
   },
   {
     id: 'tree-scarlet-oak',
@@ -173,6 +221,22 @@ export const treesSeed: Tree[] = [
     sourceUrl: 'https://extension.tennessee.edu/publications/Documents/SP511-B.pdf',
     regions: ['East TN', 'Middle TN', 'West TN'],
     lastUpdated: '2025-01-15',
+    similarTrees: [
+      {
+        treeId: 'tree-pignut-hickory',
+        commonName: 'Pignut Hickory',
+        thumbnailImage: '/images/trees/tree-pignut-hickory.jpg',
+        differentiatingFeatures: 'Pignut Hickory has tight, diamond-patterned bark that does not peel; Shagbark Hickory has long, loose bark strips curving away from the trunk.',
+      },
+      {
+        treeId: 'tree-mockernut-hickory',
+        commonName: 'Mockernut Hickory',
+        thumbnailImage: '/images/trees/tree-mockernut-hickory.jpg',
+        differentiatingFeatures: 'Mockernut Hickory has tight bark with broad ridges and 7–9 hairy leaflets; Shagbark Hickory has shaggy bark and typically 5 leaflets.',
+      },
+    ],
+    barkCloseUpImages: ['/images/trees/bark-shagbark-hickory.jpg'],
+    leafCloseUpImages: ['/images/trees/leaf-shagbark-hickory.jpg'],
   },
   {
     id: 'tree-pignut-hickory',
@@ -251,6 +315,16 @@ export const treesSeed: Tree[] = [
     sourceUrl: 'https://extension.tennessee.edu/publications/Documents/SP511-C.pdf',
     regions: ['East TN', 'Middle TN', 'West TN'],
     lastUpdated: '2025-01-15',
+    similarTrees: [
+      {
+        treeId: 'tree-sugar-maple',
+        commonName: 'Sugar Maple',
+        thumbnailImage: '/images/trees/tree-sugar-maple.jpg',
+        differentiatingFeatures: 'Sugar Maple has smooth leaf margins without teeth and U-shaped sinuses; Red Maple has serrated leaf margins with V-shaped sinuses and red petioles.',
+      },
+    ],
+    barkCloseUpImages: ['/images/trees/bark-red-maple.jpg'],
+    leafCloseUpImages: ['/images/trees/leaf-red-maple.jpg'],
   },
   {
     id: 'tree-sugar-maple',
@@ -270,6 +344,16 @@ export const treesSeed: Tree[] = [
     sourceUrl: 'https://extension.tennessee.edu/publications/Documents/SP511-C.pdf',
     regions: ['East TN', 'Middle TN'],
     lastUpdated: '2025-01-15',
+    similarTrees: [
+      {
+        treeId: 'tree-red-maple',
+        commonName: 'Red Maple',
+        thumbnailImage: '/images/trees/tree-red-maple.jpg',
+        differentiatingFeatures: 'Red Maple has serrated leaf margins, V-shaped sinuses, and red petioles; Sugar Maple has smooth leaf margins and U-shaped sinuses.',
+      },
+    ],
+    barkCloseUpImages: ['/images/trees/bark-sugar-maple.jpg'],
+    leafCloseUpImages: ['/images/trees/leaf-sugar-maple.jpg'],
   },
   // =========================================================================
   // POPLARS / TULIP TREE (Liriodendron, Populus)
@@ -560,6 +644,16 @@ export const treesSeed: Tree[] = [
     sourceUrl: 'https://extension.tennessee.edu/publications/Documents/SP511-I.pdf',
     regions: ['East TN'],
     lastUpdated: '2025-01-15',
+    similarTrees: [
+      {
+        treeId: 'tree-river-birch',
+        commonName: 'River Birch',
+        thumbnailImage: '/images/trees/tree-river-birch.jpg',
+        differentiatingFeatures: 'River Birch has salmon-pink to reddish-brown peeling bark and grows in lowland areas; Yellow Birch has yellowish-bronze bark with wintergreen scent and grows at higher elevations.',
+      },
+    ],
+    barkCloseUpImages: ['/images/trees/bark-yellow-birch.jpg'],
+    leafCloseUpImages: ['/images/trees/leaf-yellow-birch.jpg'],
   },
   {
     id: 'tree-river-birch',
@@ -578,6 +672,16 @@ export const treesSeed: Tree[] = [
     sourceUrl: 'https://extension.tennessee.edu/publications/Documents/SP511-I.pdf',
     regions: ['East TN', 'Middle TN', 'West TN'],
     lastUpdated: '2025-01-15',
+    similarTrees: [
+      {
+        treeId: 'tree-yellow-birch',
+        commonName: 'Yellow Birch',
+        thumbnailImage: '/images/trees/tree-yellow-birch.jpg',
+        differentiatingFeatures: 'Yellow Birch has yellowish-bronze peeling bark with wintergreen scent and grows at high elevations; River Birch has salmon-pink bark and thrives in lowland floodplains.',
+      },
+    ],
+    barkCloseUpImages: ['/images/trees/bark-river-birch.jpg'],
+    leafCloseUpImages: ['/images/trees/leaf-river-birch.jpg'],
   },
   // =========================================================================
   // ASH (Fraxinus)

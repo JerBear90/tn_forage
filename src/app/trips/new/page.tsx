@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect, useMemo, useCallback } from 'react';
+import { Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import type { LocationType, Trip, Species } from '@/types';
@@ -40,8 +40,9 @@ function CreateTripPageInner() {
   const [locationMode, setLocationMode] = useState<LocationMode>('park');
 
   // --- Park-based flow state ---
-  // Pre-select park from URL query param (e.g. /trips/new?parkId=park-big-ridge)
+  // Pre-select park from URL query param (e.g. /trips/new?parkId=park-big-ridge&parkName=Big%20Ridge)
   const initialParkId = searchParams.get('parkId');
+  const initialParkName = searchParams.get('parkName');
   const [selectedParkId, setSelectedParkId] = useState<string | null>(initialParkId);
   const [selectedTrailId, setSelectedTrailId] = useState<string | null>(null);
 
@@ -62,6 +63,7 @@ function CreateTripPageInner() {
   // --- Submission state ---
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSharePrompt, setShowSharePrompt] = useState(false);
 
   // --- Validation ---
   const [touched, setTouched] = useState(false);
@@ -70,8 +72,21 @@ function CreateTripPageInner() {
   // Auto-start if a parkId was passed from the map page
   const [planningStarted, setPlanningStarted] = useState(!!initialParkId);
 
+  // --- Park picker collapsed when pre-selected ---
+  const [parkPickerCollapsed, setParkPickerCollapsed] = useState(!!initialParkId);
+
+  // Ref for auto-scrolling to form when park is pre-selected
+  const formRef = useRef<HTMLFormElement>(null);
+
   // Current month for LikelySpeciesPanel
   const currentMonth = useMemo(() => new Date().getMonth(), []);
+
+  // Auto-scroll to form when park is pre-selected via URL params
+  useEffect(() => {
+    if (initialParkId && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [initialParkId]);
 
   // Load species names for displaying added target species
   useEffect(() => {
@@ -176,7 +191,8 @@ function CreateTripPageInner() {
       };
 
       await putRecord('trips', trip);
-      router.push('/trips');
+      setShowSharePrompt(true);
+      setSaving(false);
     } catch {
       setError('Failed to save trip. Please try again.');
       setSaving(false);
@@ -234,6 +250,15 @@ function CreateTripPageInner() {
       ) : (
       <>
 
+      {/* Pre-selected park indicator from map */}
+      {initialParkName && initialParkId && (
+        <div className="mb-4 rounded-lg bg-brand-teal/10 border border-brand-teal/20 px-4 py-3">
+          <p className="text-xs text-brand-teal font-medium">
+            📍 Planning a visit to <span className="font-semibold">{initialParkName}</span>
+          </p>
+        </div>
+      )}
+
       {error && (
         <div
           role="alert"
@@ -243,7 +268,7 @@ function CreateTripPageInner() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <form onSubmit={handleSubmit} ref={formRef} className="space-y-6" noValidate>
         {/* ── Step 1: Location Mode Selector ── */}
         <fieldset>
           <legend className="font-heading font-semibold text-sm text-brand-charcoal dark:text-brand-sand mb-3">
@@ -288,11 +313,31 @@ function CreateTripPageInner() {
         {/* ── Park-based flow ── */}
         {locationMode === 'park' && (
           <>
-            {/* Park Picker */}
-            <ParkPicker
-              selectedParkId={selectedParkId}
-              onSelectPark={handleSelectPark}
-            />
+            {/* Park Picker — collapsed when pre-selected */}
+            {parkPickerCollapsed && initialParkName ? (
+              <div className="rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
+                    🏞️ {initialParkName}
+                  </p>
+                  <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">Selected park</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setParkPickerCollapsed(false)}
+                  aria-label="Change park selection"
+                  className="rounded-lg border border-brand-teal/30 px-3 py-2 text-xs font-medium text-brand-teal hover:bg-brand-teal/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+                  style={{ minHeight: '44px' }}
+                >
+                  Change
+                </button>
+              </div>
+            ) : (
+              <ParkPicker
+                selectedParkId={selectedParkId}
+                onSelectPark={handleSelectPark}
+              />
+            )}
 
             {touched && !isLocationValid && (
               <p className="text-xs text-red-600 dark:text-red-400" role="alert">
@@ -484,14 +529,55 @@ function CreateTripPageInner() {
         </div>
 
         {/* ── Submit ── */}
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {saving ? 'Saving…' : 'Save Trip'}
-        </button>
+        <div className="pb-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {saving ? 'Saving…' : 'Start Planning'}
+          </button>
+        </div>
       </form>
+
+      {/* Share prompt after successful save */}
+      {showSharePrompt && (
+        <div
+          role="dialog"
+          aria-label="Share trip prompt"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+        >
+          <div className="w-full max-w-sm rounded-xl bg-white dark:bg-dark-surface border border-brand-teal/20 shadow-xl p-6 text-center">
+            <div className="text-3xl mb-3" aria-hidden="true">🌿</div>
+            <h2 className="font-heading font-bold text-lg text-brand-forest dark:text-brand-moss mb-2">
+              Trip saved!
+            </h2>
+            <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mb-6">
+              Would you like to share this trip with the community?
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => router.push('/trips')}
+                aria-label="No, go to trips list"
+                className="flex-1 rounded-lg border border-brand-teal/30 bg-white dark:bg-dark-surface px-4 py-3 text-sm font-semibold text-brand-teal hover:bg-brand-teal/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+                style={{ minHeight: '44px' }}
+              >
+                No thanks
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/community')}
+                aria-label="Yes, share this trip"
+                className="flex-1 rounded-lg bg-brand-teal px-4 py-3 text-sm font-semibold text-white hover:bg-brand-teal/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+                style={{ minHeight: '44px' }}
+              >
+                Yes, share it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Offline note */}
       <p className="text-xs text-center text-brand-charcoal/50 dark:text-brand-sand/50 mt-6">

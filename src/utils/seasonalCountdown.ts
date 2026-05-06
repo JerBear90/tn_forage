@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Seasonal Countdown Calculator
+ * ForageWise — Seasonal Countdown Calculator
  *
  * Calculates days until the next season start for a species.
  * Handles the "currently in season" case.

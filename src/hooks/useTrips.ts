@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — useTrips Hook
+ * ForageWise — useTrips Hook
  *
  * Loads all trips from IndexedDB and resolves location names from
  * parks, trails, and routes stores. Provides delete functionality.

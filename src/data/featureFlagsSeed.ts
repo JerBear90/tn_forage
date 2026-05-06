@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Feature Flags Seed Data
+ * ForageWise — Feature Flags Seed Data
  *
  * Default feature flag configuration for Phase 3.2.
  * All features are set to 'free' access tier — no membership gating

@@ -1,6 +1,6 @@
-# ForageFlow
+# ForageWise
 
-ForageFlow is an offline-first, mobile-ready Progressive Web App for mushroom, plant, tree, park, trail, and expedition discovery in Tennessee. It is a safe identification-support tool — not a consumption decision tool.
+ForageWise is an offline-first, mobile-ready Progressive Web App for mushroom, plant, tree, park, trail, and expedition discovery in Tennessee. It is a safe identification-support tool — not a consumption decision tool.
 
 ## Core Priorities
 
@@ -138,7 +138,7 @@ Mushroom and plant identification is for educational purposes only. Do not consu
 ## Architecture Overview
 
 ```
-forageflow/
+foragewise/
 ├── .github/workflows/     # CI pipeline (lint, typecheck, test, build, E2E)
 ├── .kiro/specs/           # Spec files (requirements, design, tasks)
 ├── docs/                  # Documentation (wiki, security, brand, stripe)
@@ -168,7 +168,7 @@ forageflow/
 │   ├── components/        # Shared UI components
 │   ├── data/              # Seed data (species, parks, trails, routes)
 │   ├── hooks/             # React hooks (useAuth, useSpecies, useTrips, etc.)
-│   ├── map/               # Map components (ForageFlowMap, panels, list view)
+│   ├── map/               # Map components (ForageWiseMap, panels, list view)
 │   ├── offline/           # IndexedDB wrapper (db.ts) + sync queue
 │   ├── services/          # Business logic (scoring, privacy, membership, verification)
 │   ├── styles/            # Global CSS
@@ -222,7 +222,7 @@ forageflow/
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd forageflow
+cd foragewise
 
 # Install dependencies
 npm install
@@ -236,7 +236,7 @@ cp .env.example .env.local
 Edit `.env.local` with your values:
 
 ```env
-NEXT_PUBLIC_APP_NAME=ForageFlow
+NEXT_PUBLIC_APP_NAME=ForageWise
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
@@ -314,9 +314,9 @@ npm run typecheck
 
 | Document | Location |
 |----------|----------|
-| Requirements | `.kiro/specs/forageflow/requirements.md` |
-| Design | `.kiro/specs/forageflow/design.md` |
-| Tasks | `.kiro/specs/forageflow/tasks.md` |
+| Requirements | `.kiro/specs/foragewise/requirements.md` |
+| Design | `.kiro/specs/foragewise/design.md` |
+| Tasks | `.kiro/specs/foragewise/tasks.md` |
 | Architecture Wiki | `docs/wiki/architecture.md` |
 | Offline System | `docs/wiki/offline-system.md` |
 | Map System | `docs/wiki/map-system.md` |
@@ -336,7 +336,7 @@ npm run typecheck
 ## Kiro Spec Location
 
 ```
-.kiro/specs/forageflow/
+.kiro/specs/foragewise/
   requirements.md
   design.md
   tasks.md

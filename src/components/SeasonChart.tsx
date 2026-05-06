@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — SeasonChart Component
+ * ForageWise — SeasonChart Component
  *
  * Displays a 12-month grid for a single species showing which months
  * it is in season. Uses semantic table roles for screen reader support.
@@ -22,6 +22,21 @@ export interface SeasonChartProps {
 export default function SeasonChart({ seasons, compact = false }: SeasonChartProps) {
   const inSeasonMonths = getMonthsForSeasons(seasons);
   const hasSeasonData = seasons.length > 0;
+  const isAllYear = inSeasonMonths.size === 12;
+
+  // When all 12 months are in-season, display a simple text label
+  if (isAllYear) {
+    return (
+      <div className={compact ? '' : 'space-y-1'}>
+        <p
+          role="status"
+          className={`text-brand-moss font-medium ${compact ? 'text-[10px]' : 'text-sm'}`}
+        >
+          Found all year round
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className={compact ? '' : 'space-y-1'}>
@@ -58,6 +73,16 @@ export default function SeasonChart({ seasons, compact = false }: SeasonChartPro
           })}
         </div>
       </div>
+
+      {/* Available months text summary */}
+      {hasSeasonData && (
+        <p
+          className={`text-brand-moss font-medium ${compact ? 'text-[10px] mt-0.5' : 'text-xs mt-2'}`}
+          role="status"
+        >
+          Available: {MONTH_LABELS.filter((_, i) => inSeasonMonths.has(i as MonthIndex)).join(', ')}
+        </p>
+      )}
 
       {!hasSeasonData && (
         <p

@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Review Service
+ * ForageWise — Review Service
  *
  * Handles review validation, submission (with upsert semantics),
  * retrieval with pagination, and aggregation computation.

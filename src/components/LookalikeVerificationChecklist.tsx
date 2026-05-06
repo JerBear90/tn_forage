@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — Lookalike Verification Checklist
+ * ForageWise — Lookalike Verification Checklist
  *
  * A safety gate that forces users to acknowledge they've reviewed toxic
  * lookalikes before proceeding to the species detail page for species

@@ -17,7 +17,7 @@ function generateSessionId(): string {
  * Generates a shareable link for a session.
  */
 function generateShareLink(sessionId: string): string {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://forageflow.app';
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://foragewise.app';
   return `${baseUrl}/share/${sessionId}`;
 }
 

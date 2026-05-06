@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Stripe Checkout Session API Route
+ * ForageWise — Stripe Checkout Session API Route
  *
  * Server-side only. Creates a Stripe Checkout session for monthly or yearly plans.
  * The STRIPE_SECRET_KEY is never exposed to the frontend.

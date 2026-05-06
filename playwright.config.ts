@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * ForageFlow — Playwright Configuration
+ * ForageWise — Playwright Configuration
  *
  * E2E test configuration for critical user flows, offline behavior,
  * accessibility, and mobile viewport testing.

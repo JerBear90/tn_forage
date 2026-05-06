@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — useAssociatedSpeciesLookup Hook
+ * ForageWise — useAssociatedSpeciesLookup Hook
  *
  * Resolves an array of associated species names to their IndexedDB record IDs.
  * Searches across species, plants, and trees stores by commonName (case-insensitive).

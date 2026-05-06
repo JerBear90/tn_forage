@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Stripe Webhook Handler
+ * ForageWise — Stripe Webhook Handler
  *
  * Server-side only. Verifies webhook signatures and processes Stripe events
  * to update user membership in PocketBase.

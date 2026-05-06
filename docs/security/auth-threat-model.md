@@ -1,4 +1,4 @@
-# ForageFlow Auth Threat Model
+# ForageWise Auth Threat Model
 
 ## Assets Under Protection
 

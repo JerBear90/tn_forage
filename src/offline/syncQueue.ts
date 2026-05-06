@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Sync Queue Module
+ * ForageWise — Sync Queue Module
  *
  * High-level operations for the offline sync queue. Items are queued
  * locally in IndexedDB and processed when the device comes back online.

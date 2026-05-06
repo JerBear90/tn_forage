@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — useGlobalSearch Hook
+ * ForageWise — useGlobalSearch Hook
  *
  * Provides debounced global search across IndexedDB stores (species, plants,
  * trees, parks, trails) and recent search management via localStorage.
@@ -9,13 +9,14 @@
  * Debounces input by 300ms before executing the search.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { searchIndexedDB, type SearchResultGroup } from '@/offline/search';
 import {
   getRecentSearches,
   saveRecentSearch,
   clearRecentSearches,
 } from '@/offline/recentSearches';
+import { recordSearchQuery } from '@/services/admin/eventCapture';
 
 export interface UseGlobalSearchResult {
   query: string;
@@ -35,6 +36,7 @@ export function useGlobalSearch(): UseGlobalSearchResult {
   const [results, setResults] = useState<SearchResultGroup[]>([]);
   const [loading, setLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const lastSearchRef = useRef<{ term: string; resultsCount: number } | null>(null);
 
   // Load recent searches on mount
   useEffect(() => {
@@ -55,6 +57,11 @@ export function useGlobalSearch(): UseGlobalSearchResult {
       try {
         const searchResults = await searchIndexedDB({ query: query.trim() });
         setResults(searchResults);
+
+        // Record search query analytics (without click — click tracked in saveSearch)
+        const totalResults = searchResults.reduce((sum, group) => sum + group.items.length, 0);
+        lastSearchRef.current = { term: query.trim(), resultsCount: totalResults };
+        recordSearchQuery(query.trim(), totalResults, false);
       } catch {
         setResults([]);
       } finally {
@@ -70,6 +77,11 @@ export function useGlobalSearch(): UseGlobalSearchResult {
   const saveSearch = useCallback((q: string) => {
     saveRecentSearch(q);
     setRecentSearches(getRecentSearches());
+
+    // Record that the user clicked a result for this search
+    if (lastSearchRef.current && lastSearchRef.current.term === q.trim()) {
+      recordSearchQuery(q.trim(), lastSearchRef.current.resultsCount, true);
+    }
   }, []);
 
   const clearRecent = useCallback(() => {

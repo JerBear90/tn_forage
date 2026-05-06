@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ForageFlow — TrailPicker Component
+ * ForageWise — TrailPicker Component
  *
  * List of trails for the selected park during trip creation.
  * Displays each trail with name, distance (in miles), and difficulty

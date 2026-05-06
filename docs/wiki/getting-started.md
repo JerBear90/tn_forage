@@ -1,4 +1,4 @@
-# ForageFlow Developer Setup Guide
+# ForageWise Developer Setup Guide
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@
 ```bash
 # 1. Clone the repository
 git clone <repo-url>
-cd forageflow
+cd foragewise
 
 # 2. Install dependencies
 npm install
@@ -47,7 +47,7 @@ npm run dev
 
 ```env
 # Public variables (exposed to browser)
-NEXT_PUBLIC_APP_NAME=ForageFlow
+NEXT_PUBLIC_APP_NAME=ForageWise
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
@@ -260,7 +260,7 @@ Before submitting changes, verify:
 - Service Worker is disabled in development mode
 
 ### IndexedDB Issues
-- Clear IndexedDB in browser DevTools: Application → IndexedDB → forageflow → Delete
+- Clear IndexedDB in browser DevTools: Application → IndexedDB → foragewise → Delete
 - The database will be recreated and re-seeded on next page load
 
 ### Stripe Webhook Not Received

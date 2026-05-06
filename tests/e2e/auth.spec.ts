@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Authentication
+ * ForageWise — E2E Tests: Authentication
  *
  * Tests login and signup page rendering, form fields, SSO buttons,
  * and client-side form validation.
@@ -18,7 +18,7 @@ test.describe('Login Page — Rendering', () => {
 
   test('should display the login page heading', async ({ page }) => {
     await expect(
-      page.getByRole('heading', { name: /forageflow/i })
+      page.getByRole('heading', { name: /foragewise/i })
     ).toBeVisible();
   });
 
@@ -113,7 +113,7 @@ test.describe('Signup Page — Rendering', () => {
 
   test('should display the signup page heading', async ({ page }) => {
     await expect(
-      page.getByRole('heading', { name: /join forageflow/i })
+      page.getByRole('heading', { name: /join foragewise/i })
     ).toBeVisible();
   });
 

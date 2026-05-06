@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Photo Service
+ * ForageWise — Photo Service
  *
  * Handles photo validation, EXIF stripping, upload (with offline queueing),
  * and retrieval for social photo sharing.

@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Safety Language Utilities
+ * ForageWise — Safety Language Utilities
  *
  * Banned phrase detection for safety-first language compliance.
  * No feature may display "safe to eat", "confirmed edible",

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — useSafetyDismissed Hook
+ * ForageWise — useSafetyDismissed Hook
  *
  * Shared hook for dismissible safety disclaimers across the app.
  * Checks both the global safety disclaimer key and an optional
@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-const GLOBAL_KEY = 'forageflow-safety-dismissed';
+const GLOBAL_KEY = 'foragewise-safety-dismissed';
 
 export function useSafetyDismissed(pageKey?: string) {
   const [dismissed, setDismissed] = useState<boolean | null>(null);

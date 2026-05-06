@@ -1,5 +1,5 @@
 /**
- * ForageFlow — E2E Tests: Species Detail Page
+ * ForageWise — E2E Tests: Species Detail Page
  *
  * Tests dynamic routing with valid and invalid species IDs,
  * edibility tab rendering, and associated species links on tree detail pages.

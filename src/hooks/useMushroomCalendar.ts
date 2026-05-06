@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — Mushroom Calendar Hook
+ * ForageWise — Mushroom Calendar Hook
  *
  * Loads all mushroom species from IndexedDB, groups them by month
  * using the canonical season-to-month mapping, and attaches monthly
@@ -29,6 +29,7 @@ export interface MonthData {
     id: string;
     commonName: string;
     image: string; // first image from species.images
+    summary: string; // one-sentence summary (max 120 chars)
   }>;
   foragingTip: string;
 }
@@ -93,6 +94,7 @@ export function useMushroomCalendar(): UseMushroomCalendarResult {
               id: species.id,
               commonName: species.commonName,
               image: species.images.length > 0 ? species.images[0] : '',
+              summary: species.summary ?? '',
             });
           }
         }

@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Challenges Seed Data
+ * ForageWise — Challenges Seed Data
  *
  * Initial challenge data covering three categories:
  *   - foraging: Tennessee-specific foraging challenges

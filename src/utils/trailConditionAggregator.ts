@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Trail Condition Aggregator
+ * ForageWise — Trail Condition Aggregator
  *
  * Aggregates trail condition reports from a 7-day rolling window.
  * Determines the displayed category from the most frequently reported.

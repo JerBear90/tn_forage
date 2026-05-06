@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ForageFlow — DismissibleDisclaimer Component
+ * ForageWise — DismissibleDisclaimer Component
  *
  * A safety disclaimer banner that can be dismissed by the user.
  * Once the global safety disclaimer has been acknowledged (via the

@@ -1,14 +1,14 @@
-# ForageFlow — Google Play Store Listing
+# ForageWise — Google Play Store Listing
 
 ## App Details
 
-**Package Name:** `com.forageflow.app`
+**Package Name:** `com.foragewise.app`
 **Category:** Health & Fitness (or Lifestyle > Outdoors)
 **Content Rating:** Everyone (IARC: 3+)
 **Target Age:** All ages
-**Contact Email:** support@forageflow.app
-**Privacy Policy URL:** https://forageflow.app/privacy
-**Terms of Service URL:** https://forageflow.app/terms
+**Contact Email:** support@foragewise.app
+**Privacy Policy URL:** https://foragewise.app/privacy
+**Terms of Service URL:** https://foragewise.app/terms
 
 ---
 
@@ -16,7 +16,7 @@
 
 ### App Name (30 chars max)
 ```
-ForageFlow
+ForageWise
 ```
 
 ### Short Description (80 chars max)
@@ -26,7 +26,7 @@ Offline field guide for mushroom, plant & trail discovery in Tennessee.
 
 ### Full Description (4000 chars max)
 ```
-ForageFlow is your offline-first field companion for mushroom, plant, tree, park, and trail discovery in Tennessee. Built for foragers who need reliable information in areas with no cell service.
+ForageWise is your offline-first field companion for mushroom, plant, tree, park, and trail discovery in Tennessee. Built for foragers who need reliable information in areas with no cell service.
 
 🍄 FIELD GUIDE
 Browse 30+ mushroom species and 16+ plants with detailed identification steps, images, habitat info, seasonal data, and safety notes. Every species includes toxic lookalike warnings so you know what to watch out for.
@@ -62,7 +62,7 @@ Complete foraging challenges and earn badges. Track your progress across seasona
 Connect with nearby foragers of similar interests and experience levels for group outings.
 
 ⚠️ SAFETY FIRST
-ForageFlow never tells you something is "safe to eat." All identifications are possible matches that require verification by a qualified expert. Toxic lookalikes are always shown prominently.
+ForageWise never tells you something is "safe to eat." All identifications are possible matches that require verification by a qualified expert. Toxic lookalikes are always shown prominently.
 
 📶 WORKS OFFLINE
 The entire Field Guide, your journal, saved routes, and downloaded map areas work without internet. Perfect for remote trails with no signal.
@@ -70,7 +70,7 @@ The entire Field Guide, your journal, saved routes, and downloaded map areas wor
 🌿 TENNESSEE FOCUSED
 All park, trail, and species data is sourced from Tennessee government websites and university extension resources. Real data, not AI-generated content.
 
-Download ForageFlow and explore Tennessee's forests with confidence.
+Download ForageWise and explore Tennessee's forests with confidence.
 ```
 
 ### What's New (Release Notes — 500 chars max)
@@ -123,7 +123,7 @@ foraging, mushroom identification, field guide, Tennessee parks, hiking trails, 
 
 ## Feature Graphic
 - Size: 1024×500 px
-- Content: ForageFlow logo + tagline "Discover. Identify. Explore safely." on brand sand background with subtle mushroom/forest imagery
+- Content: ForageWise logo + tagline "Discover. Identify. Explore safely." on brand sand background with subtle mushroom/forest imagery
 - Format: PNG or JPEG
 
 ---
@@ -141,21 +141,21 @@ For wrapping the PWA as an Android app:
 
 ```json
 {
-  "host": "forageflow.app",
-  "name": "ForageFlow",
-  "launcherName": "ForageFlow",
+  "host": "foragewise.app",
+  "name": "ForageWise",
+  "launcherName": "ForageWise",
   "display": "standalone",
   "themeColor": "#0F766E",
   "navigationColor": "#0F766E",
   "backgroundColor": "#F5F0DF",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://forageflow.app/icons/icon-512x512.png",
-  "maskableIconUrl": "https://forageflow.app/icons/icon-maskable-512x512.png",
+  "iconUrl": "https://foragewise.app/icons/icon-512x512.png",
+  "maskableIconUrl": "https://foragewise.app/icons/icon-maskable-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "./forageflow-keystore.jks",
-    "alias": "forageflow"
+    "path": "./foragewise-keystore.jks",
+    "alias": "foragewise"
   },
   "appVersionCode": 1,
   "appVersionName": "3.2.0",
@@ -166,7 +166,7 @@ For wrapping the PWA as an Android app:
 
 ### Digital Asset Links (`/.well-known/assetlinks.json`)
 
-This file must be served at `https://forageflow.app/.well-known/assetlinks.json`:
+This file must be served at `https://foragewise.app/.well-known/assetlinks.json`:
 
 ```json
 [
@@ -174,7 +174,7 @@ This file must be served at `https://forageflow.app/.well-known/assetlinks.json`
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.forageflow.app",
+      "package_name": "com.foragewise.app",
       "sha256_cert_fingerprints": ["YOUR_SHA256_FINGERPRINT_HERE"]
     }
   }
@@ -183,7 +183,7 @@ This file must be served at `https://forageflow.app/.well-known/assetlinks.json`
 
 **To generate the fingerprint:**
 ```bash
-keytool -list -v -keystore forageflow-keystore.jks -alias forageflow
+keytool -list -v -keystore foragewise-keystore.jks -alias foragewise
 ```
 
 ---
@@ -198,7 +198,7 @@ keytool -list -v -keystore forageflow-keystore.jks -alias forageflow
 
 ```bash
 npm install -g @nicolo-ribaudo/bubblewrap
-bubblewrap init --manifest https://forageflow.app/manifest.json
+bubblewrap init --manifest https://foragewise.app/manifest.json
 bubblewrap build
 ```
 

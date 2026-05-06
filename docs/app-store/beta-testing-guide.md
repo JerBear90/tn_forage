@@ -1,4 +1,4 @@
-# ForageFlow — Beta Testing Guide
+# ForageWise — Beta Testing Guide
 
 ## Quickest Path to Beta Testers
 
@@ -76,7 +76,7 @@
 ### Invitation Message Template
 
 ```
-Hey! I'm building ForageFlow — an offline-first foraging app for Tennessee. 
+Hey! I'm building ForageWise — an offline-first foraging app for Tennessee. 
 I'd love your help testing it before public launch.
 
 What it does:

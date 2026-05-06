@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Achievement Tracker
+ * ForageWise — Achievement Tracker
  *
  * Evaluates user activity against predefined achievement criteria
  * and records earned achievements in IndexedDB. Achievements are

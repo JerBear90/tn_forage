@@ -1,5 +1,5 @@
 /**
- * ForageFlow — Tennessee Routes Seed Data
+ * ForageWise — Tennessee Routes Seed Data
  *
  * Local seed data for multi-trail routes within Tennessee State Parks.
  * Routes are longer, multi-segment paths that may span multiple trails.

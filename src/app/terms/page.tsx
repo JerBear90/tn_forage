@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Terms of Service — ForageFlow" };
+export const metadata: Metadata = { title: "Terms of Service — ForageWise" };
 
 /**
  * Terms of Service page.
@@ -15,12 +15,12 @@ export default function TermsPage() {
       <div className="prose prose-sm text-gray-700 space-y-4">
         <section>
           <h2 className="text-sm font-semibold text-gray-800">1. Acceptance of Terms</h2>
-          <p className="text-xs">By using ForageFlow, you agree to these Terms of Service. If you do not agree, do not use the application.</p>
+          <p className="text-xs">By using ForageWise, you agree to these Terms of Service. If you do not agree, do not use the application.</p>
         </section>
 
         <section>
           <h2 className="text-sm font-semibold text-gray-800">2. Nature of Content</h2>
-          <p className="text-xs">ForageFlow provides educational information about wild species identification. All identifications are possible matches only and require expert verification. ForageFlow does not guarantee the accuracy of any identification.</p>
+          <p className="text-xs">ForageWise provides educational information about wild species identification. All identifications are possible matches only and require expert verification. ForageWise does not guarantee the accuracy of any identification.</p>
         </section>
 
         <section>
@@ -30,17 +30,17 @@ export default function TermsPage() {
 
         <section>
           <h2 className="text-sm font-semibold text-gray-800">4. Limitation of Liability</h2>
-          <p className="text-xs">ForageFlow and its creators are not liable for any injury, illness, death, or property damage resulting from the use of this application or reliance on its content.</p>
+          <p className="text-xs">ForageWise and its creators are not liable for any injury, illness, death, or property damage resulting from the use of this application or reliance on its content.</p>
         </section>
 
         <section>
           <h2 className="text-sm font-semibold text-gray-800">5. User Conduct</h2>
-          <p className="text-xs">You agree to use ForageFlow responsibly, follow all local regulations regarding foraging and park use, and not submit false or misleading content.</p>
+          <p className="text-xs">You agree to use ForageWise responsibly, follow all local regulations regarding foraging and park use, and not submit false or misleading content.</p>
         </section>
 
         <section>
           <h2 className="text-sm font-semibold text-gray-800">6. Data and Privacy</h2>
-          <p className="text-xs">Your use of ForageFlow is also governed by our Privacy Policy. By using the app, you consent to the data practices described therein.</p>
+          <p className="text-xs">Your use of ForageWise is also governed by our Privacy Policy. By using the app, you consent to the data practices described therein.</p>
         </section>
 
         <section>

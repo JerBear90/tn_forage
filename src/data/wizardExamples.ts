@@ -1,5 +1,5 @@
 /**
- * ForageFlow — ID Wizard Visual Examples
+ * ForageWise — ID Wizard Visual Examples
  *
  * Provides descriptive text and example image paths for each wizard step
  * to help users understand what each identification feature looks like.
@@ -60,16 +60,50 @@ export const GROWTH_EXAMPLES: Record<string, WizardExample> = {
   },
 };
 
+/** Descriptions for nearby trees */
+export const NEARBY_TREE_EXAMPLES: Record<string, WizardExample> = {
+  Oak: {
+    description: 'Lobed leaves, acorns on the ground — many mushrooms associate with oaks',
+    image: '/images/trees/tree-white-oak.jpg',
+  },
+  Hickory: {
+    description: 'Compound leaves with 5–7 leaflets, shaggy or tight bark, nuts on the ground',
+    image: '/images/trees/tree-shagbark-hickory.jpg',
+  },
+  Elm: {
+    description: 'Asymmetrical toothed leaves, vase-shaped canopy, rough bark',
+    image: '/images/trees/tree-american-elm.jpg',
+  },
+  Maple: {
+    description: 'Opposite branching, palmate leaves with pointed lobes, winged seeds',
+    image: '/images/trees/tree-sugar-maple.jpg',
+  },
+  Pine: {
+    description: 'Needles in bundles, cones on the ground, evergreen',
+    image: '/images/trees/tree-eastern-white-pine.jpg',
+  },
+  Poplar: {
+    description: 'Tall straight trunk, large tulip-shaped leaves, fast-growing',
+    image: '/images/trees/tree-tulip-poplar.jpg',
+  },
+  Unknown: {
+    description: "Not sure what tree is nearby? That's okay — skip this one",
+  },
+};
+
 /** Descriptions for cap shapes */
 export const CAP_SHAPE_EXAMPLES: Record<string, WizardExample> = {
   Convex: {
     description: 'Rounded dome shape, like an upside-down bowl',
+    image: '/images/species/sp-fly-agaric.jpg',
   },
   Flat: {
     description: 'Level or nearly flat across the top',
+    image: '/images/species/sp-turkey-tail.jpg',
   },
   Funnel: {
     description: 'Depressed in the center, like a shallow funnel or vase',
+    image: '/images/species/sp-chanterelle.jpg',
   },
   Conical: {
     description: 'Pointed or cone-shaped, taller than wide',
@@ -77,6 +111,7 @@ export const CAP_SHAPE_EXAMPLES: Record<string, WizardExample> = {
   },
   Bell: {
     description: 'Bell-shaped, wider at the bottom edge',
+    image: '/images/species/sp-honey-mushroom.jpg',
   },
   Irregular: {
     description: 'No regular shape — wavy, lobed, or brain-like',
@@ -91,9 +126,11 @@ export const CAP_SHAPE_EXAMPLES: Record<string, WizardExample> = {
 export const STEM_EXAMPLES: Record<string, WizardExample> = {
   Thick: {
     description: 'Stem is thick and sturdy, wider than a pencil',
+    image: '/images/species/sp-king-bolete.jpg',
   },
   Thin: {
     description: 'Stem is thin and delicate, pencil-width or less',
+    image: '/images/species/sp-honey-mushroom.jpg',
   },
   'Ring present': {
     description: 'A skirt-like ring (annulus) around the stem — common in Amanitas',
@@ -105,9 +142,11 @@ export const STEM_EXAMPLES: Record<string, WizardExample> = {
   },
   Hollow: {
     description: 'Stem is hollow when cut lengthwise',
+    image: '/images/species/sp-morel.jpg',
   },
   Solid: {
     description: 'Stem is solid/filled when cut lengthwise',
+    image: '/images/species/sp-king-bolete.jpg',
   },
   Unknown: {
     description: "Can't check the stem? That's fine",
