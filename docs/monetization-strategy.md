@@ -8,11 +8,18 @@ ForageWise is an offline-first foraging companion app for Tennessee. The monetiz
 
 ### 1. Membership Subscriptions (Primary)
 
-| Tier | Price | Features |
-|------|-------|----------|
-| **Free** | $0 | Full field guide, 1 offline map region, 3 AI IDs/day, view community, basic trip planning |
-| **Pro** | $4.99/mo or $39.99/yr | Unlimited AI IDs, all 3 map regions, post to community, export data, advanced forecasts, priority support |
-| **Lifetime** | $79.99 one-time | Everything in Pro, forever. Early adopter pricing. |
+| Tier | Price | Early Beta Price | Features |
+|------|-------|-----------------|----------|
+| **Free** | $0 | $0 | Full field guide, 1 offline map region, 3 AI IDs/day, view community, basic trip planning |
+| **Pro** | $4.99/mo or $39.99/yr | **$2.99/mo or $24.99/yr** | Unlimited AI IDs, all 3 map regions, post to community, export data, advanced forecasts, priority support |
+| **Lifetime** | $79.99 one-time | **$49.99 one-time** | Everything in Pro, forever. Early adopter pricing. |
+
+**Early Beta Tester Discount:**
+- Users who sign up during the beta period receive a permanent discount
+- Beta pricing is locked in for the life of their subscription
+- Coupon code system will be integrated via Stripe (e.g., `BETA2026`, `EARLYBIRD`)
+- Codes can be generated and managed in Admin Dashboard → Settings
+- Limited to first 200 subscribers
 
 **Why this works:**
 - Free tier is genuinely useful (offline field guide alone is valuable)
@@ -117,6 +124,8 @@ import MonetizationGate from '@/components/MonetizationGate';
 ### To Build for Launch:
 - [ ] Usage tracking (AI IDs per day counter)
 - [ ] 7-day free trial flow
+- [ ] Coupon code system (Stripe Promotion Codes)
+- [ ] Beta discount codes: `BETA2026`, `EARLYBIRD`, `FOUNDER`
 - [ ] Upgrade prompts at natural friction points
 - [ ] Receipt emails via SendGrid/Resend
 - [ ] Cancellation flow with retention offer
@@ -180,9 +189,24 @@ import MonetizationGate from '@/components/MonetizationGate';
 ## Launch Strategy
 
 1. **Soft launch** (now): Free app, no paywall, gather feedback
-2. **Beta monetization** (after 500 users): Enable Pro tier, 7-day trial
-3. **Full launch** (after 1,000 users): App Store listing, marketing push
+2. **Beta monetization** (after 500 users): Enable Pro tier with beta discount codes (`BETA2026` = 40% off forever)
+3. **Full launch** (after 1,000 users): App Store listing, remove beta pricing, standard rates
 4. **Expansion** (after 5,000 users): Additional states, partnerships
+
+### Beta Coupon Codes (To Be Integrated via Stripe)
+
+| Code | Discount | Duration | Limit |
+|------|----------|----------|-------|
+| `BETA2026` | 40% off | Forever (while subscribed) | First 200 users |
+| `EARLYBIRD` | 30% off | First 6 months | First 500 users |
+| `FOUNDER` | 50% off Lifetime | One-time | First 50 users |
+
+**Implementation notes:**
+- Codes will be created as Stripe Promotion Codes via the Stripe Dashboard
+- The membership page will include a "Have a code?" input field
+- Codes are validated server-side through Stripe's API
+- Admin can create/revoke codes from Stripe Dashboard or future admin panel integration
+- Each code tracks redemption count automatically
 
 ---
 
