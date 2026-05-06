@@ -309,7 +309,8 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   const [showHeart, setShowHeart] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [comment, setComment] = useState('');
-  const [comments, setComments] = useState<string[]>([]);
+  const [comments, setComments] = useState<ThreadedComment[]>([]);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const lastTapRef = useRef<number>(0);
   const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -334,10 +335,28 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   // Load comments from localStorage
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(`fw_comments_${item.id}`);
-      if (stored) setComments(JSON.parse(stored));
+      const stored = localStorage.getItem(`fw_comments_v2_${item.id}`);
+      if (stored) {
+        setComments(JSON.parse(stored));
+      } else {
+        // Migrate old string[] comments
+        const oldStored = localStorage.getItem(`fw_comments_${item.id}`);
+        if (oldStored) {
+          const oldComments: string[] = JSON.parse(oldStored);
+          const migrated: ThreadedComment[] = oldComments.map((text, i) => ({
+            id: `migrated-${i}`,
+            text,
+            author: 'You',
+            timestamp: item.createdAt,
+            votes: 0,
+            replies: [],
+          }));
+          setComments(migrated);
+          localStorage.setItem(`fw_comments_v2_${item.id}`, JSON.stringify(migrated));
+        }
+      }
     } catch { /* ignore */ }
-  }, [item.id]);
+  }, [item.id, item.createdAt]);
 
   // Double-tap to like, single tap to expand
   const handleDoubleTap = useCallback(() => {
@@ -361,14 +380,36 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
     lastTapRef.current = now;
   }, [isLiked, onLike]);
 
-  // Add comment
+  // Add comment (top-level or reply)
   const handleAddComment = useCallback(() => {
     if (!comment.trim()) return;
-    const updated = [...comments, comment.trim()];
+    const newComment: ThreadedComment = {
+      id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      text: comment.trim(),
+      author: 'You',
+      timestamp: new Date().toISOString(),
+      votes: 0,
+      replies: [],
+    };
+
+    let updated: ThreadedComment[];
+    if (replyingTo) {
+      updated = addReplyToThread(comments, replyingTo, newComment);
+      setReplyingTo(null);
+    } else {
+      updated = [...comments, newComment];
+    }
     setComments(updated);
-    localStorage.setItem(`fw_comments_${item.id}`, JSON.stringify(updated));
+    localStorage.setItem(`fw_comments_v2_${item.id}`, JSON.stringify(updated));
     setComment('');
-  }, [comment, comments, item.id]);
+  }, [comment, comments, item.id, replyingTo]);
+
+  // Vote on a comment
+  const handleVote = useCallback((commentId: string, direction: 1 | -1) => {
+    const updated = voteOnComment(comments, commentId, direction);
+    setComments(updated);
+    localStorage.setItem(`fw_comments_v2_${item.id}`, JSON.stringify(updated));
+  }, [comments, item.id]);
 
   // Type badge
   const typeBadge = item.type === 'trip' ? '🗺️ Trip Plan' : item.type === 'checkin' ? '📍 Check-in' : null;
@@ -630,21 +671,15 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
                     No comments yet. Start the conversation.
                   </p>
                 ) : (
-                  <div className="space-y-4">
-                    {comments.map((c, i) => (
-                      <div key={i} className="flex items-start gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <svg className="w-3.5 h-3.5 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-brand-charcoal dark:text-brand-sand">
-                            <span className="font-semibold">You</span>{' '}
-                            {c}
-                          </p>
-                        </div>
-                      </div>
+                  <div className="space-y-1">
+                    {comments.map((c) => (
+                      <CommentThread
+                        key={c.id}
+                        comment={c}
+                        depth={0}
+                        onVote={handleVote}
+                        onReply={(id) => { setReplyingTo(id); }}
+                      />
                     ))}
                   </div>
                 )}
@@ -652,7 +687,14 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
             </div>
 
             {/* Comment input — pinned at very bottom, above everything */}
-            <div className="shrink-0 bg-white dark:bg-brand-charcoal border-t border-brand-charcoal/10 dark:border-brand-sand/10 px-4 py-3 mb-5 flex items-center gap-2">
+            <div className="shrink-0 bg-white dark:bg-brand-charcoal border-t border-brand-charcoal/10 dark:border-brand-sand/10 px-4 py-3 mb-5 flex flex-col gap-2">
+              {replyingTo && (
+                <div className="flex items-center justify-between text-xs text-brand-teal">
+                  <span>Replying to comment...</span>
+                  <button type="button" onClick={() => setReplyingTo(null)} className="text-brand-charcoal/50 dark:text-brand-sand/50 hover:text-brand-charcoal dark:hover:text-brand-sand" aria-label="Cancel reply">✕</button>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
@@ -676,10 +718,138 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
               >
                 Post
               </button>
+              </div>
             </div>
         </div>
       )}
     </article>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Threaded Comments System
+// ---------------------------------------------------------------------------
+
+interface ThreadedComment {
+  id: string;
+  text: string;
+  author: string;
+  timestamp: string;
+  votes: number;
+  replies: ThreadedComment[];
+}
+
+function addReplyToThread(comments: ThreadedComment[], parentId: string, reply: ThreadedComment): ThreadedComment[] {
+  return comments.map((c) => {
+    if (c.id === parentId) {
+      return { ...c, replies: [...c.replies, reply] };
+    }
+    if (c.replies.length > 0) {
+      return { ...c, replies: addReplyToThread(c.replies, parentId, reply) };
+    }
+    return c;
+  });
+}
+
+function voteOnComment(comments: ThreadedComment[], commentId: string, direction: 1 | -1): ThreadedComment[] {
+  return comments.map((c) => {
+    if (c.id === commentId) {
+      return { ...c, votes: c.votes + direction };
+    }
+    if (c.replies.length > 0) {
+      return { ...c, replies: voteOnComment(c.replies, commentId, direction) };
+    }
+    return c;
+  });
+}
+
+function CommentThread({ comment, depth, onVote, onReply }: {
+  comment: ThreadedComment;
+  depth: number;
+  onVote: (id: string, dir: 1 | -1) => void;
+  onReply: (id: string) => void;
+}) {
+  const commentTime = getRelativeTime(comment.timestamp);
+  const indent = Math.min(depth * 16, 48);
+
+  return (
+    <div style={{ marginLeft: `${indent}px` }}>
+      <div className="flex items-start gap-2 py-2">
+        {/* Avatar */}
+        <div className="w-6 h-6 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <svg className="w-3 h-3 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+          </svg>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {/* Author + text */}
+          <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+            <span className="font-semibold text-xs">{comment.author}</span>{' '}
+            <span className="text-xs">{comment.text}</span>
+          </p>
+
+          {/* Meta row: time, votes, reply */}
+          <div className="flex items-center gap-3 mt-1">
+            <span className="text-[10px] text-brand-charcoal/40 dark:text-brand-sand/40">{commentTime}</span>
+
+            {/* Upvote */}
+            <button
+              type="button"
+              onClick={() => onVote(comment.id, 1)}
+              className="flex items-center gap-0.5 text-[10px] text-brand-charcoal/50 dark:text-brand-sand/50 hover:text-brand-teal transition-colors min-h-[28px]"
+              aria-label="Upvote"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+              </svg>
+            </button>
+
+            {/* Vote count */}
+            <span className={`text-[10px] font-semibold ${comment.votes > 0 ? 'text-brand-teal' : comment.votes < 0 ? 'text-red-400' : 'text-brand-charcoal/40 dark:text-brand-sand/40'}`}>
+              {comment.votes}
+            </span>
+
+            {/* Downvote */}
+            <button
+              type="button"
+              onClick={() => onVote(comment.id, -1)}
+              className="flex items-center gap-0.5 text-[10px] text-brand-charcoal/50 dark:text-brand-sand/50 hover:text-red-400 transition-colors min-h-[28px]"
+              aria-label="Downvote"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+
+            {/* Reply */}
+            <button
+              type="button"
+              onClick={() => onReply(comment.id)}
+              className="text-[10px] font-medium text-brand-charcoal/50 dark:text-brand-sand/50 hover:text-brand-teal transition-colors min-h-[28px] flex items-center"
+              aria-label="Reply to this comment"
+            >
+              Reply
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Nested replies */}
+      {comment.replies.length > 0 && (
+        <div className="border-l-2 border-brand-charcoal/5 dark:border-brand-sand/10 ml-3">
+          {comment.replies.map((reply) => (
+            <CommentThread
+              key={reply.id}
+              comment={reply}
+              depth={depth + 1}
+              onVote={onVote}
+              onReply={onReply}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
