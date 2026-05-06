@@ -1,89 +1,75 @@
 'use client';
 
+/**
+ * ForageWise — Trip Detail Page
+ *
+ * Shows full details of a saved trip including location, date,
+ * target species, companions, safety notes, and notes.
+ */
+
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getRecord } from '@/offline/db';
-import type { Trip, Park, Trail } from '@/types';
+import { getAllRecords } from '@/offline/db';
+import type { Trip, Park } from '@/types';
 
 export default function TripDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const tripId = params.id ?? '';
-
   const [trip, setTrip] = useState<Trip | null>(null);
-  const [parkName, setParkName] = useState<string | null>(null);
-  const [trailName, setTrailName] = useState<string | null>(null);
+  const [locationName, setLocationName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-
-    const loadTrip = async () => {
+    async function loadTrip() {
       try {
-        const record = await getRecord('trips', tripId);
-        if (cancelled) return;
-
-        if (!record) {
-          setError('Trip not found.');
-          setLoading(false);
-          return;
+        const trips = await getAllRecords('trips') as Trip[];
+        const found = trips.find((t) => t.id === params.id);
+        if (found) {
+          setTrip(found);
+          // Resolve location name
+          if (found.customLocation) {
+            setLocationName(found.customLocation);
+          } else if (found.locationId) {
+            try {
+              const parks = await getAllRecords('parks') as Park[];
+              const park = parks.find((p) => p.id === found.locationId);
+              setLocationName(park?.name || found.locationId);
+            } catch {
+              setLocationName(found.locationId);
+            }
+          }
         }
-
-        setTrip(record);
-
-        // Load park name if it's a park-based trip
-        if (record.locationId) {
-          const park = await getRecord('parks', record.locationId);
-          if (!cancelled && park) setParkName(park.name);
-        }
-
-        // Load trail name if specified
-        if (record.trailId) {
-          const trail = await getRecord('trails', record.trailId);
-          if (!cancelled && trail) setTrailName(trail.name);
-        }
-
-        setLoading(false);
       } catch {
-        if (!cancelled) {
-          setError('Failed to load trip details.');
-          setLoading(false);
-        }
+        // IndexedDB may not be available
+      } finally {
+        setLoading(false);
       }
-    };
-
+    }
     loadTrip();
-    return () => { cancelled = true; };
-  }, [tripId]);
+  }, [params.id]);
 
   if (loading) {
     return (
-      <main className="flex min-h-screen flex-col px-4 py-6 max-w-lg mx-auto pb-28">
+      <main className="flex min-h-screen flex-col px-4 py-6 max-w-lg mx-auto">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-48" />
-          <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-32" />
-          <div className="h-32 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded" />
+          <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+          <div className="h-8 w-3/4 bg-gray-200 dark:bg-gray-700 rounded" />
+          <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded-xl" />
         </div>
       </main>
     );
   }
 
-  if (error || !trip) {
+  if (!trip) {
     return (
-      <main className="flex min-h-screen flex-col px-4 py-6 max-w-lg mx-auto pb-28">
-        <Link href="/trips" className="text-sm text-brand-teal hover:underline mb-4 inline-block">
-          ← Back to Trips
-        </Link>
-        <div role="alert" className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4 text-sm text-red-700 dark:text-red-400">
-          <p>{error || 'Trip not found.'}</p>
-        </div>
+      <main className="flex min-h-screen flex-col items-center justify-center px-4 py-6">
+        <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60">Trip not found.</p>
+        <Link href="/trips" className="text-sm text-brand-teal hover:underline mt-2">← Back to Trips</Link>
       </main>
     );
   }
 
-  const locationDisplay = parkName || trip.customLocation || 'Unknown location';
   const formattedDate = (() => {
     try {
       return new Date(trip.date + 'T00:00:00').toLocaleDateString('en-US', {
@@ -99,113 +85,100 @@ export default function TripDetailPage() {
 
   return (
     <main className="flex min-h-screen flex-col px-4 py-6 max-w-lg mx-auto pb-28">
-      <Link href="/trips" className="text-sm text-brand-teal hover:underline mb-4 inline-block">
-        ← Back to Trips
-      </Link>
+      <header className="mb-6">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="text-sm text-brand-teal hover:underline mb-2 inline-block"
+        >
+          ← Back to Trips
+        </button>
+        <h1 className="text-2xl font-bold text-brand-forest dark:text-brand-moss font-heading">
+          {locationName || 'Trip Details'}
+        </h1>
+        <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60 mt-1">
+          {formattedDate}
+        </p>
+      </header>
 
-      {/* Header */}
-      <h1 className="text-2xl font-bold text-brand-forest dark:text-brand-moss font-heading">
-        {locationDisplay}
-      </h1>
-      <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60 mt-1">
-        {formattedDate}
-      </p>
+      <div className="space-y-4">
+        {/* Location */}
+        <DetailCard icon="📍" label="Location" value={locationName || 'Not specified'} />
 
-      {/* Location details */}
-      <section className="mt-6 space-y-3">
-        <h2 className="text-lg font-heading font-semibold text-brand-charcoal dark:text-dark-text">
-          Location
-        </h2>
-        <div className="rounded-lg border border-brand-charcoal/10 dark:border-dark-border bg-white/80 dark:bg-dark-surface/80 p-4 space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="text-sm" aria-hidden="true">📍</span>
-            <span className="text-sm text-brand-charcoal dark:text-dark-text font-medium">{locationDisplay}</span>
-          </div>
-          {trailName && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm" aria-hidden="true">🥾</span>
-              <span className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80">Trail: {trailName}</span>
+        {/* Date */}
+        <DetailCard icon="📅" label="Date" value={formattedDate} />
+
+        {/* Target Species */}
+        {trip.targetSpecies.length > 0 && (
+          <div className="rounded-xl border border-brand-teal/15 bg-white/90 dark:bg-brand-charcoal/60 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span aria-hidden="true">🍄</span>
+              <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">Target Species</h2>
             </div>
-          )}
-          {parkName && trip.locationId && (
-            <Link
-              href={`/parks/${trip.locationId}`}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-teal hover:underline mt-1"
-            >
-              View park details →
-            </Link>
-          )}
-        </div>
-      </section>
-
-      {/* Target species */}
-      {trip.targetSpecies.length > 0 && (
-        <section className="mt-6">
-          <h2 className="text-lg font-heading font-semibold text-brand-charcoal dark:text-dark-text mb-2">
-            Target Species
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {trip.targetSpecies.map((species) => (
-              <span
-                key={species}
-                className="inline-block rounded-full bg-brand-teal/10 border border-brand-teal/20 px-3 py-1.5 text-xs font-medium text-brand-teal"
-              >
-                {species}
-              </span>
-            ))}
+            <div className="flex flex-wrap gap-1.5">
+              {trip.targetSpecies.map((species) => (
+                <span
+                  key={species}
+                  className="inline-block rounded-full bg-brand-teal/10 px-3 py-1 text-xs font-medium text-brand-teal"
+                >
+                  {species}
+                </span>
+              ))}
+            </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {/* Notes */}
-      {trip.notes && (
-        <section className="mt-6">
-          <h2 className="text-lg font-heading font-semibold text-brand-charcoal dark:text-dark-text mb-2">
-            Notes
-          </h2>
-          <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 leading-relaxed whitespace-pre-wrap">
-            {trip.notes}
-          </p>
-        </section>
-      )}
+        {/* Companions */}
+        {trip.companions && (
+          <DetailCard icon="👥" label="Companions" value={trip.companions} />
+        )}
 
-      {/* Companions */}
-      {trip.companions && (
-        <section className="mt-6">
-          <h2 className="text-lg font-heading font-semibold text-brand-charcoal dark:text-dark-text mb-2">
-            Companions
-          </h2>
-          <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80">
-            {trip.companions}
-          </p>
-        </section>
-      )}
+        {/* Notes */}
+        {trip.notes && (
+          <div className="rounded-xl border border-brand-teal/15 bg-white/90 dark:bg-brand-charcoal/60 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span aria-hidden="true">📝</span>
+              <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">Notes</h2>
+            </div>
+            <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 whitespace-pre-wrap">
+              {trip.notes}
+            </p>
+          </div>
+        )}
 
-      {/* Safety notes */}
-      {trip.safetyNotes && (
-        <section className="mt-6">
-          <h2 className="text-lg font-heading font-semibold text-brand-charcoal dark:text-dark-text mb-2">
-            Safety Notes
-          </h2>
-          <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3">
-            <p className="text-sm text-amber-800 dark:text-amber-300">
+        {/* Safety Notes */}
+        {trip.safetyNotes && (
+          <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-900/20 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span aria-hidden="true">⚠️</span>
+              <h2 className="text-sm font-semibold text-amber-800 dark:text-amber-300">Safety Notes</h2>
+            </div>
+            <p className="text-sm text-amber-700 dark:text-amber-400 whitespace-pre-wrap">
               {trip.safetyNotes}
             </p>
           </div>
-        </section>
-      )}
+        )}
 
-      {/* Sync status */}
-      <section className="mt-6">
-        <div className="flex items-center gap-2 text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
-          <span className={`w-2 h-2 rounded-full ${
-            trip.syncStatus === 'synced' ? 'bg-green-500' :
-            trip.syncStatus === 'pending' ? 'bg-amber-500' :
-            'bg-red-500'
-          }`} />
-          <span className="capitalize">{trip.syncStatus}</span>
+        {/* Trip type info */}
+        <div className="rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white/90 dark:bg-brand-charcoal/60 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">Trip Type</span>
+            <span className="text-xs font-medium text-brand-charcoal dark:text-brand-sand capitalize">{trip.locationType}</span>
+          </div>
         </div>
-      </section>
+      </div>
     </main>
+  );
+}
+
+function DetailCard({ icon, label, value }: { icon: string; label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-brand-teal/15 bg-white/90 dark:bg-brand-charcoal/60 p-4">
+      <div className="flex items-center gap-2 mb-1">
+        <span aria-hidden="true">{icon}</span>
+        <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">{label}</h2>
+      </div>
+      <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 pl-7">{value}</p>
+    </div>
   );
 }

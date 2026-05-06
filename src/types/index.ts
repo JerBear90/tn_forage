@@ -467,6 +467,8 @@ export interface CachedMapRegion {
 export interface CommunityDraft {
   id: string;
   userId: string;
+  displayName?: string;
+  avatarUrl?: string;
   speciesGuess?: string;
   photos: string[];
   coordinates?: Coordinates;
@@ -1132,7 +1134,7 @@ export interface HomepageLayoutConfig {
 }
 
 // --- Community Sub-Sections ---
-export type CommunitySubSection = 'sightings' | 'challenges' | 'blog';
+export type CommunitySubSection = 'feed' | 'id-this' | 'challenges' | 'blog';
 
 // --- Breadcrumb Referrer ---
 export interface BreadcrumbReferrer {

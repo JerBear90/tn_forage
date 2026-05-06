@@ -29,8 +29,8 @@ const syncBadgeConfig: Record<
 > = {
   pending: {
     className:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-    label: 'Pending',
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+    label: 'Saved',
   },
   synced: {
     className:
@@ -92,17 +92,20 @@ function TripCard({
       aria-label={`Trip to ${trip.locationName} on ${formattedDate}`}
     >
       {/* Header row — clickable to view details */}
-      <Link href={`/trips/${trip.id}`} className="block mb-2">
+      <Link
+        href={`/trips/${trip.id}`}
+        className="block mb-2"
+      >
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <h3 className="font-heading font-semibold text-sm text-brand-forest dark:text-brand-moss truncate">
               {trip.locationName}
             </h3>
             <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
-              {formattedDate}
-            </p>
-          </div>
-          <SyncBadge status={trip.syncStatus} />
+            {formattedDate}
+          </p>
+        </div>
+        <SyncBadge status={trip.syncStatus} />
         </div>
       </Link>
 

@@ -120,6 +120,11 @@ export default function WeatherPanel({ isOpen, onClose }: WeatherPanelProps) {
       setWeather((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
+        // Check if geolocation is available
+        if (!('geolocation' in navigator)) {
+          throw new Error('LOCATION_UNAVAILABLE');
+        }
+
         const position = await new Promise<GeolocationPosition>(
           (resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -127,7 +132,11 @@ export default function WeatherPanel({ isOpen, onClose }: WeatherPanelProps) {
               maximumAge: 30 * 60 * 1000,
             });
           }
-        );
+        ).catch((err) => {
+          if (err.code === 1) throw new Error('LOCATION_DENIED');
+          if (err.code === 2) throw new Error('LOCATION_UNAVAILABLE');
+          throw new Error('LOCATION_TIMEOUT');
+        });
 
         const { latitude, longitude } = position.coords;
 
@@ -228,8 +237,39 @@ export default function WeatherPanel({ isOpen, onClose }: WeatherPanelProps) {
           )}
 
           {weather.error && (
-            <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-2 text-sm text-amber-700 dark:text-amber-300">
-              {weather.error}
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3">
+              {weather.error === 'LOCATION_DENIED' || weather.error === 'LOCATION_UNAVAILABLE' || weather.error === 'LOCATION_TIMEOUT' ? (
+                <div className="text-center">
+                  <span className="text-2xl block mb-2" aria-hidden="true">📍</span>
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-1">
+                    Location access needed
+                  </p>
+                  <p className="text-xs text-amber-700 dark:text-amber-300 mb-3">
+                    {weather.error === 'LOCATION_DENIED'
+                      ? 'Location permission was denied. Please enable location access in your browser settings to see local weather.'
+                      : weather.error === 'LOCATION_TIMEOUT'
+                        ? 'Location request timed out. Please check your GPS is enabled and try again.'
+                        : 'Location services are not available on this device.'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Re-trigger location request
+                      setWeather({ current: null, hourly: [], loading: true, error: null });
+                      navigator.geolocation.getCurrentPosition(
+                        () => window.location.reload(),
+                        () => setWeather({ current: null, hourly: [], loading: false, error: 'LOCATION_DENIED' }),
+                        { timeout: 10000 }
+                      );
+                    }}
+                    className="min-h-[44px] rounded-lg bg-brand-teal px-4 py-2 text-sm font-medium text-white hover:bg-brand-teal/90 transition-colors"
+                  >
+                    📍 Enable Location
+                  </button>
+                </div>
+              ) : (
+                <p className="text-sm text-amber-700 dark:text-amber-300">{weather.error}</p>
+              )}
             </div>
           )}
 

@@ -21,6 +21,11 @@ interface AdminSettings {
     provider: 'none' | 'sendgrid' | 'resend';
     sendgridApiKey: string;
     sendgridFromName: string;
+    smsEnabled: boolean;
+    smsProvider: 'none' | 'twilio';
+    twilioAccountSid: string;
+    twilioAuthToken: string;
+    twilioPhoneNumber: string;
   };
   integrations: {
     stripeSecretKey: string;
@@ -53,6 +58,11 @@ const DEFAULT_SETTINGS: AdminSettings = {
     provider: 'none',
     sendgridApiKey: '',
     sendgridFromName: 'ForageWise',
+    smsEnabled: false,
+    smsProvider: 'none',
+    twilioAccountSid: '',
+    twilioAuthToken: '',
+    twilioPhoneNumber: '',
   },
   integrations: {
     stripeSecretKey: '',
@@ -455,6 +465,9 @@ export default function SettingsPage() {
         >
           Notification Settings
         </h2>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Configure email and SMS delivery for user notifications, blog alerts, and system messages.
+        </p>
 
         <div className="mt-4 space-y-4">
           {/* Email Service Toggle */}
@@ -597,6 +610,176 @@ export default function SettingsPage() {
               aria-label="Maximum notifications per hour"
               className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:focus:border-brand-teal"
             />
+          </div>
+
+          {/* Divider */}
+          <hr className="border-brand-charcoal/10 dark:border-brand-sand/10" />
+
+          {/* SMS Toggle */}
+          <div className="flex items-center gap-3">
+            <input
+              id="sms-enabled"
+              type="checkbox"
+              checked={settings.notifications.smsEnabled}
+              onChange={(e) => updateNotifications('smsEnabled', e.target.checked)}
+              className="h-5 w-5 rounded border-brand-charcoal/30 text-brand-teal focus:ring-brand-teal/30 dark:border-brand-sand/30"
+              aria-label="Enable SMS notifications"
+            />
+            <label
+              htmlFor="sms-enabled"
+              className="text-sm font-medium text-brand-charcoal dark:text-brand-sand cursor-pointer"
+            >
+              Enable SMS Notifications
+            </label>
+          </div>
+
+          {/* SMS Provider */}
+          <div>
+            <label
+              htmlFor="sms-provider"
+              className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand"
+            >
+              SMS Provider
+            </label>
+            <select
+              id="sms-provider"
+              value={settings.notifications.smsProvider}
+              onChange={(e) => updateNotifications('smsProvider', e.target.value)}
+              aria-label="SMS service provider"
+              className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:focus:border-brand-teal"
+            >
+              <option value="none">None (no SMS)</option>
+              <option value="twilio">Twilio</option>
+            </select>
+          </div>
+
+          {/* Twilio Configuration */}
+          {settings.notifications.smsProvider === 'twilio' && (
+            <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 bg-brand-sand/30 dark:bg-brand-charcoal/30 p-4 space-y-4">
+              <p className="text-xs font-semibold text-brand-charcoal dark:text-brand-sand">Twilio Configuration</p>
+
+              <div>
+                <label htmlFor="twilio-sid" className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand">
+                  Account SID
+                </label>
+                <input
+                  id="twilio-sid"
+                  type="text"
+                  value={settings.notifications.twilioAccountSid}
+                  onChange={(e) => updateNotifications('twilioAccountSid', e.target.value)}
+                  placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  aria-label="Twilio Account SID"
+                  className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal placeholder-gray-400 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:placeholder-gray-500"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="twilio-token" className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand">
+                  Auth Token
+                </label>
+                <input
+                  id="twilio-token"
+                  type="password"
+                  value={settings.notifications.twilioAuthToken}
+                  onChange={(e) => updateNotifications('twilioAuthToken', e.target.value)}
+                  placeholder="••••••••••••••••"
+                  aria-label="Twilio Auth Token (masked)"
+                  className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal placeholder-gray-400 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:placeholder-gray-500"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="twilio-phone" className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand">
+                  Twilio Phone Number
+                </label>
+                <input
+                  id="twilio-phone"
+                  type="tel"
+                  value={settings.notifications.twilioPhoneNumber}
+                  onChange={(e) => updateNotifications('twilioPhoneNumber', e.target.value)}
+                  placeholder="+1234567890"
+                  aria-label="Twilio phone number"
+                  className="mt-1 w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 bg-white px-4 py-2 text-brand-charcoal placeholder-gray-400 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30 dark:border-brand-sand/20 dark:bg-brand-charcoal dark:text-brand-sand dark:placeholder-gray-500"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Must be a Twilio-purchased number with SMS capability.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Setup Guide */}
+      <section
+        className="rounded-xl border border-blue-200 bg-blue-50 p-6 shadow-sm dark:border-blue-800 dark:bg-blue-900/20"
+        aria-labelledby="setup-guide-heading"
+      >
+        <h2
+          id="setup-guide-heading"
+          className="text-lg font-semibold text-brand-charcoal dark:text-brand-sand flex items-center gap-2"
+        >
+          <span aria-hidden="true">📖</span> Setup Guide: Email &amp; SMS
+        </h2>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          Follow these steps to configure notification delivery. You also need to set these as environment variables in Vercel for production.
+        </p>
+
+        <div className="mt-5 space-y-5">
+          {/* SendGrid Setup */}
+          <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white dark:bg-brand-charcoal/40 p-4">
+            <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand flex items-center gap-2">
+              <span aria-hidden="true">📧</span> SendGrid (Email)
+            </h3>
+            <ol className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-400 list-decimal list-inside">
+              <li>Create a free account at <a href="https://sendgrid.com" target="_blank" rel="noopener noreferrer" className="text-brand-teal underline">sendgrid.com</a> (100 emails/day free)</li>
+              <li>Go to <strong>Settings → API Keys</strong> and create a key with &quot;Mail Send&quot; permission</li>
+              <li>Go to <strong>Settings → Sender Authentication</strong> and verify your sender email</li>
+              <li>Paste the API key above and enter your verified sender email</li>
+            </ol>
+            <div className="mt-3 rounded-md bg-gray-100 dark:bg-brand-charcoal/60 p-3">
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Vercel Environment Variables:</p>
+              <code className="block text-xs text-gray-600 dark:text-gray-400 font-mono whitespace-pre-wrap">SENDGRID_API_KEY=SG.your_key_here{'\n'}SENDGRID_FROM_EMAIL=notifications@yourdomain.com{'\n'}SENDGRID_FROM_NAME=ForageWise</code>
+            </div>
+          </div>
+
+          {/* Twilio Setup */}
+          <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white dark:bg-brand-charcoal/40 p-4">
+            <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand flex items-center gap-2">
+              <span aria-hidden="true">📱</span> Twilio (SMS)
+            </h3>
+            <ol className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-400 list-decimal list-inside">
+              <li>Create an account at <a href="https://www.twilio.com" target="_blank" rel="noopener noreferrer" className="text-brand-teal underline">twilio.com</a> (trial gives ~$15 credit)</li>
+              <li>From the <strong>Console Dashboard</strong>, copy your Account SID and Auth Token</li>
+              <li>Go to <strong>Phone Numbers → Buy a Number</strong> and purchase an SMS-capable number (~$1.15/mo)</li>
+              <li>Paste the credentials above</li>
+            </ol>
+            <div className="mt-3 rounded-md bg-gray-100 dark:bg-brand-charcoal/60 p-3">
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Vercel Environment Variables:</p>
+              <code className="block text-xs text-gray-600 dark:text-gray-400 font-mono whitespace-pre-wrap">TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{'\n'}TWILIO_AUTH_TOKEN=your_auth_token{'\n'}TWILIO_PHONE_NUMBER=+1234567890</code>
+            </div>
+            <div className="mt-3 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3">
+              <p className="text-xs text-amber-700 dark:text-amber-400">
+                <strong>Cost:</strong> ~$0.0079 per SMS segment in the US + $1.15/mo for the phone number. Trial accounts can only send to verified numbers.
+              </p>
+            </div>
+          </div>
+
+          {/* Resend Setup */}
+          <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white dark:bg-brand-charcoal/40 p-4">
+            <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand flex items-center gap-2">
+              <span aria-hidden="true">✉️</span> Resend (Email Alternative)
+            </h3>
+            <ol className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-400 list-decimal list-inside">
+              <li>Create an account at <a href="https://resend.com" target="_blank" rel="noopener noreferrer" className="text-brand-teal underline">resend.com</a> (100 emails/day free)</li>
+              <li>Go to <strong>API Keys</strong> and create a new key</li>
+              <li>Add and verify your sending domain under <strong>Domains</strong></li>
+              <li>Select &quot;Resend&quot; as your email provider above and paste the key</li>
+            </ol>
+            <div className="mt-3 rounded-md bg-gray-100 dark:bg-brand-charcoal/60 p-3">
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Vercel Environment Variables:</p>
+              <code className="block text-xs text-gray-600 dark:text-gray-400 font-mono whitespace-pre-wrap">RESEND_API_KEY=re_your_key_here{'\n'}RESEND_FROM_EMAIL=notifications@yourdomain.com</code>
+            </div>
           </div>
         </div>
       </section>

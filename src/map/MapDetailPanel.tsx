@@ -481,6 +481,22 @@ export default function MapDetailPanel({ item, onClose, conditionsMap }: MapDeta
                   Plan a Visit
                 </button>
               </div>
+              {/* Check In button */}
+              {item.type === 'park' && (
+                <button
+                  type="button"
+                  onClick={() => router.push(`/community/checkin?parkId=${item.data.id}&parkName=${encodeURIComponent(item.data.name)}`)}
+                  aria-label={`Check in at ${item.data.name}`}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-brand-moss/30 bg-brand-moss/10 px-3 py-2.5 text-sm font-semibold text-brand-moss hover:bg-brand-moss/20 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-moss touch-manipulation"
+                  style={{ minHeight: '44px' }}
+                >
+                  <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                  </svg>
+                  Check In Here
+                </button>
+              )}
             </div>
           )}
 

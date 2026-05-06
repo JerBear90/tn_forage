@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/auth/useAuth';
 import type { LocationType, Trip, Species } from '@/types';
 import { putRecord, batchGetRecords } from '@/offline/db';
+import { markTripAsShared } from '@/components/community/CommunityFeed';
 import ParkPicker from '@/components/trip/ParkPicker';
 import TrailPicker from '@/components/trip/TrailPicker';
 import LikelySpeciesPanel from '@/components/trip/LikelySpeciesPanel';
@@ -66,6 +67,7 @@ function CreateTripPageInner() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSharePrompt, setShowSharePrompt] = useState(false);
+  const [savedTripId, setSavedTripId] = useState<string | null>(null);
 
   // --- Validation ---
   const [touched, setTouched] = useState(false);
@@ -220,6 +222,7 @@ function CreateTripPageInner() {
       };
 
       await putRecord('trips', trip);
+      setSavedTripId(trip.id);
       setShowSharePrompt(true);
       setSaving(false);
     } catch {
@@ -602,10 +605,11 @@ function CreateTripPageInner() {
               <button
                 type="button"
                 onClick={() => {
+                  if (savedTripId) markTripAsShared(savedTripId);
                   if (!isAuthenticated) {
-                    router.push('/login?returnTo=/community');
+                    router.push('/login?returnTo=/community#feed');
                   } else {
-                    router.push('/community');
+                    router.push('/community#feed');
                   }
                 }}
                 aria-label="Yes, share this trip"
