@@ -45,10 +45,10 @@ pb.on('exit', (code) => {
 // Give PocketBase a moment to start, then launch Next.js
 setTimeout(() => {
   console.log('\x1b[36m[dev]\x1b[0m Starting Next.js dev server...');
-  const next = spawn('npx', ['next', 'dev'], {
+  const nextBin = path.resolve(__dirname, '..', 'node_modules', 'next', 'dist', 'bin', 'next');
+  const next = spawn(process.execPath, [nextBin, 'dev'], {
     cwd: path.resolve(__dirname, '..'),
     stdio: 'inherit',
-    shell: true,
   });
 
   next.on('exit', (code) => {
