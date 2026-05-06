@@ -18,6 +18,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/auth/useAuth';
+import { pb } from '@/auth/authService';
 import OnlineHint from '@/components/OnlineHint';
 import IdRequest from '@/components/community/IdRequest';
 import { getAllRecords, putRecord } from '@/offline/db';
@@ -48,6 +49,19 @@ function generateId(): string {
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
+}
+
+/** Resolve avatar to a full URL (handles PocketBase filenames and OAuth URLs) */
+function resolveAvatarUrl(userId: string | undefined, avatar: string | undefined): string | undefined {
+  if (!avatar) return undefined;
+  if (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/')) {
+    return avatar;
+  }
+  // PocketBase filename — construct full URL
+  if (userId) {
+    return `${pb.baseURL}/api/files/_pb_users_auth_/${userId}/${avatar}`;
+  }
+  return undefined;
 }
 
 function formatDate(iso: string): string {
@@ -164,7 +178,7 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
       id: generateId(),
       userId: user?.id || 'local-user',
       displayName: user?.displayName || undefined,
-      avatarUrl: user?.avatar || undefined,
+      avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
       speciesGuess: speciesGuess.trim() || undefined,
       photos: photoIds,
       coordinates: coords,

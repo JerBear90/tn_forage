@@ -11,6 +11,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { putRecord } from '@/offline/db';
+import { pb } from '@/auth/authService';
 import { useAuth } from '@/auth/useAuth';
 
 function generateId(): string {
@@ -19,6 +20,17 @@ function generateId(): string {
     const r = (Math.random() * 16) | 0;
     return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
   });
+}
+
+function resolveAvatarUrl(userId: string | undefined, avatar: string | undefined): string | undefined {
+  if (!avatar) return undefined;
+  if (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/')) {
+    return avatar;
+  }
+  if (userId) {
+    return `${pb.baseURL}/api/files/_pb_users_auth_/${userId}/${avatar}`;
+  }
+  return undefined;
 }
 
 export default function CheckInPage() {
@@ -58,7 +70,7 @@ function CheckInContent() {
       id: generateId(),
       userId: user?.id || 'local-user',
       displayName: user?.displayName || undefined,
-      avatarUrl: user?.avatar || undefined,
+      avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
       speciesGuess: parkName,
       photos: [],
       notes: `[Check-in] Checked in at ${parkName}${notes ? '. ' + notes.trim() : ''}`,
