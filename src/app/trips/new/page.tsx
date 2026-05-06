@@ -581,9 +581,14 @@ function CreateTripPageInner() {
             <h2 className="font-heading font-bold text-lg text-brand-forest dark:text-brand-moss mb-2">
               Trip saved!
             </h2>
-            <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mb-6">
+            <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mb-2">
               Would you like to share this trip with the community?
             </p>
+            {!isAuthenticated && (
+              <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 mb-4">
+                You&apos;ll need to sign in or create an account to share with the community. Click &quot;Yes, share it&quot; to continue to the login screen.
+              </p>
+            )}
             <div className="flex gap-3">
               <button
                 type="button"
