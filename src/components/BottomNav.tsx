@@ -17,7 +17,7 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Main navigation"
-      className="fixed bottom-0 inset-x-0 z-50 bg-white/95 dark:bg-dark-surface/95 backdrop-blur border-t border-brand-charcoal/10 dark:border-dark-border"
+      className="fixed bottom-0 inset-x-0 z-[9999] bg-white/95 dark:bg-dark-surface/95 backdrop-blur border-t border-brand-charcoal/10 dark:border-dark-border"
     >
       <ul className="flex items-center justify-around max-w-lg mx-auto px-1">
         {navItems.map((item) => {

@@ -453,12 +453,6 @@ function SpeciesOrPlantDetail({
         </Section>
       )}
 
-      {/* Last Updated */}
-      <Section title="Last Updated" id="section-updated">
-        <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
-          {d.lastUpdated}
-        </p>
-      </Section>
     </>
   );
 }
@@ -609,12 +603,6 @@ function TreeDetail({ data, onDetailNavigation }: { data: Tree; onDetailNavigati
         </p>
       </Section>
 
-      {/* Last Updated */}
-      <Section title="Last Updated" id="section-updated">
-        <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
-          {data.lastUpdated}
-        </p>
-      </Section>
     </>
   );
 }

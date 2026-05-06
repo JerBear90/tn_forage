@@ -48,35 +48,6 @@ const ssoProviders: SSOProviderConfig[] = [
     disabledClass:
       "bg-gray-100 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-500",
   },
-  {
-    id: "apple",
-    name: "Apple",
-    icon: (
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09ZM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25Z" />
-      </svg>
-    ),
-    bgClass:
-      "bg-brand-charcoal text-white hover:bg-brand-charcoal/90 dark:bg-white dark:text-brand-charcoal dark:hover:bg-gray-100",
-    disabledClass:
-      "bg-gray-400 text-gray-200 dark:bg-gray-700 dark:text-gray-500",
-  },
-  {
-    id: "microsoft",
-    name: "Microsoft",
-    icon: (
-      <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="1" y="1" width="10" height="10" fill="#F25022" />
-        <rect x="13" y="1" width="10" height="10" fill="#7FBA00" />
-        <rect x="1" y="13" width="10" height="10" fill="#00A4EF" />
-        <rect x="13" y="13" width="10" height="10" fill="#FFB900" />
-      </svg>
-    ),
-    bgClass:
-      "bg-white border-gray-300 text-brand-charcoal hover:bg-gray-50 dark:bg-white dark:text-brand-charcoal dark:hover:bg-gray-100",
-    disabledClass:
-      "bg-gray-100 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-500",
-  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -93,6 +64,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [ssoLoading, setSsoLoading] = useState<SSOProvider | null>(null);
 
@@ -110,29 +82,33 @@ export default function SignupPage() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    const errors: Record<string, string> = {};
 
-    // Client-side validation
+    // Client-side validation with field-level errors
     if (!displayName.trim()) {
-      setError("Display name is required.");
-      return;
+      errors.displayName = "Display name is required.";
     }
     if (!email.trim()) {
-      setError("Email is required.");
-      return;
+      errors.email = "Email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Please enter a valid email address.";
     }
     if (!password) {
-      setError("Password is required.");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
+      errors.password = "Password is required.";
+    } else if (password.length < 8) {
+      errors.password = "Password must be at least 8 characters.";
     }
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      errors.confirmPassword = "Passwords do not match.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError("Please fix the errors below.");
       return;
     }
 
+    setFieldErrors({});
     setSubmitting(true);
     try {
       const result = await signup(email, password, displayName.trim());
@@ -156,7 +132,7 @@ export default function SignupPage() {
     } catch (err) {
       const message =
         err instanceof Error
-          ? err.message
+          ? `SSO Error: ${err.message}`
           : "SSO sign-up failed. Please try again.";
       setError(message);
       setSsoLoading(null);
@@ -322,10 +298,15 @@ export default function SignupPage() {
               required
               placeholder="Your name"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={(e) => { setDisplayName(e.target.value); setFieldErrors(prev => { const n = {...prev}; delete n.displayName; return n; }); }}
               disabled={isFormBusy}
-              className="w-full rounded-lg border border-brand-teal/20 bg-white/80 px-4 py-3 text-sm text-brand-charcoal placeholder:text-brand-charcoal/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-brand-charcoal/60 dark:text-brand-sand dark:placeholder:text-brand-sand/40"
+              aria-invalid={!!fieldErrors.displayName}
+              aria-describedby={fieldErrors.displayName ? "signup-name-error" : undefined}
+              className={`w-full rounded-lg border ${fieldErrors.displayName ? 'border-red-400 dark:border-red-600' : 'border-brand-teal/20'} bg-white/80 px-4 py-3 text-sm text-brand-charcoal placeholder:text-brand-charcoal/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-brand-charcoal/60 dark:text-brand-sand dark:placeholder:text-brand-sand/40`}
             />
+            {fieldErrors.displayName && (
+              <p id="signup-name-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.displayName}</p>
+            )}
           </div>
 
           <div>
@@ -342,10 +323,15 @@ export default function SignupPage() {
               required
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setFieldErrors(prev => { const n = {...prev}; delete n.email; return n; }); }}
               disabled={isFormBusy}
-              className="w-full rounded-lg border border-brand-teal/20 bg-white/80 px-4 py-3 text-sm text-brand-charcoal placeholder:text-brand-charcoal/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-brand-charcoal/60 dark:text-brand-sand dark:placeholder:text-brand-sand/40"
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? "signup-email-error" : undefined}
+              className={`w-full rounded-lg border ${fieldErrors.email ? 'border-red-400 dark:border-red-600' : 'border-brand-teal/20'} bg-white/80 px-4 py-3 text-sm text-brand-charcoal placeholder:text-brand-charcoal/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-brand-charcoal/60 dark:text-brand-sand dark:placeholder:text-brand-sand/40`}
             />
+            {fieldErrors.email && (
+              <p id="signup-email-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.email}</p>
+            )}
           </div>
 
           <div>
@@ -362,13 +348,19 @@ export default function SignupPage() {
               required
               placeholder="••••••••"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setFieldErrors(prev => { const n = {...prev}; delete n.password; return n; }); }}
               disabled={isFormBusy}
-              className="w-full rounded-lg border border-brand-teal/20 bg-white/80 px-4 py-3 text-sm text-brand-charcoal placeholder:text-brand-charcoal/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-brand-charcoal/60 dark:text-brand-sand dark:placeholder:text-brand-sand/40"
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby={fieldErrors.password ? "signup-password-error" : "signup-password-hint"}
+              className={`w-full rounded-lg border ${fieldErrors.password ? 'border-red-400 dark:border-red-600' : 'border-brand-teal/20'} bg-white/80 px-4 py-3 text-sm text-brand-charcoal placeholder:text-brand-charcoal/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-brand-charcoal/60 dark:text-brand-sand dark:placeholder:text-brand-sand/40`}
             />
-            <p className="mt-1 text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
-              At least 8 characters
-            </p>
+            {fieldErrors.password ? (
+              <p id="signup-password-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.password}</p>
+            ) : (
+              <p id="signup-password-hint" className="mt-1 text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
+                At least 8 characters
+              </p>
+            )}
           </div>
 
           <div>
@@ -385,10 +377,15 @@ export default function SignupPage() {
               required
               placeholder="••••••••"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors(prev => { const n = {...prev}; delete n.confirmPassword; return n; }); }}
               disabled={isFormBusy}
-              className="w-full rounded-lg border border-brand-teal/20 bg-white/80 px-4 py-3 text-sm text-brand-charcoal placeholder:text-brand-charcoal/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-brand-charcoal/60 dark:text-brand-sand dark:placeholder:text-brand-sand/40"
+              aria-invalid={!!fieldErrors.confirmPassword}
+              aria-describedby={fieldErrors.confirmPassword ? "signup-confirm-error" : undefined}
+              className={`w-full rounded-lg border ${fieldErrors.confirmPassword ? 'border-red-400 dark:border-red-600' : 'border-brand-teal/20'} bg-white/80 px-4 py-3 text-sm text-brand-charcoal placeholder:text-brand-charcoal/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-brand-charcoal/60 dark:text-brand-sand dark:placeholder:text-brand-sand/40`}
             />
+            {fieldErrors.confirmPassword && (
+              <p id="signup-confirm-error" className="mt-1 text-xs text-red-600 dark:text-red-400" role="alert">{fieldErrors.confirmPassword}</p>
+            )}
           </div>
 
           <button

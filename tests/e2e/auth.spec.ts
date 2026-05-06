@@ -46,12 +46,6 @@ test.describe('Login Page — Rendering', () => {
     await expect(
       page.getByRole('button', { name: /google/i })
     ).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: /apple/i })
-    ).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: /microsoft/i })
-    ).toBeVisible();
   });
 
   test('should render sign in button', async ({ page }) => {
@@ -148,12 +142,6 @@ test.describe('Signup Page — Rendering', () => {
   test('should render SSO provider buttons', async ({ page }) => {
     await expect(
       page.getByRole('button', { name: /google/i })
-    ).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: /apple/i })
-    ).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: /microsoft/i })
     ).toBeVisible();
   });
 

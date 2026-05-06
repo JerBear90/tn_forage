@@ -6,6 +6,7 @@ import Link from "next/link";
 import OfflineBadge from "@/components/OfflineBadge";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
+import SupportFooter from "@/components/SupportFooter";
 import { useWeatherTemp } from "@/hooks/useWeatherTemp";
 import { useAutoSync } from "@/hooks/useAutoSync";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
@@ -156,6 +157,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Notification signup prompt — only on non-admin pages */}
         {!pathname.startsWith('/admin') && <NotificationSignupPrompt />}
         <main className="min-h-screen">{children}</main>
+        <SupportFooter />
       </div>
     </>
   );

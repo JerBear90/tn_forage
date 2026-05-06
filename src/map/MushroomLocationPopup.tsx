@@ -44,27 +44,34 @@ export default function MushroomLocationPopup({
 
       {/* Species list */}
       {species.length > 0 ? (
-        <ul className="mt-2 space-y-1" role="list" aria-label="Mushroom species at this location">
-          {species.map((s) => (
-            <li key={s.id} className="flex items-center gap-1.5">
-              {/* In-season indicator */}
-              <span
-                className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
-                  s.inSeason ? 'bg-green-500' : 'bg-gray-400'
-                }`}
-                aria-hidden="true"
-              />
-              <button
-                type="button"
-                onClick={() => onSpeciesClick(s.id)}
-                className="text-xs text-brand-teal hover:text-brand-teal-700 underline underline-offset-2 text-left leading-tight"
-                aria-label={`${s.commonName}${s.inSeason ? ', in season' : ', not in season'}`}
-              >
-                {s.commonName}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="mt-2 space-y-1" role="list" aria-label="Mushroom species at this location">
+            {species.map((s) => (
+              <li key={s.id} className="flex items-center gap-1.5">
+                {/* In-season indicator */}
+                <span
+                  className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
+                    s.inSeason ? 'bg-green-500' : 'bg-gray-400'
+                  }`}
+                  aria-hidden="true"
+                />
+                <button
+                  type="button"
+                  onClick={() => onSpeciesClick(s.id)}
+                  className="text-xs text-brand-teal hover:text-brand-teal-700 underline underline-offset-2 text-left leading-tight"
+                  aria-label={`${s.commonName}${s.inSeason ? ', in season' : ', not in season'}`}
+                >
+                  {s.commonName}
+                </button>
+              </li>
+            ))}
+          </ul>
+          {/* Legend for green dot */}
+          <p className="mt-2 text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+            <span className="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" />
+            = Currently in season
+          </p>
+        </>
       ) : (
         <p className="mt-2 text-xs text-gray-400 dark:text-gray-500 italic">
           No mushroom species data available

@@ -75,6 +75,9 @@ function CreateTripPageInner() {
   // --- Park picker collapsed when pre-selected ---
   const [parkPickerCollapsed, setParkPickerCollapsed] = useState(!!initialParkId);
 
+  // Track selected park name for collapsed display
+  const [selectedParkName, setSelectedParkName] = useState<string | null>(initialParkName);
+
   // Ref for auto-scrolling to form when park is pre-selected
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -122,11 +125,21 @@ function CreateTripPageInner() {
     setTargetSpeciesInput('');
   }, []);
 
-  // Handle park selection
+  // Handle park selection — collapse picker after selection
   const handleSelectPark = useCallback((parkId: string) => {
     setSelectedParkId(parkId);
     setSelectedTrailId(null);
     setTargetSpecies([]);
+    setParkPickerCollapsed(true);
+    // Load park name for collapsed display
+    async function loadParkName() {
+      try {
+        const { getRecord } = await import('@/offline/db');
+        const park = await getRecord('parks', parkId);
+        if (park) setSelectedParkName(park.name);
+      } catch { /* silently fail */ }
+    }
+    if (parkId) loadParkName();
   }, []);
 
   // Handle trail selection
@@ -314,11 +327,11 @@ function CreateTripPageInner() {
         {locationMode === 'park' && (
           <>
             {/* Park Picker — collapsed when pre-selected */}
-            {parkPickerCollapsed && initialParkName ? (
+            {parkPickerCollapsed && selectedParkName ? (
               <div className="rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-3 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
-                    🏞️ {initialParkName}
+                    🏞️ {selectedParkName}
                   </p>
                   <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">Selected park</p>
                 </div>

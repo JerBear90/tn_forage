@@ -18,7 +18,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import ProtectedRoute from '@/auth/ProtectedRoute';
+import { useAuth } from '@/auth/useAuth';
 import { getAllRecords, putRecord } from '@/offline/db';
 import { applyLocationPrivacy } from '@/services/locationPrivacy';
 import { matchSpeciesImage, type KnownSpeciesRecord } from '@/services/trending';
@@ -823,6 +823,7 @@ function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
 // ---------------------------------------------------------------------------
 
 function CommunityContent() {
+  const { isAuthenticated } = useAuth();
   const [sightings, setSightings] = useState<CommunityDraft[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewForm, setShowNewForm] = useState(false);
@@ -1006,7 +1007,13 @@ function CommunityContent() {
           </div>
 
           {/* New Sighting button / form */}
-          {showNewForm ? (
+          {!isAuthenticated ? (
+            <div className="mb-6 rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-3 text-center">
+              <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70">
+                <Link href="/login" className="font-medium text-brand-teal hover:underline">Sign in</Link> to post sightings, leave reviews, and interact with the community.
+              </p>
+            </div>
+          ) : showNewForm ? (
             <NewSightingForm
               onSave={handleSave}
               onCancel={() => setShowNewForm(false)}
@@ -1098,9 +1105,5 @@ function CommunityContent() {
 }
 
 export default function CommunityPage() {
-  return (
-    <ProtectedRoute>
-      <CommunityContent />
-    </ProtectedRoute>
-  );
+  return <CommunityContent />;
 }

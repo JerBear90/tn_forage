@@ -17,6 +17,13 @@ import type { Species, Plant, Tree } from "@/types";
 export type AssociatedSpeciesMap = Record<string, string | null>;
 
 /**
+ * Escape special regex characters in a string.
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Pure function that resolves associated species names to IDs by searching
  * across species, plants, and trees records by commonName.
  *
@@ -65,11 +72,11 @@ export function resolveAssociatedSpecies(
 
     // 2. Partial match — association name appears as a word boundary in commonName
     //    e.g. "Oak" matches "White Oak", "Northern Red Oak", "Black Oak"
+    const escapedKey = escapeRegex(key);
+    const wordBoundaryRegex = new RegExp('\\b' + escapedKey + '\\b', 'i');
+
     const partialMatch = allRecords.find((r) => {
-      const cn = r.commonName.toLowerCase();
-      // Check if the name appears as a whole word in the commonName
-      const regex = new RegExp(`\\b${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-      return regex.test(cn);
+      return wordBoundaryRegex.test(r.commonName);
     });
 
     result[name] = partialMatch?.id ?? null;

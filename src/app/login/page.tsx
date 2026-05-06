@@ -113,7 +113,7 @@ export default function LoginPage() {
     } catch (err) {
       const message =
         err instanceof Error
-          ? err.message
+          ? `SSO Error: ${err.message}`
           : "SSO login failed. Please try again.";
       setError(message);
       setSsoLoading(null);

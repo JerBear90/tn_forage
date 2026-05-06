@@ -229,46 +229,6 @@ export default function MapPageClient() {
         </div>
       )}
 
-      {/* Legend — above the map, visible only in map mode */}
-      {viewMode === 'map' && (
-        <div
-          className="px-4 pb-2 shrink-0"
-          aria-label="Map legend"
-          role="complementary"
-        >
-          <div className="flex flex-wrap gap-4 text-xs text-brand-charcoal/70 dark:text-dark-text-muted">
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block w-3 h-3 rounded-full bg-brand-teal"
-                aria-hidden="true"
-              />
-              Parks
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block w-3 h-1.5 rounded bg-brand-moss"
-                aria-hidden="true"
-              />
-              Trails
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block w-3 h-1.5 rounded bg-brand-earth border-dashed border border-brand-earth"
-                aria-hidden="true"
-              />
-              Routes
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block w-3 h-3 rounded-full bg-green-500/40 border border-green-500"
-                aria-hidden="true"
-              />
-              Foraging Conditions
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Season Heatmap — collapsible overlay */}
       <div className="px-4 pb-2 shrink-0">
         <button
@@ -330,9 +290,10 @@ export default function MapPageClient() {
                         c.rating === 'excellent' ? 'bg-green-100 text-green-800 border-green-300'
                         : 'bg-lime-100 text-lime-800 border-lime-300';
                       return (
-                        <div
+                        <a
                           key={c.parkId}
-                          className={`shrink-0 rounded-lg border px-3 py-2 text-xs ${ratingColor}`}
+                          href={`/parks/${c.parkId}`}
+                          className={`shrink-0 rounded-lg border px-3 py-2 text-xs ${ratingColor} hover:ring-2 hover:ring-brand-teal/30 transition-shadow`}
                         >
                           <p className="font-semibold">{c.parkName}</p>
                           <div className="flex gap-2 mt-1 opacity-80">
@@ -340,7 +301,7 @@ export default function MapPageClient() {
                             <span title="Plant">🌿{c.plant.score}</span>
                             <span title="Tree">🌳{c.tree.score}</span>
                           </div>
-                        </div>
+                        </a>
                       );
                     })}
                   {foragingConditions.filter((c) => c.rating === 'excellent' || c.rating === 'good').length === 0 && (
@@ -363,7 +324,7 @@ export default function MapPageClient() {
 
       {/* Map view — hidden with CSS when in list mode to preserve Leaflet state */}
       <div
-        className={`mx-4 mb-4 rounded-xl overflow-hidden border border-brand-forest/10 relative ${
+        className={`mx-4 mb-4 rounded-xl overflow-hidden border border-brand-forest/10 relative z-0 ${
           viewMode === 'list' ? 'hidden' : ''
         }`}
         style={{ height: 'max(65vh, 300px)' }}
@@ -400,7 +361,7 @@ export default function MapPageClient() {
       {viewMode === 'list' && (
         <div
           className="flex-1 mx-4 mb-4 rounded-xl overflow-hidden border border-brand-forest/10 dark:border-dark-border bg-brand-sand/50 dark:bg-dark-surface/80 relative"
-          style={{ height: 'max(65vh, 300px)' }}
+          style={{ height: 'calc(100vh - 200px)', minHeight: '400px' }}
           role="region"
           aria-label="List view"
         >

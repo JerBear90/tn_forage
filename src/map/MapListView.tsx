@@ -135,10 +135,15 @@ function ParkCard({
             </div>
             {/* Condition badge */}
             {badge && condition && (
-              <div className="shrink-0 flex items-center gap-1">
-                <span className="text-[10px]" title={`Mushroom: ${condition.mushroom.score}`}>🍄{condition.mushroom.score}</span>
-                <span className="text-[10px]" title={`Plant: ${condition.plant.score}`}>🌿{condition.plant.score}</span>
-                <span className="text-[10px]" title={`Tree: ${condition.tree.score}`}>🌳{condition.tree.score}</span>
+              <div className="shrink-0 flex flex-col items-end gap-0.5">
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px]" title={`Mushroom score: ${condition.mushroom.score}/10`}>🍄{condition.mushroom.score}</span>
+                  <span className="text-[10px]" title={`Plant score: ${condition.plant.score}/10`}>🌿{condition.plant.score}</span>
+                  <span className="text-[10px]" title={`Tree score: ${condition.tree.score}/10`}>🌳{condition.tree.score}</span>
+                </div>
+                <span className={`text-[9px] font-medium rounded-full px-1.5 py-0.5 ${badge.bg}`}>
+                  {badge.label} foraging
+                </span>
               </div>
             )}
           </div>
@@ -178,6 +183,12 @@ function ParkCard({
               {park.trails.length} trail{park.trails.length !== 1 ? 's' : ''}
             </span>
           </div>
+          {/* Foraging score explanation */}
+          {badge && condition && (
+            <p className="text-[10px] text-brand-charcoal/50 dark:text-dark-text-muted mt-1.5 italic">
+              Scores based on recent weather, moisture, and seasonal conditions (1-10 scale)
+            </p>
+          )}
         </div>
       </button>
     </li>

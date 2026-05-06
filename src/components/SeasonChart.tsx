@@ -3,8 +3,7 @@
 /**
  * ForageWise — SeasonChart Component
  *
- * Displays a 12-month grid for a single species showing which months
- * it is in season. Uses semantic table roles for screen reader support.
+ * Displays which months a species is available as a simple list.
  * Supports a compact mode for use inside heatmap rows.
  *
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 9.1, 9.3
@@ -27,71 +26,56 @@ export default function SeasonChart({ seasons, compact = false }: SeasonChartPro
   // When all 12 months are in-season, display a simple text label
   if (isAllYear) {
     return (
-      <div className={compact ? '' : 'space-y-1'}>
+      <div className={compact ? '' : 'pb-6'}>
         <p
           role="status"
-          className={`text-brand-moss font-medium ${compact ? 'text-[10px]' : 'text-sm'}`}
+          className={`text-brand-moss dark:text-brand-moss-300 font-medium ${compact ? 'text-[10px]' : 'text-sm'}`}
         >
-          Found all year round
+          Available all year round
         </p>
       </div>
     );
   }
 
-  return (
-    <div className={compact ? '' : 'space-y-1'}>
-      <div
-        role="table"
-        aria-label="Species season chart"
-        className={`grid grid-cols-12 ${compact ? 'gap-0.5' : 'gap-1'}`}
-      >
-        <div role="row" className="contents">
-          {MONTH_LABELS.map((label, index) => {
-            const monthIndex = index as MonthIndex;
-            const inSeason = inSeasonMonths.has(monthIndex);
-            const statusText = inSeason ? 'In season' : 'Not in season';
-            const ariaLabel = `${label} — ${statusText}`;
-
-            return (
-              <div
-                key={label}
-                role="cell"
-                aria-label={ariaLabel}
-                title={ariaLabel}
-                className={`
-                  rounded text-center select-none
-                  ${compact ? 'px-0.5 py-0.5 text-[10px] leading-tight' : 'px-1 py-1.5 text-xs'}
-                  ${inSeason
-                    ? 'bg-brand-moss/20 text-brand-moss font-medium'
-                    : 'bg-gray-100 text-gray-400'
-                  }
-                `}
-              >
-                {label}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Available months text summary */}
-      {hasSeasonData && (
+  if (!hasSeasonData) {
+    return (
+      <div className={compact ? '' : 'pb-6'}>
         <p
-          className={`text-brand-moss font-medium ${compact ? 'text-[10px] mt-0.5' : 'text-xs mt-2'}`}
-          role="status"
-        >
-          Available: {MONTH_LABELS.filter((_, i) => inSeasonMonths.has(i as MonthIndex)).join(', ')}
-        </p>
-      )}
-
-      {!hasSeasonData && (
-        <p
-          className={`text-gray-400 ${compact ? 'text-[10px] mt-0.5' : 'text-xs mt-1'}`}
+          className={`text-gray-400 dark:text-gray-500 ${compact ? 'text-[10px]' : 'text-xs'}`}
           role="status"
         >
           No season data available
         </p>
-      )}
+      </div>
+    );
+  }
+
+  const availableMonths = MONTH_LABELS.filter((_, i) => inSeasonMonths.has(i as MonthIndex));
+
+  return (
+    <div className={compact ? '' : 'pb-6'}>
+      {/* Available months display */}
+      <div
+        role="status"
+        aria-label="Months this species is available"
+        className={compact ? '' : 'space-y-2'}
+      >
+        <p className={`text-brand-charcoal/70 dark:text-brand-sand/70 font-medium ${compact ? 'text-[10px]' : 'text-sm'}`}>
+          Available:
+        </p>
+        <div className={`flex flex-wrap gap-2 ${compact ? 'mt-0.5' : 'mt-1'}`}>
+          {availableMonths.map((month) => (
+            <span
+              key={month}
+              className={`inline-block rounded-full bg-brand-moss/15 text-brand-moss dark:bg-brand-moss/25 dark:text-brand-moss-300 font-medium ${
+                compact ? 'px-1.5 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
+              }`}
+            >
+              {month}
+            </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
