@@ -40,10 +40,10 @@ export default function FindsTimeline({ userId }: { userId: string }) {
             return {
               id: l.id,
               speciesName: l.speciesGuess || 'Unknown species',
-              speciesId: l.matchedSpeciesId || null,
+              speciesId: null,
               date: l.createdAt || '',
-              location: l.locationName || null,
-              photoUrl: null, // Photos stored separately
+              location: l.habitat || null,
+              photoUrl: null,
             };
           })
           .sort((a, b) => b.date.localeCompare(a.date));

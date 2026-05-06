@@ -29,7 +29,7 @@ export default function LifeList({ userId }: { userId: string }) {
         const uniqueSpecies = new Set<string>();
         for (const log of userLogs) {
           const l = log as ExpeditionLog;
-          if (l.matchedSpeciesId) uniqueSpecies.add(l.matchedSpeciesId);
+          if (l.speciesGuess) uniqueSpecies.add(l.speciesGuess);
         }
 
         if (!cancelled) {
