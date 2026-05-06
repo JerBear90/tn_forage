@@ -626,6 +626,40 @@ export default function ProfileContent() {
         />
       </section>
 
+      {/* ── Stats Grid (Trips, Achievements, Badges) ── */}
+      <section className="mb-6">
+        <div className="grid grid-cols-4 gap-2">
+          <Link
+            href="/trips"
+            className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">{tripCount}</span>
+            <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Trips</span>
+          </Link>
+          <Link
+            href="/community#challenges"
+            className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">0</span>
+            <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Badges</span>
+          </Link>
+          <Link
+            href="/community#challenges"
+            className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">0</span>
+            <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Achievements</span>
+          </Link>
+          <Link
+            href="/community#feed"
+            className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">0</span>
+            <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Reviews</span>
+          </Link>
+        </div>
+      </section>
+
       {/* ── Life List Stats ── */}
       <section className="mb-6 rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-4">
         <LifeList userId={profile?.id || "local-user"} />
