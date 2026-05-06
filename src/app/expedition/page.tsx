@@ -206,23 +206,10 @@ export default function ExpeditionPage() {
 
       await putRecord('expeditionLogs', log);
 
-      // Reset form
+      // Show the summary modal instead of clearing immediately
       setSaved(true);
-      // Scroll to top so user sees the success banner
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      // Keep the success state visible — don't reset form immediately
-      // so the user sees confirmation before the form clears
-      setTimeout(() => {
-        setPhotos([]);
-        setSpeciesGuess('');
-        setHabitat('');
-        setTreeNearby('');
-        setVisibility('private');
-        setNotes('');
-        setManualLocation('');
-        setSelectedTripId('');
-        setDateTime(toDateTimeLocal(new Date()));
-      }, 100);
+      setSaving(false);
+      return; // Don't reset form — modal handles next steps
     } catch {
       setError('Failed to save log entry. Please try again.');
     } finally {
@@ -247,19 +234,107 @@ export default function ExpeditionPage() {
         </p>
       </header>
 
-      {/* Success banner */}
+      {/* Save confirmation modal */}
       {saved && (
         <div
-          role="status"
-          className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 px-4 py-4 text-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Entry saved"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
         >
-          <span className="text-2xl block mb-1" aria-hidden="true">✅</span>
-          <p className="text-sm font-semibold text-green-700 dark:text-green-300">
-            Log entry saved successfully!
-          </p>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-            It will sync when you&apos;re back online. You can add another entry below.
-          </p>
+          <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-dark-surface shadow-2xl p-6 max-h-[80vh] overflow-y-auto">
+            <div className="text-center mb-4">
+              <span className="text-3xl" aria-hidden="true">✅</span>
+              <h2 className="font-heading font-bold text-lg text-brand-forest dark:text-brand-moss mt-2">
+                Entry Saved!
+              </h2>
+            </div>
+
+            {/* Summary */}
+            <div className="rounded-lg bg-brand-sand/50 dark:bg-brand-charcoal/40 border border-brand-teal/10 p-4 space-y-2 mb-5">
+              <h3 className="text-xs font-semibold text-brand-charcoal/60 dark:text-brand-sand/60 uppercase tracking-wide">Summary</h3>
+              {speciesGuess && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Species:</span> {speciesGuess}
+                </p>
+              )}
+              {dateTime && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Date:</span> {new Date(dateTime).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              )}
+              {habitat && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Habitat:</span> {habitat}
+                </p>
+              )}
+              {treeNearby && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Tree nearby:</span> {treeNearby}
+                </p>
+              )}
+              {resolvedCoordinates && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Location:</span> {resolvedCoordinates.lat.toFixed(4)}, {resolvedCoordinates.lng.toFixed(4)}
+                </p>
+              )}
+              {photos.length > 0 && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Photos:</span> {photos.length} attached
+                </p>
+              )}
+              <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                <span className="font-medium">Visibility:</span> {visibility === 'public' ? '🌐 Public' : '🔒 Private'}
+              </p>
+              {notes && (
+                <p className="text-sm text-brand-charcoal dark:text-brand-sand">
+                  <span className="font-medium">Notes:</span> {notes}
+                </p>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  // Edit — just close the modal, form still has the data
+                  setSaved(false);
+                }}
+                aria-label="Go back and edit this entry"
+                className="w-full min-h-[44px] rounded-lg border border-brand-teal/30 bg-white dark:bg-dark-surface px-4 py-3 text-sm font-semibold text-brand-teal hover:bg-brand-teal/5 transition-colors"
+              >
+                ✏️ Edit Entry
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Add new entry — reset form
+                  setSaved(false);
+                  setPhotos([]);
+                  setSpeciesGuess('');
+                  setHabitat('');
+                  setTreeNearby('');
+                  setVisibility('private');
+                  setNotes('');
+                  setManualLocation('');
+                  setSelectedTripId('');
+                  setDateTime(toDateTimeLocal(new Date()));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                aria-label="Add another log entry"
+                className="w-full min-h-[44px] rounded-lg bg-brand-teal px-4 py-3 text-sm font-semibold text-white hover:bg-brand-teal/90 transition-colors"
+              >
+                ➕ Add New Entry
+              </button>
+              <Link
+                href="/profile"
+                className="w-full min-h-[44px] rounded-lg border border-brand-charcoal/20 dark:border-brand-sand/20 px-4 py-3 text-sm font-medium text-brand-charcoal dark:text-brand-sand hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center"
+              >
+                Done — Back to Profile
+              </Link>
+            </div>
+          </div>
         </div>
       )}
 
