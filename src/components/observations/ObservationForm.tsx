@@ -120,7 +120,7 @@ export default function ObservationForm({ onSubmitted, onCancel }: ObservationFo
         coordinates: observation.coordinates ?? undefined,
         photos: [],
         createdAt: observation.createdAt,
-        syncStatus: 'pending',
+        updatedAt: observation.createdAt,
       });
 
       onSubmitted?.(observation);
