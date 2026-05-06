@@ -28,6 +28,7 @@ import SeasonChart from "@/components/SeasonChart";
 import ForagingTipSection from "@/components/ForagingTipSection";
 import VoicePronunciationButton from "@/components/VoicePronunciationButton";
 import BreadcrumbNavigator from "@/components/BreadcrumbNavigator";
+import INaturalistSection from "@/components/INaturalistSection";
 import { writeReferrer } from "@/utils/breadcrumbReferrer";
 import { useAssociatedSpeciesLookup } from "@/hooks/useAssociatedSpeciesLookup";
 import type {
@@ -453,6 +454,9 @@ function SpeciesOrPlantDetail({
           </ul>
         </Section>
       )}
+
+      {/* iNaturalist Community Data */}
+      <INaturalistSection scientificName={d.scientificName} commonName={d.commonName} />
 
     </>
   );

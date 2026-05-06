@@ -9,6 +9,7 @@ import { putRecord, getRecord } from "@/offline/db";
 import { getFollowerCount, getFollowingCount } from "@/social/followService";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileTabs from "@/components/profile/ProfileTabs";
+import FindsTimeline from "@/components/profile/FindsTimeline";
 import type { UserProfileLocal, UserProfileExtended } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -612,6 +613,14 @@ export default function ProfileContent() {
           userId={profile?.id || "local-user"}
           isOwnProfile={true}
         />
+      </section>
+
+      {/* ── My Finds Timeline ── */}
+      <section className="mb-6">
+        <h2 className="font-heading font-semibold text-base text-brand-charcoal dark:text-brand-sand mb-3">
+          My Finds
+        </h2>
+        <FindsTimeline userId={profile?.id || "local-user"} />
       </section>
 
       {/* ── Quick Links ── */}
