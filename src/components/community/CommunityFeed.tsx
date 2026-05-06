@@ -435,16 +435,29 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
     setComment('');
   }, [comment, comments, item.id, replyingTo]);
 
-  // Vote on a comment (single vote per comment)
+  // Vote on a comment (single vote per comment, tap again to cancel)
   const handleVote = useCallback((commentId: string, direction: 1 | -1) => {
-    // Check if already voted this direction
-    if (votedIds[commentId] === direction) return;
-    // If switching vote, undo previous first
-    const adjustment = votedIds[commentId] ? direction * 2 : direction;
-    const updated = voteOnComment(comments, commentId, adjustment as 1 | -1);
+    let updated: ThreadedComment[];
+    let newVotedIds: Record<string, 1 | -1>;
+
+    if (votedIds[commentId] === direction) {
+      // Same direction again — cancel the vote
+      updated = voteOnComment(comments, commentId, (direction * -1) as 1 | -1);
+      newVotedIds = { ...votedIds };
+      delete newVotedIds[commentId];
+    } else if (votedIds[commentId]) {
+      // Switching direction — undo previous + apply new
+      const adjustment = direction * 2;
+      updated = voteOnComment(comments, commentId, adjustment as 1 | -1);
+      newVotedIds = { ...votedIds, [commentId]: direction };
+    } else {
+      // Fresh vote
+      updated = voteOnComment(comments, commentId, direction);
+      newVotedIds = { ...votedIds, [commentId]: direction };
+    }
+
     setComments(updated);
     localStorage.setItem(`fw_comments_v2_${item.id}`, JSON.stringify(updated));
-    const newVotedIds = { ...votedIds, [commentId]: direction };
     setVotedIds(newVotedIds);
     localStorage.setItem(`fw_votes_${item.id}`, JSON.stringify(newVotedIds));
   }, [comments, item.id, votedIds]);
@@ -539,6 +552,15 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
                   className={`w-1.5 h-1.5 rounded-full transition-colors ${i === galleryIndex ? 'bg-white' : 'bg-white/40'}`}
                 />
               ))}
+            </div>
+          )}
+          {/* Gallery counter badge (top-right) */}
+          {photoUrls.length > 1 && (
+            <div className="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-sm rounded-md px-2 py-0.5 flex items-center gap-1">
+              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008M6 18h.008M18 6h.008M18 18h.008M3 9.75V4.5A1.5 1.5 0 014.5 3h4.125M3 14.25v5.25A1.5 1.5 0 004.5 21h4.125M21 9.75V4.5A1.5 1.5 0 0019.5 3h-4.125M21 14.25v5.25a1.5 1.5 0 01-1.5 1.5h-4.125" />
+              </svg>
+              <span className="text-[10px] font-semibold text-white">{galleryIndex + 1}/{photoUrls.length}</span>
             </div>
           )}
           {/* Gallery arrows */}
@@ -838,10 +860,15 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
                 </div>
               )}
               <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-                </svg>
+              <div className="w-8 h-8 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {item.avatarUrl && item.avatarUrl.startsWith('http') ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.avatarUrl} alt="Your avatar" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                ) : (
+                  <svg className="w-4 h-4 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                  </svg>
+                )}
               </div>
               <input
                 type="text"

@@ -169,11 +169,21 @@ export default function ProfileContent() {
           getFollowingCount(effectiveId),
         ]);
         if (!cancelled) {
+          // Also check localStorage feed follows as fallback
+          let lsFollowing = 0;
+          try {
+            const raw = localStorage.getItem('foragewise_feed_follows');
+            if (raw) lsFollowing = JSON.parse(raw).length;
+          } catch { /* ignore */ }
           setFollowerCount(followers);
-          setFollowingCount(following);
+          setFollowingCount(Math.max(following, lsFollowing));
         }
       } catch {
-        // IndexedDB may not be available
+        // Fallback to localStorage only
+        try {
+          const raw = localStorage.getItem('foragewise_feed_follows');
+          if (raw && !cancelled) setFollowingCount(JSON.parse(raw).length);
+        } catch { /* ignore */ }
       }
     }
     loadSocialCounts();
