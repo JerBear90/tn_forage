@@ -46,6 +46,7 @@ export async function searchUsers(params: UserSearchParams): Promise<UserSearchR
     name: (record['name'] as string) ?? '',
     email: (record['email'] as string) ?? '',
     role: ((record['role'] as string) ?? 'free') as AdminUser['role'],
+    membershipPlan: ((record['membershipPlan'] as string) ?? 'free') as AdminUser['membershipPlan'],
     lastActiveAt: (record['lastActiveAt'] as string) ?? (record['updated'] as string) ?? '',
     totalSessions: (record['totalSessions'] as number) ?? 0,
     accountStatus: record['disabled'] ? 'disabled' : 'active',
@@ -78,4 +79,19 @@ export async function changeUserRole(userId: string, newRole: string): Promise<v
  */
 export async function toggleUserStatus(userId: string, disabled: boolean): Promise<void> {
   await pb.collection('users').update(userId, { disabled });
+}
+
+/**
+ * Change a user's membership plan.
+ *
+ * @param userId - The PocketBase user record ID.
+ * @param plan - The new membership plan ('free', 'monthly', 'yearly', or 'lifetime').
+ */
+export async function changeMembershipPlan(userId: string, plan: string): Promise<void> {
+  // Update the membership plan and set role to 'member' if upgrading from free
+  const updates: Record<string, unknown> = { membershipPlan: plan };
+  if (plan !== 'free') {
+    updates.role = 'member';
+  }
+  await pb.collection('users').update(userId, updates);
 }
