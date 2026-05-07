@@ -1144,16 +1144,19 @@ function CommunityContent() {
               <TrendingSpeciesSection sightings={sightings} />
 
               <div className="space-y-4" aria-label="Community feed">
-                {sightings.map((s) => (
-                  <FeedPost
-                    key={s.id}
-                    post={s}
-                    speciesImage={matchSpeciesImage(s.speciesGuess ?? '', knownSpecies)}
-                    isAuthenticated={isAuthenticated}
-                    onFlag={(id) => setFlagTarget(id)}
-                    onSuggestId={(id) => { /* TODO: open suggest ID modal */ }}
-                  />
-                ))}
+                {sightings.map((s) => {
+                  const match = matchSpeciesImage(s.speciesGuess ?? '', knownSpecies);
+                  return (
+                    <FeedPost
+                      key={s.id}
+                      post={s}
+                      speciesImage={match?.image ?? null}
+                      isAuthenticated={isAuthenticated}
+                      onFlag={(id) => setFlagTarget(id)}
+                      onSuggestId={(id) => { /* TODO: open suggest ID modal */ }}
+                    />
+                  );
+                })}
               </div>
             </>
           )}
