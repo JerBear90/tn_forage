@@ -851,7 +851,7 @@ function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
 // ---------------------------------------------------------------------------
 
 function CommunityContent() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, role } = useAuth();
   const [sightings, setSightings] = useState<CommunityDraft[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewForm, setShowNewForm] = useState(false);
@@ -1094,22 +1094,24 @@ function CommunityContent() {
               >
                 + New Sighting
               </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  const { syncLocalPosts } = await import('@/services/communityPostsService');
-                  const result = await syncLocalPosts();
-                  if (result.synced > 0) {
-                    await loadData();
-                    setLoading(false);
-                  }
-                }}
-                className="shrink-0 rounded-lg border border-brand-teal/30 bg-brand-teal/5 text-brand-teal font-medium text-xs px-3 py-3 hover:bg-brand-teal/10 transition-colors min-h-[48px]"
-                aria-label="Sync local posts to cloud"
-                title="Push local posts to the community"
-              >
-                🔄 Sync
-              </button>
+              {role === 'super_user' && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const { syncLocalPosts } = await import('@/services/communityPostsService');
+                    const result = await syncLocalPosts();
+                    if (result.synced > 0) {
+                      await loadData();
+                      setLoading(false);
+                    }
+                  }}
+                  className="shrink-0 rounded-lg border border-brand-teal/30 bg-brand-teal/5 text-brand-teal font-medium text-xs px-3 py-3 hover:bg-brand-teal/10 transition-colors min-h-[48px]"
+                  aria-label="Sync local posts to cloud"
+                  title="Push local posts to the community"
+                >
+                  🔄 Sync
+                </button>
+              )}
             </div>
           )}
 
