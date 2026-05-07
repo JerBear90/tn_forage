@@ -142,10 +142,15 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
       return;
     }
 
-    // Check PocketBase auth
+    // Check PocketBase auth — try to refresh if expired
     if (!pb.authStore.isValid) {
-      alert('Your session has expired. Please sign in again to post.');
-      return;
+      // Attempt to refresh the session
+      try {
+        await pb.collection('users').authRefresh();
+      } catch {
+        alert('Your session has expired. Please sign in again to post.');
+        return;
+      }
     }
 
     setSaving(true);

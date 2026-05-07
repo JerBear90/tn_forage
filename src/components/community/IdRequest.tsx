@@ -53,9 +53,14 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
       const { pb } = await import('@/auth/authService');
 
       if (!pb.authStore.isValid) {
-        setError('Please sign in again to submit an ID request.');
-        setSubmitting(false);
-        return;
+        // Try to refresh the session
+        try {
+          await pb.collection('users').authRefresh();
+        } catch {
+          setError('Please sign in again to submit an ID request.');
+          setSubmitting(false);
+          return;
+        }
       }
 
       const result = await createCommunityPost({
