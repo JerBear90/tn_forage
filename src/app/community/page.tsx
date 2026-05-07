@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { useAuth } from '@/auth/useAuth';
 import OnlineHint from '@/components/OnlineHint';
 import IdRequest from '@/components/community/IdRequest';
+import FeedPost from '@/components/community/FeedPost';
 import { getAllRecords, putRecord } from '@/offline/db';
 import { applyLocationPrivacy } from '@/services/locationPrivacy';
 import { matchSpeciesImage, type KnownSpeciesRecord } from '@/services/trending';
@@ -1054,8 +1055,8 @@ function CommunityContent() {
         <h1 className="text-2xl font-bold text-brand-forest dark:text-brand-moss font-heading">
           Community
         </h1>
-        <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mt-1">
-          Share and explore observations from the community. Community IDs are not expert confirmations.
+        <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mt-1">
+          Community sightings are user-submitted and not verified by experts. Always verify with a qualified expert.
         </p>
       </header>
 
@@ -1078,7 +1079,7 @@ function CommunityContent() {
 
           {/* New Sighting button / form */}
           {!isAuthenticated ? (
-            <div className="mb-6 rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-3 text-center">
+            <div className="mb-4 rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-3 text-center">
               <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70">
                 <Link href="/login" className="font-medium text-brand-teal hover:underline">Sign in</Link> to post sightings, leave reviews, and interact with the community.
               </p>
@@ -1089,14 +1090,7 @@ function CommunityContent() {
               onCancel={() => setShowNewForm(false)}
             />
           ) : (
-            <div className="flex gap-2 mb-6">
-              <button
-                type="button"
-                onClick={() => setShowNewForm(true)}
-                className="flex-1 rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] min-h-[48px]"
-              >
-                + New Sighting
-              </button>
+            <div className="flex gap-2 mb-4">
               {role === 'super_user' && (
                 <button
                   type="button"
@@ -1109,11 +1103,10 @@ function CommunityContent() {
                       setLoading(false);
                     }
                   }}
-                  className="shrink-0 rounded-lg border border-brand-teal/30 bg-brand-teal/5 text-brand-teal font-medium text-xs px-3 py-3 hover:bg-brand-teal/10 transition-colors min-h-[48px]"
+                  className="rounded-lg border border-brand-teal/30 bg-brand-teal/5 text-brand-teal font-medium text-xs px-3 py-2 hover:bg-brand-teal/10 transition-colors"
                   aria-label="Sync local posts to cloud"
-                  title="Push local posts to the community"
                 >
-                  🔄 Sync
+                  🔄 Sync Posts
                 </button>
               )}
             </div>
@@ -1150,22 +1143,16 @@ function CommunityContent() {
               {/* Trending Species Section (Req 8.1) */}
               <TrendingSpeciesSection sightings={sightings} />
 
-              <div className="space-y-4" aria-label="Sightings list">
+              <div className="space-y-4" aria-label="Community feed">
                 {sightings.map((s) => (
-                  <div key={s.id} className="relative">
-                    <SightingCard
-                      sighting={s}
-                      knownSpecies={knownSpecies}
-                      onFlag={(id) => setFlagTarget(id)}
-                    />
-                    {flaggedIds.has(s.id) && (
-                      <div className="absolute top-2 right-2">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-600 dark:text-red-400">
-                          🚩 Reported
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <FeedPost
+                    key={s.id}
+                    post={s}
+                    speciesImage={matchSpeciesImage(s.speciesGuess ?? '', knownSpecies)}
+                    isAuthenticated={isAuthenticated}
+                    onFlag={(id) => setFlagTarget(id)}
+                    onSuggestId={(id) => { /* TODO: open suggest ID modal */ }}
+                  />
                 ))}
               </div>
             </>
@@ -1208,6 +1195,20 @@ function CommunityContent() {
           onClose={() => setFlagTarget(null)}
           onSubmit={handleFlag}
         />
+      )}
+
+      {/* Floating Add Post Button */}
+      {isAuthenticated && !showNewForm && activeSection === 'feed' && (
+        <button
+          type="button"
+          onClick={() => setShowNewForm(true)}
+          className="fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full bg-brand-teal text-white shadow-lg flex items-center justify-center hover:bg-brand-teal/90 active:scale-95 transition-all"
+          aria-label="New post"
+        >
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
       )}
     </main>
   );
