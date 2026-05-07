@@ -16,25 +16,21 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/auth/useAuth';
+import { pb } from '@/auth/authService';
 import OnlineHint from '@/components/OnlineHint';
 import IdRequest from '@/components/community/IdRequest';
-import FeedPost from '@/components/community/FeedPost';
 import { getAllRecords, putRecord } from '@/offline/db';
 import { applyLocationPrivacy } from '@/services/locationPrivacy';
-import { matchSpeciesImage, type KnownSpeciesRecord } from '@/services/trending';
-import TrendingSpeciesSection from '@/components/community/TrendingSpeciesSection';
 import ChallengesSection from '@/components/ChallengesSection';
-import SkeletonCard from '@/components/skeletons/SkeletonCard';
+import CommunityFeed from '@/components/community/CommunityFeed';
 import type {
   CommunityDraft,
   CommunityFlag,
   CommunitySubSection,
   BlogArticle,
   FlagReason,
-  LogVisibility,
   Coordinates,
 } from '@/types';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -52,6 +48,18 @@ function generateId(): string {
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
+}
+
+/** Resolve avatar to a full URL (handles PocketBase filenames and OAuth URLs) */
+function resolveAvatarUrl(userId: string | undefined, avatar: string | undefined): string | undefined {
+  if (!avatar) return undefined;
+  if (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/')) {
+    return avatar;
+  }
+  if (userId) {
+    return `${pb.baseURL}/api/files/_pb_users_auth_/${userId}/${avatar}`;
+  }
+  return undefined;
 }
 
 function formatDate(iso: string): string {
@@ -89,15 +97,15 @@ interface NewSightingFormProps {
 }
 
 function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
+  const { user } = useAuth();
   const [speciesGuess, setSpeciesGuess] = useState('');
   const [notes, setNotes] = useState('');
-  const [visibility, setVisibility] = useState<LogVisibility>('private');
   const [saving, setSaving] = useState(false);
   const [locationMode, setLocationMode] = useState<'gps' | 'manual'>('gps');
   const geo = useGeolocation();
 
-  // Photo handling — stores photo IDs, names, and preview URLs
-  const [photoFiles, setPhotoFiles] = useState<{ id: string; name: string; previewUrl?: string }[]>([]);
+  // Photo handling — stores photo IDs, names, files, and preview URLs
+  const [photoFiles, setPhotoFiles] = useState<{ id: string; name: string; file?: File; previewUrl?: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Clean up object URLs on unmount
@@ -115,6 +123,7 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
     const newPhotos = Array.from(files).map((f) => ({
       id: generateId(),
       name: f.name,
+      file: f,
       previewUrl: URL.createObjectURL(f),
     }));
     setPhotoFiles((prev) => [...prev, ...newPhotos]);
@@ -137,49 +146,68 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
         ? { lat: geo.position.lat, lng: geo.position.lng }
         : undefined;
 
-    // Apply location privacy — fuzz for public, keep exact for private
-    const coords = applyLocationPrivacy(rawCoords, visibility);
+    // Apply location privacy — fuzz for public posts
+    const coords = applyLocationPrivacy(rawCoords, 'public');
 
-    // Try to post to PocketBase first (online), fall back to local
-    try {
-      const { createCommunityPost } = await import('@/services/communityPostsService');
-      const result = await createCommunityPost({
-        speciesGuess: speciesGuess.trim(),
-        notes: notes.trim(),
-        visibility,
-        coordinates: coords,
-      });
-
-      if (result.success) {
-        const draft: CommunityDraft = {
-          id: result.id ?? generateId(),
-          userId: 'local-user',
-          speciesGuess: speciesGuess.trim() || undefined,
-          photos: photoFiles.map((p) => p.id),
-          coordinates: coords,
-          notes: notes.trim(),
-          visibility,
-          createdAt: now,
-          updatedAt: now,
-        };
-        onSave(draft);
+    // Save photo blobs to IndexedDB for local display
+    const photoIds: string[] = [];
+    const photoFilesForUpload: File[] = [];
+    for (const photo of photoFiles) {
+      if (photo.file) {
+        try {
+          const arrayBuffer = await photo.file.arrayBuffer();
+          const blob = new Blob([arrayBuffer], { type: photo.file.type });
+          await putRecord('photos', {
+            id: photo.id,
+            blob,
+            mimeType: photo.file.type || 'image/jpeg',
+            caption: '',
+            createdAt: now,
+            syncStatus: 'pending' as const,
+          });
+          photoIds.push(photo.id);
+          photoFilesForUpload.push(photo.file);
+        } catch {
+          // Skip failed photos
+        }
       }
-    } catch {
-      // Offline fallback — save locally
-      const draft: CommunityDraft = {
-        id: generateId(),
-        userId: 'local-user',
-        speciesGuess: speciesGuess.trim() || undefined,
-        photos: photoFiles.map((p) => p.id),
-        coordinates: coords,
-        notes: notes.trim(),
-        visibility,
-        createdAt: now,
-        updatedAt: now,
-      };
-      await putRecord('communityDrafts', draft);
-      onSave(draft);
     }
+
+    const draft: CommunityDraft = {
+      id: generateId(),
+      userId: user?.id || 'local-user',
+      displayName: user?.displayName || undefined,
+      avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
+      speciesGuess: speciesGuess.trim() || undefined,
+      photos: photoIds,
+      coordinates: coords,
+      notes: notes.trim(),
+      visibility: 'public',
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    // Save locally
+    await putRecord('communityDrafts', draft);
+
+    // Sync to PocketBase (so other users can see it)
+    try {
+      const { createCommunityPost } = await import('@/services/communityPostService');
+      await createCommunityPost({
+        userId: user?.id || 'local-user',
+        displayName: user?.displayName || undefined,
+        avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
+        speciesGuess: speciesGuess.trim() || undefined,
+        notes: notes.trim() || undefined,
+        coordinates: coords,
+        postType: 'sighting',
+        photoFiles: photoFilesForUpload,
+      });
+    } catch {
+      // Offline — post saved locally, will need manual sync later
+    }
+
+    onSave(draft);
     setSaving(false);
   }
 
@@ -341,44 +369,6 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
           />
         </div>
 
-        {/* Visibility (14.4) */}
-        <div>
-          <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand mb-2">
-            Visibility
-          </p>
-          <div className="flex gap-2" role="radiogroup" aria-label="Sighting visibility">
-            <button
-              type="button"
-              role="radio"
-              aria-checked={visibility === 'private'}
-              onClick={() => setVisibility('private')}
-              className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
-                visibility === 'private'
-                  ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
-                  : 'border-brand-teal/20 bg-white/60 dark:bg-brand-charcoal/40 text-brand-charcoal/70 dark:text-brand-sand/70 hover:bg-brand-teal/5'
-              }`}
-            >
-              🔒 Private
-            </button>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={visibility === 'public'}
-              onClick={() => setVisibility('public')}
-              className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
-                visibility === 'public'
-                  ? 'border-brand-teal bg-brand-teal/10 text-brand-teal'
-                  : 'border-brand-teal/20 bg-white/60 dark:bg-brand-charcoal/40 text-brand-charcoal/70 dark:text-brand-sand/70 hover:bg-brand-teal/5'
-              }`}
-            >
-              🌐 Public
-            </button>
-          </div>
-          <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mt-1">
-            Sightings are private by default. Public sightings have GPS coordinates fuzzed for privacy.
-          </p>
-        </div>
-
         {/* Actions */}
         <div className="flex gap-3 pt-1">
           <button
@@ -513,187 +503,6 @@ function FlagDialog({ sightingId, onClose, onSubmit }: FlagDialogProps) {
         </div>
       </div>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Sighting Card
-// ---------------------------------------------------------------------------
-
-interface SightingCardProps {
-  sighting: CommunityDraft;
-  knownSpecies: KnownSpeciesRecord[];
-  onFlag: (id: string) => void;
-}
-
-function SightingCard({ sighting, knownSpecies, onFlag }: SightingCardProps) {
-  const [showComments, setShowComments] = useState(false);
-
-  // Match species guess against known species/plants for image (Req 7.1, 7.2)
-  const speciesMatch = sighting.speciesGuess
-    ? matchSpeciesImage(sighting.speciesGuess, knownSpecies)
-    : undefined;
-
-  return (
-    <article
-      className="rounded-xl border border-brand-teal/15 bg-white/80 dark:bg-brand-charcoal/60 p-4"
-      aria-label={`Sighting: ${sighting.speciesGuess || 'Unknown species'}`}
-    >
-      {/* Species image (Req 7.1, 7.2) */}
-      <div className="relative w-full h-36 rounded-lg overflow-hidden bg-brand-sand/40 dark:bg-brand-charcoal/40 mb-3">
-        {speciesMatch?.image ? (
-          <Image
-            src={speciesMatch.image}
-            alt={sighting.speciesGuess || 'Species image'}
-            width={400}
-            height={200}
-            sizes="(max-width: 512px) 100vw, 512px"
-            quality={70}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full">
-            <svg
-              aria-hidden="true"
-              className="w-10 h-10 text-brand-charcoal/15 dark:text-brand-sand/15"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-              />
-            </svg>
-          </div>
-        )}
-      </div>
-
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="min-w-0">
-          <h3 className="font-heading font-semibold text-sm text-brand-charcoal dark:text-brand-sand truncate">
-            {sighting.speciesGuess || 'Unknown species'}
-          </h3>
-          <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
-            {formatDate(sighting.createdAt)}
-          </p>
-        </div>
-
-        {/* Privacy indicator (14.4) */}
-        <span
-          className={`flex-shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-            sighting.visibility === 'public'
-              ? 'bg-brand-teal/10 text-brand-teal'
-              : 'bg-brand-charcoal/10 dark:bg-brand-sand/10 text-brand-charcoal/60 dark:text-brand-sand/60'
-          }`}
-          aria-label={`Visibility: ${sighting.visibility}`}
-        >
-          {sighting.visibility === 'public' ? '🌐' : '🔒'}
-          {sighting.visibility === 'public' ? 'Public' : 'Private'}
-        </span>
-      </div>
-
-      {/* Notes */}
-      {sighting.notes && (
-        <p className="text-sm text-brand-charcoal/80 dark:text-brand-sand/80 mb-2">
-          {sighting.notes}
-        </p>
-      )}
-
-      {/* Location (fuzzed for public) */}
-      {sighting.coordinates && (
-        <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 mb-2">
-          📍 {sighting.coordinates.lat.toFixed(3)}, {sighting.coordinates.lng.toFixed(3)}
-          {sighting.visibility === 'public' && (
-            <span className="ml-1 text-brand-teal">(approximate)</span>
-          )}
-        </p>
-      )}
-
-      {/* Photo thumbnails (Req 7.3) */}
-      {sighting.photos.length > 0 && (
-        <div className="flex gap-1.5 overflow-x-auto pb-1 mb-3" aria-label="Sighting photos">
-          {sighting.photos.map((photoId) => (
-            <div
-              key={photoId}
-              className="shrink-0 w-14 h-14 rounded-md overflow-hidden bg-brand-sand/30 dark:bg-brand-charcoal/40 border border-brand-teal/10 flex items-center justify-center"
-            >
-              <svg
-                aria-hidden="true"
-                className="w-5 h-5 text-brand-charcoal/20 dark:text-brand-sand/20"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"
-                />
-              </svg>
-            </div>
-          ))}
-          <span className="sr-only">
-            {sighting.photos.length} photo{sighting.photos.length !== 1 ? 's' : ''} attached
-          </span>
-        </div>
-      )}
-
-      {/* Action buttons */}
-      <div className="flex items-center gap-2 border-t border-brand-teal/10 pt-3">
-        {/* Comments placeholder (14.2) */}
-        <button
-          type="button"
-          onClick={() => setShowComments(!showComments)}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-brand-charcoal/60 dark:text-brand-sand/60 hover:bg-brand-teal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors min-h-[36px]"
-          aria-expanded={showComments}
-        >
-          <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-          </svg>
-          Comments
-        </button>
-
-        {/* Suggest ID placeholder (14.2) */}
-        <button
-          type="button"
-          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-brand-teal hover:bg-brand-teal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors min-h-[36px]"
-          aria-label="Suggest an identification"
-        >
-          <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-          </svg>
-          Suggest ID
-        </button>
-
-        {/* Report / Flag (14.3) */}
-        <button
-          type="button"
-          onClick={() => onFlag(sighting.id)}
-          className="ml-auto flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-red-500/70 hover:bg-red-50 dark:hover:bg-red-900/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 transition-colors min-h-[36px]"
-          aria-label="Report this sighting"
-        >
-          <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
-          </svg>
-          Report
-        </button>
-      </div>
-
-      {/* Comments section placeholder (14.2) */}
-      {showComments && (
-        <div className="mt-3 pt-3 border-t border-brand-teal/10">
-          <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50 text-center py-4">
-            Comments will be available when the community backend is connected.
-          </p>
-        </div>
-      )}
-    </article>
   );
 }
 
@@ -886,9 +695,6 @@ function CommunityContent() {
     window.location.hash = section;
   }, []);
 
-  // Known species/plants for image matching (Req 7.4)
-  const [knownSpecies, setKnownSpecies] = useState<KnownSpeciesRecord[]>([]);
-
   // Pull-to-refresh state (Req 9.2, 9.3, 9.4, 9.5)
   const [refreshing, setRefreshing] = useState(false);
   const touchStartY = useRef<number | null>(null);
@@ -916,53 +722,14 @@ function CommunityContent() {
       }));
 
       setSightings(drafts);
-
-      // Also load species for image matching
-      const [speciesRecords, plantRecords] = await Promise.all([
-        getAllRecords('species'),
-        getAllRecords('plants'),
-      ]);
-
-      const known: KnownSpeciesRecord[] = [
-        ...speciesRecords.map((s) => ({
-          id: s.id,
-          commonName: s.commonName,
-          images: s.images,
-        })),
-        ...plantRecords.map((p) => ({
-          id: p.id,
-          commonName: p.commonName,
-          images: p.images,
-        })),
-      ];
-      setKnownSpecies(known);
     } catch {
       // Fallback: load from local IndexedDB
       try {
-        const [drafts, speciesRecords, plantRecords] = await Promise.all([
-          getAllRecords('communityDrafts'),
-          getAllRecords('species'),
-          getAllRecords('plants'),
-        ]);
-
+        const drafts = await getAllRecords('communityDrafts');
         const sorted = (drafts as CommunityDraft[]).sort(
           (a, b) => b.createdAt.localeCompare(a.createdAt),
         );
         setSightings(sorted);
-
-        const known: KnownSpeciesRecord[] = [
-          ...speciesRecords.map((s) => ({
-            id: s.id,
-            commonName: s.commonName,
-            images: s.images,
-          })),
-          ...plantRecords.map((p) => ({
-            id: p.id,
-            commonName: p.commonName,
-            images: p.images,
-          })),
-        ];
-        setKnownSpecies(known);
       } catch { /* store may not exist */ }
     }
   }, []);
@@ -1112,54 +879,7 @@ function CommunityContent() {
             </div>
           )}
 
-          {/* Sightings list */}
-          {loading ? (
-            <div
-              className="space-y-4"
-              role="status"
-              aria-label="Loading sightings"
-            >
-              {Array.from({ length: 3 }).map((_, i) => (
-                <SkeletonCard key={i} variant="sighting" />
-              ))}
-              <span className="sr-only">Loading sightings…</span>
-            </div>
-          ) : sightings.length === 0 ? (
-            <>
-              {/* Trending Species Section (Req 8.1) */}
-              <TrendingSpeciesSection sightings={sightings} />
-
-              <section aria-label="No sightings" className="text-center py-12">
-                <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50">
-                  No sightings yet. Be the first to share an observation!
-                </p>
-                <p className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40 mt-1">
-                  All sightings save locally and sync when online.
-                </p>
-              </section>
-            </>
-          ) : (
-            <>
-              {/* Trending Species Section (Req 8.1) */}
-              <TrendingSpeciesSection sightings={sightings} />
-
-              <div className="space-y-4" aria-label="Community feed">
-                {sightings.map((s) => {
-                  const match = matchSpeciesImage(s.speciesGuess ?? '', knownSpecies);
-                  return (
-                    <FeedPost
-                      key={s.id}
-                      post={s}
-                      speciesImage={match?.image ?? null}
-                      isAuthenticated={isAuthenticated}
-                      onFlag={(id) => setFlagTarget(id)}
-                      onSuggestId={(id) => { /* TODO: open suggest ID modal */ }}
-                    />
-                  );
-                })}
-              </div>
-            </>
-          )}
+          {/* Sightings list — now handled by CommunityFeed component */}
         </>
       )}
 
