@@ -63,12 +63,50 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
         }
       }
 
+      // Compress photo if too large (mobile cameras take 5-10MB photos)
+      let photoFile: File | undefined;
+      if (photoBlob) {
+        if (photoBlob.size > 4 * 1024 * 1024) {
+          // Compress via canvas
+          try {
+            const compressed = await new Promise<File>((resolve, reject) => {
+              const img = new Image();
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let { width, height } = img;
+                const max = 1600;
+                if (width > max || height > max) {
+                  if (width > height) { height = (height / width) * max; width = max; }
+                  else { width = (width / height) * max; height = max; }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) { reject(new Error('No ctx')); return; }
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob((blob) => {
+                  if (!blob) { reject(new Error('Compress failed')); return; }
+                  resolve(new File([blob], 'id-request.jpg', { type: 'image/jpeg' }));
+                }, 'image/jpeg', 0.7);
+              };
+              img.onerror = () => reject(new Error('Load failed'));
+              img.src = URL.createObjectURL(photoBlob);
+            });
+            photoFile = compressed;
+          } catch {
+            photoFile = new File([photoBlob], 'id-request.jpg', { type: photoBlob.type || 'image/jpeg' });
+          }
+        } else {
+          photoFile = new File([photoBlob], 'id-request.jpg', { type: photoBlob.type || 'image/jpeg' });
+        }
+      }
+
       const result = await createCommunityPost({
-        userId: user?.id || 'local-user',
-        displayName: user?.displayName || undefined,
+        userId: pb.authStore.record?.id || user?.id || 'local-user',
+        displayName: user?.displayName || pb.authStore.record?.name || undefined,
         speciesGuess: `[ID Request] ${question.trim()}`,
         notes: question.trim() + (location.trim() ? `\n📍 Found at: ${location.trim()}` : ''),
-        photoFiles: photoBlob ? [new File([photoBlob], 'id-request.jpg', { type: photoBlob.type || 'image/jpeg' })] : undefined,
+        photoFiles: photoFile ? [photoFile] : undefined,
       });
 
       if (!result) {
@@ -79,8 +117,9 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
 
       setSubmitted(true);
       onSubmitted?.();
-    } catch {
-      setError('Failed to submit. Please check your connection and try again.');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to submit: ${msg}`);
     } finally {
       setSubmitting(false);
     }
