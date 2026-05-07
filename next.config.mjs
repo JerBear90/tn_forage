@@ -335,6 +335,11 @@ const nextConfig = {
         hostname: 'foragewise.pockethost.io',
         pathname: '/api/files/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
     ],
   },
 };

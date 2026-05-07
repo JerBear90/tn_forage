@@ -15,6 +15,8 @@ export const seedBlogArticles: BlogArticle[] = [
 
 Tennessee's diverse ecosystems — from the Cumberland Plateau to the Mississippi River bottomlands — support a wide variety of spring edible plants. As temperatures rise in March and April, foragers can find an abundance of wild greens emerging across the state.
 
+<img src="https://images.unsplash.com/photo-1591857177580-dc82b9ac4e1e?w=700&q=75" alt="Wild ramps growing in a forest floor" style="width:100%;border-radius:12px;margin:16px 0" />
+
 ## Ramps (Allium tricoccum)
 
 Ramps are among the most sought-after spring wild edibles in East Tennessee. Found in rich, moist deciduous forests at higher elevations, they emerge in late March through April. Their broad, smooth leaves and strong garlic-onion aroma make them relatively easy to identify.
@@ -24,6 +26,8 @@ Ramps are among the most sought-after spring wild edibles in East Tennessee. Fou
 ## Chickweed (Stellaria media)
 
 One of the earliest spring greens, chickweed appears in lawns, gardens, and disturbed areas statewide. Look for its small white star-shaped flowers and single line of hairs running along the stem. It has a mild, pleasant flavor similar to spinach.
+
+<img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=700&q=75" alt="Spring wildflowers in Tennessee woodland" style="width:100%;border-radius:12px;margin:16px 0" />
 
 ## Henbit (Lamium amplexicaule)
 
@@ -67,6 +71,8 @@ Common blue violets carpet Tennessee woodlands and lawns in spring. Both leaves 
 
 Tennessee's humid climate and diverse hardwood forests create ideal conditions for fungi. While the state hosts many edible species, it also harbors deadly lookalikes. Proper identification is critical.
 
+<img src="https://images.unsplash.com/photo-1611843467160-25afb8df1074?w=700&q=75" alt="Wild morel mushrooms growing in forest" style="width:100%;border-radius:12px;margin:16px 0" />
+
 ## Morels (Morchella spp.)
 
 Morels are Tennessee's most popular wild mushroom, fruiting from late March through May. They prefer areas around dead or dying elm, ash, tulip poplar, and apple trees. Their distinctive honeycomb-patterned cap is hollow when sliced lengthwise.
@@ -76,6 +82,8 @@ Morels are Tennessee's most popular wild mushroom, fruiting from late March thro
 ## Chicken of the Woods (Laetiporus spp.)
 
 This bright orange and yellow shelf fungus grows on dead or dying hardwoods from spring through fall. Its layered, fan-shaped brackets are hard to mistake when fresh. It should only be harvested from hardwoods — specimens on conifers or eucalyptus may cause reactions.
+
+<img src="https://images.unsplash.com/photo-1563910431092-e4d4d456e3b1?w=700&q=75" alt="Orange shelf fungi growing on a tree trunk" style="width:100%;border-radius:12px;margin:16px 0" />
 
 ## Chanterelles (Cantharellus cibarius)
 
@@ -122,6 +130,8 @@ Destroying angel (Amanita bisporigera) and death cap (Amanita phalloides) are bo
     body: `# Tennessee Foraging Laws and Regulations
 
 Before heading out to forage in Tennessee, it is essential to understand the legal framework governing wild plant collection on different types of land.
+
+<img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=700&q=75" alt="Tennessee state park forest trail" style="width:100%;border-radius:12px;margin:16px 0" />
 
 ## Tennessee State Parks
 
@@ -188,6 +198,8 @@ Collecting from public rights-of-way, city parks, and other municipal land varie
 
 Tennessee's long growing season and varied terrain produce an exceptional diversity of wild berries and fruits from June through October.
 
+<img src="https://images.unsplash.com/photo-1501004318855-cdbd882e3534?w=700&q=75" alt="Wild blackberries ripening on the vine" style="width:100%;border-radius:12px;margin:16px 0" />
+
 ## Blackberries (Rubus spp.)
 
 The most abundant wild fruit in Tennessee, blackberries grow along roadsides, fence rows, forest edges, and disturbed areas statewide. They ripen from late June through July. Their thorny canes and compound leaves with 3-5 leaflets are distinctive.
@@ -251,6 +263,8 @@ American persimmons are common in Tennessee fields and forest edges. The orange 
     body: `# Medicinal Plants of the Tennessee Woodlands
 
 The Appalachian region of Tennessee has one of the richest traditions of plant-based folk medicine in North America. While these plants have historical significance, modern foragers should approach medicinal use with extreme caution.
+
+<img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=700&q=75" alt="Appalachian forest in Tennessee" style="width:100%;border-radius:12px;margin:16px 0" />
 
 ## Important Disclaimer
 
