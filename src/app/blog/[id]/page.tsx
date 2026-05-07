@@ -20,16 +20,16 @@ export default function BlogArticlePage() {
     async function loadArticle() {
       try {
         const all = await getAllRecords("blogArticles");
-        let found = (all as BlogArticle[]).find((a) => a.id === params.id);
+        let found: BlogArticle | undefined = (all as BlogArticle[]).find((a) => a.id === params.id);
         if (!found) {
           // Check seed articles
-          found = seedBlogArticles.find((a) => a.id === params.id) ?? null;
+          found = seedBlogArticles.find((a) => a.id === params.id);
         }
         setArticle(found ?? null);
       } catch {
         // Fallback to seed articles
-        const found = seedBlogArticles.find((a) => a.id === params.id) ?? null;
-        setArticle(found);
+        const found = seedBlogArticles.find((a) => a.id === params.id);
+        setArticle(found ?? null);
       } finally {
         setIsLoading(false);
       }
