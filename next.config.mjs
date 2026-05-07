@@ -330,6 +330,11 @@ const nextConfig = {
         hostname: 'commons.wikimedia.org',
         pathname: '/wiki/Special:FilePath/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'foragewise.pockethost.io',
+        pathname: '/api/files/**',
+      },
     ],
   },
 };

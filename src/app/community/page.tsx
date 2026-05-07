@@ -193,7 +193,7 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
     // Sync to PocketBase (so other users can see it)
     try {
       const { createCommunityPost } = await import('@/services/communityPostService');
-      await createCommunityPost({
+      const result = await createCommunityPost({
         userId: user?.id || 'local-user',
         displayName: user?.displayName || undefined,
         avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
@@ -203,8 +203,11 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
         postType: 'sighting',
         photoFiles: photoFilesForUpload,
       });
-    } catch {
-      // Offline — post saved locally, will need manual sync later
+      if (!result) {
+        console.warn('[NewSightingForm] Post saved locally but failed to sync to PocketBase. User may not be authenticated.');
+      }
+    } catch (err) {
+      console.warn('[NewSightingForm] PocketBase sync failed:', err);
     }
 
     onSave(draft);
@@ -664,7 +667,7 @@ function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
 // ---------------------------------------------------------------------------
 
 function CommunityContent() {
-  const { isAuthenticated, role } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [sightings, setSightings] = useState<CommunityDraft[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewForm, setShowNewForm] = useState(false);
@@ -837,57 +840,17 @@ function CommunityContent() {
       {/* Sightings sub-section */}
       {activeSection === 'feed' && (
         <>
-          {/* Safety notice */}
-          <div
-            role="note"
-            className="mb-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3 text-xs text-amber-700 dark:text-amber-300"
-          >
-            Community sightings are user-submitted and not verified by experts.
-            Always verify with a qualified expert before consuming any wild species.
-          </div>
-
-          {/* New Sighting button / form */}
-          {!isAuthenticated ? (
-            <div className="mb-4 rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-3 text-center">
-              <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70">
-                <Link href="/login" className="font-medium text-brand-teal hover:underline">Sign in</Link> to post sightings, leave reviews, and interact with the community.
-              </p>
-            </div>
-          ) : showNewForm ? (
+          {showNewForm ? (
             <NewSightingForm
               onSave={handleSave}
               onCancel={() => setShowNewForm(false)}
             />
           ) : (
-            <div className="flex gap-2 mb-4">
-              {role === 'super_user' && (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      const { fetchCommunityPosts } = await import('@/services/communityPostService');
-                      await fetchCommunityPosts(1, 50);
-                      await loadData();
-                      setLoading(false);
-                      alert('Feed refreshed from server.');
-                    } catch (e) {
-                      alert('Failed to sync: ' + (e instanceof Error ? e.message : 'Unknown error'));
-                    }
-                  }}
-                  className="rounded-lg border border-brand-teal/30 bg-brand-teal/5 text-brand-teal font-medium text-xs px-3 py-2 hover:bg-brand-teal/10 transition-colors"
-                  aria-label="Sync local posts to cloud"
-                >
-                  🔄 Sync Posts
-                </button>
-              )}
-            </div>
+            <CommunityFeed
+              sightings={sightings}
+              onAddPost={isAuthenticated ? () => setShowNewForm(true) : undefined}
+            />
           )}
-
-          {/* Sightings list — handled by CommunityFeed component */}
-          <CommunityFeed
-            sightings={sightings}
-            onAddPost={isAuthenticated ? () => setShowNewForm(true) : undefined}
-          />
         </>
       )}
 
