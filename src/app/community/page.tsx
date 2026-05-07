@@ -225,6 +225,7 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
         createCommunityPost({
           userId: pb.authStore.record?.id || user?.id || 'local-user',
           displayName: user?.displayName || pb.authStore.record?.name || undefined,
+          avatarUrl: resolveAvatarUrl(user?.id || pb.authStore.record?.id, user?.avatar || pb.authStore.record?.avatar as string),
           speciesGuess: speciesGuess.trim() || undefined,
           notes: notes.trim() || undefined,
           coordinates: coords,
