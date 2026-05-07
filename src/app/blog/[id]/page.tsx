@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { getAllRecords } from "@/offline/db";
 import type { BlogArticle } from "@/types";
 import { seedBlogArticles } from "@/data/blogArticles";
+import { pb } from "@/auth/authService";
 import Link from "next/link";
 
 /**
  * Blog article detail page with full content and source attribution.
- * Requirements: 2.3, 2.6, 2.7
+ * Loads from PocketBase blog_articles or seed articles.
  */
 export default function BlogArticlePage() {
   const params = useParams();
@@ -18,18 +18,33 @@ export default function BlogArticlePage() {
 
   useEffect(() => {
     async function loadArticle() {
+      // Check seed articles first (instant, no network)
+      const seedFound = seedBlogArticles.find((a) => a.id === params.id);
+      if (seedFound) {
+        setArticle(seedFound);
+        setIsLoading(false);
+        return;
+      }
+
+      // Try PocketBase
       try {
-        const all = await getAllRecords("blogArticles");
-        let found: BlogArticle | undefined = (all as BlogArticle[]).find((a) => a.id === params.id);
-        if (!found) {
-          // Check seed articles
-          found = seedBlogArticles.find((a) => a.id === params.id);
-        }
-        setArticle(found ?? null);
+        const record = await pb.collection('blog_articles').getOne(params.id as string);
+        const body = (record.body as string) || '';
+        setArticle({
+          id: record.id,
+          title: (record.title as string) || '',
+          author: (record.author as string) || 'ForageWise',
+          publishedAt: (record.created as string) || '',
+          summary: body.slice(0, 150),
+          body,
+          coverImage: (record.featuredImage as string) || undefined,
+          tags: parseTags(record.tags),
+          sources: [],
+          lastUpdated: (record.updated as string) || '',
+          readTimeMinutes: Math.ceil(body.split(' ').length / 200),
+        });
       } catch {
-        // Fallback to seed articles
-        const found = seedBlogArticles.find((a) => a.id === params.id);
-        setArticle(found ?? null);
+        setArticle(null);
       } finally {
         setIsLoading(false);
       }
@@ -358,4 +373,12 @@ function renderInlineFormatting(text: string): React.ReactNode {
     }
     return <span key={i}>{part}</span>;
   });
+}
+
+function parseTags(value: unknown): string[] {
+  if (Array.isArray(value)) return value as string[];
+  if (typeof value === 'string') {
+    try { const p = JSON.parse(value); if (Array.isArray(p)) return p; } catch { return value.split(',').map((t) => t.trim()).filter(Boolean); }
+  }
+  return [];
 }

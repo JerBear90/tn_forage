@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllRecords } from "@/offline/db";
 import type { BlogArticle } from "@/types";
 import { seedBlogArticles } from "@/data/blogArticles";
+import { pb } from "@/auth/authService";
 import Link from "next/link";
 
 /**
  * Blog feed page displaying articles in reverse-chronological order.
- * Requirements: 2.1–2.9
+ * Loads from PocketBase blog_articles collection + seed articles.
  */
 export default function BlogPage() {
   const [articles, setArticles] = useState<BlogArticle[]>([]);
@@ -16,28 +16,47 @@ export default function BlogPage() {
 
   useEffect(() => {
     async function loadArticles() {
+      const allArticles: BlogArticle[] = [];
+      const existingIds = new Set<string>();
+
+      // Load from PocketBase first
       try {
-        const all = await getAllRecords("blogArticles");
-        let merged = all as BlogArticle[];
-        // Include seed articles that aren't already in IndexedDB
-        const existingIds = new Set(merged.map((a) => a.id));
-        for (const seed of seedBlogArticles) {
-          if (!existingIds.has(seed.id)) {
-            merged.push(seed);
-          }
+        const result = await pb.collection('blog_articles').getList(1, 50, {
+          sort: '-created',
+          filter: 'published = true',
+        });
+        for (const record of result.items) {
+          const article: BlogArticle = {
+            id: record.id,
+            title: (record.title as string) || '',
+            author: (record.author as string) || 'ForageWise',
+            publishedAt: (record.created as string) || '',
+            summary: ((record.body as string) || '').slice(0, 150),
+            body: (record.body as string) || '',
+            coverImage: (record.featuredImage as string) || undefined,
+            tags: parseTags(record.tags),
+            sources: [],
+            lastUpdated: (record.updated as string) || '',
+            readTimeMinutes: Math.ceil(((record.body as string) || '').split(' ').length / 200),
+          };
+          allArticles.push(article);
+          existingIds.add(article.id);
         }
-        const sorted = merged.sort(
-          (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-        );
-        setArticles(sorted);
       } catch {
-        // Fallback to seed articles
-        setArticles([...seedBlogArticles].sort(
-          (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-        ));
-      } finally {
-        setIsLoading(false);
+        // PocketBase unavailable — continue with seed articles
       }
+
+      // Add seed articles that aren't already from PocketBase
+      for (const seed of seedBlogArticles) {
+        if (!existingIds.has(seed.id)) {
+          allArticles.push(seed);
+        }
+      }
+
+      // Sort newest first
+      allArticles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+      setArticles(allArticles);
+      setIsLoading(false);
     }
     loadArticles();
   }, []);
@@ -101,4 +120,12 @@ export default function BlogPage() {
       )}
     </div>
   );
+}
+
+function parseTags(value: unknown): string[] {
+  if (Array.isArray(value)) return value as string[];
+  if (typeof value === 'string') {
+    try { const p = JSON.parse(value); if (Array.isArray(p)) return p; } catch { return value.split(',').map((t) => t.trim()).filter(Boolean); }
+  }
+  return [];
 }
