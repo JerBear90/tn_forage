@@ -139,20 +139,46 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
     // Apply location privacy — fuzz for public, keep exact for private
     const coords = applyLocationPrivacy(rawCoords, visibility);
 
-    const draft: CommunityDraft = {
-      id: generateId(),
-      userId: 'local-user', // placeholder until auth wired
-      speciesGuess: speciesGuess.trim() || undefined,
-      photos: photoFiles.map((p) => p.id),
-      coordinates: coords,
-      notes: notes.trim(),
-      visibility,
-      createdAt: now,
-      updatedAt: now,
-    };
+    // Try to post to PocketBase first (online), fall back to local
+    try {
+      const { createCommunityPost } = await import('@/services/communityPostsService');
+      const result = await createCommunityPost({
+        speciesGuess: speciesGuess.trim(),
+        notes: notes.trim(),
+        visibility,
+        coordinates: coords,
+      });
 
-    await putRecord('communityDrafts', draft);
-    onSave(draft);
+      if (result.success) {
+        const draft: CommunityDraft = {
+          id: result.id ?? generateId(),
+          userId: 'local-user',
+          speciesGuess: speciesGuess.trim() || undefined,
+          photos: photoFiles.map((p) => p.id),
+          coordinates: coords,
+          notes: notes.trim(),
+          visibility,
+          createdAt: now,
+          updatedAt: now,
+        };
+        onSave(draft);
+      }
+    } catch {
+      // Offline fallback — save locally
+      const draft: CommunityDraft = {
+        id: generateId(),
+        userId: 'local-user',
+        speciesGuess: speciesGuess.trim() || undefined,
+        photos: photoFiles.map((p) => p.id),
+        coordinates: coords,
+        notes: notes.trim(),
+        visibility,
+        createdAt: now,
+        updatedAt: now,
+      };
+      await putRecord('communityDrafts', draft);
+      onSave(draft);
+    }
     setSaving(false);
   }
 
