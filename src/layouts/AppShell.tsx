@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import OfflineBadge from "@/components/OfflineBadge";
 import SafetyDisclaimer from "@/components/SafetyDisclaimer";
-import GlobalSearchBar from "@/components/GlobalSearchBar";
 import SupportFooter from "@/components/SupportFooter";
 import LocationSetupPrompt from "@/components/LocationSetupPrompt";
 import WeatherPanel from "@/components/WeatherPanel";
@@ -137,7 +136,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             />
           )}
           <OfflineBadge />
-          <GlobalSearchBar />
           {/* Support email link */}
           <a
             href="mailto:studio7inquiry@gmail.com?subject=ForageWise%20Support"
