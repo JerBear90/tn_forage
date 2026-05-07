@@ -60,6 +60,37 @@ function resolveAvatarUrl(userId: string | undefined, avatar: string | undefined
   return undefined;
 }
 
+/** Compress an image file to fit within maxSize using canvas */
+async function compressImage(file: File, quality: number, maxDimension: number): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let { width, height } = img;
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          height = (height / width) * maxDimension;
+          width = maxDimension;
+        } else {
+          width = (width / height) * maxDimension;
+          height = maxDimension;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { reject(new Error('No canvas context')); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob) => {
+        if (!blob) { reject(new Error('Compression failed')); return; }
+        resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' }));
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => reject(new Error('Image load failed'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 function formatDate(iso: string): string {
   try {
     return new Date(iso).toLocaleDateString(undefined, {
@@ -164,11 +195,23 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
     // Apply location privacy — fuzz for public posts
     const coords = applyLocationPrivacy(rawCoords, 'public');
 
-    // Collect photo files for upload
+    // Collect photo files for upload (compress if too large for mobile)
     const photoFilesForUpload: File[] = [];
     for (const photo of photoFiles) {
       if (photo.file) {
-        photoFilesForUpload.push(photo.file);
+        // If file is over 4MB, skip it (PocketBase limit is 5MB)
+        if (photo.file.size > 4 * 1024 * 1024) {
+          // Try to compress by re-encoding as JPEG via canvas
+          try {
+            const compressed = await compressImage(photo.file, 0.7, 1600);
+            photoFilesForUpload.push(compressed);
+          } catch {
+            // Skip files that can't be compressed
+            console.warn('[NewSightingForm] Skipping large photo:', photo.name);
+          }
+        } else {
+          photoFilesForUpload.push(photo.file);
+        }
       }
     }
 
@@ -180,9 +223,8 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
       );
       const result = await Promise.race([
         createCommunityPost({
-          userId: user?.id || 'local-user',
-          displayName: user?.displayName || undefined,
-          avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
+          userId: pb.authStore.record?.id || user?.id || 'local-user',
+          displayName: user?.displayName || pb.authStore.record?.name || undefined,
           speciesGuess: speciesGuess.trim() || undefined,
           notes: notes.trim() || undefined,
           coordinates: coords,
