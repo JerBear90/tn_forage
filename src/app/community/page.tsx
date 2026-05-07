@@ -883,7 +883,11 @@ function CommunityContent() {
             </div>
           )}
 
-          {/* Sightings list — now handled by CommunityFeed component */}
+          {/* Sightings list — handled by CommunityFeed component */}
+          <CommunityFeed
+            sightings={sightings}
+            onAddPost={isAuthenticated ? () => setShowNewForm(true) : undefined}
+          />
         </>
       )}
 
