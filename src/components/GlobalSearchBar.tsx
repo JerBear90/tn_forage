@@ -210,6 +210,9 @@ export default function GlobalSearchBar() {
             <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50">
               No results for &ldquo;{query}&rdquo;
             </p>
+            <p className="text-xs text-brand-charcoal/30 dark:text-brand-sand/30 mt-2">
+              Try visiting the Field Guide or Map to load species and park data first.
+            </p>
           </div>
         )}
 
@@ -262,7 +265,10 @@ export default function GlobalSearchBar() {
         {isOpen && query.trim().length < 3 && recentSearches.length === 0 && (
           <div className="p-8 text-center">
             <p className="text-sm text-brand-charcoal/40 dark:text-brand-sand/40">
-              Type at least 3 characters to search
+              Search species, parks, and trails
+            </p>
+            <p className="text-xs text-brand-charcoal/30 dark:text-brand-sand/30 mt-1">
+              Type at least 3 characters
             </p>
           </div>
         )}
