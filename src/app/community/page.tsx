@@ -1103,6 +1103,7 @@ function CommunityContent() {
                   onClick={async () => {
                     const { syncLocalPosts } = await import('@/services/communityPostsService');
                     const result = await syncLocalPosts();
+                    alert(`Synced: ${result.synced}, Failed: ${result.failed}${result.errors.length > 0 ? '\n' + result.errors.join('\n') : ''}`);
                     if (result.synced > 0) {
                       await loadData();
                       setLoading(false);

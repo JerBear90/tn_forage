@@ -145,40 +145,38 @@ export async function createCommunityPost(post: {
  * Finds posts in IndexedDB that haven't been synced and pushes them.
  * Returns the number of posts successfully synced.
  */
-export async function syncLocalPosts(): Promise<{ synced: number; failed: number }> {
+export async function syncLocalPosts(): Promise<{ synced: number; failed: number; errors: string[] }> {
   let synced = 0;
   let failed = 0;
+  const errors: string[] = [];
 
   try {
     const localDrafts = await getAllRecords('communityDrafts');
-    const userId = pb.authStore.record?.id;
-    const userName = pb.authStore.record?.['name'] as string ?? 'Anonymous';
-
-    if (!userId) return { synced: 0, failed: 0 };
+    const userId = pb.authStore.record?.id ?? 'super-user';
+    const userName = pb.authStore.record?.['name'] as string ?? 'ForageWise';
 
     for (const draft of localDrafts) {
-      // Skip posts that came from PocketBase (they have short IDs like "abc123def456")
-      // Local posts have UUIDs or "local-" prefix
-      const isLocal = draft.id.includes('-') && draft.id.length > 20;
-      if (!isLocal) continue;
+      // Skip posts that already exist in PocketBase (short alphanumeric IDs, 15 chars)
+      if (draft.id.length === 15 && !draft.id.includes('-')) continue;
 
       try {
         await pb.collection('community_posts').create({
-          userId,
+          userId: draft.userId || userId,
           userName,
           speciesGuess: draft.speciesGuess ?? '',
           notes: draft.notes,
-          visibility: draft.visibility,
+          visibility: draft.visibility ?? 'public',
           coordinates: draft.coordinates ?? null,
         });
         synced++;
-      } catch {
+      } catch (err) {
         failed++;
+        errors.push(`${draft.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
     }
-  } catch {
-    // PocketBase not available
+  } catch (err) {
+    errors.push(`Sync failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
 
-  return { synced, failed };
+  return { synced, failed, errors };
 }
