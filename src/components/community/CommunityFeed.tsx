@@ -408,8 +408,14 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
 
   return (
     <article
-      className="rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white dark:bg-brand-charcoal/50 overflow-hidden"
+      className="rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white dark:bg-brand-charcoal/50 overflow-hidden cursor-pointer"
       aria-label={`Post by ${displayName}: ${item.title || 'Community post'}`}
+      onClick={(e) => {
+        // Don't open if clicking on buttons (like, share, follow, arrows)
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || target.closest('a')) return;
+        setExpanded(true);
+      }}
     >
       {/* Header: avatar, name, follow */}
       <div className="flex items-center justify-between px-4 py-3">
@@ -457,12 +463,9 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
         <TripCard item={item} />
       ) : (
         <div
-          className="relative w-full aspect-[4/3] bg-brand-charcoal/5 dark:bg-brand-sand/5 cursor-pointer select-none overflow-hidden"
-          onClick={(e) => { handleDoubleTap(); handleImageTap(); }}
-          onDoubleClick={() => { if (singleTapTimer.current) { clearTimeout(singleTapTimer.current); singleTapTimer.current = null; } }}
-          role="button"
-          tabIndex={0}
-          aria-label="Tap to view post, double-tap to like"
+          className="relative w-full aspect-[4/3] bg-brand-charcoal/5 dark:bg-brand-sand/5 select-none overflow-hidden"
+          role="img"
+          aria-label={item.title || 'Post photo'}
           onKeyDown={(e) => { if (e.key === 'Enter') setExpanded(true); }}
           onTouchStart={(e) => { swipeStartX.current = e.touches[0].clientX; }}
           onTouchEnd={(e) => {
