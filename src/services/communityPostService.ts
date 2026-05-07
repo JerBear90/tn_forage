@@ -94,8 +94,6 @@ export async function createCommunityPost(data: CreatePostData): Promise<Communi
     const formData = new FormData();
     formData.append('userId', data.userId);
     formData.append('userName', data.displayName || 'Anonymous');
-    if (data.displayName) formData.append('displayName', data.displayName);
-    if (data.avatarUrl) formData.append('avatarUrl', data.avatarUrl);
     if (data.speciesGuess) formData.append('speciesGuess', data.speciesGuess);
     formData.append('notes', data.notes || ' ');
     formData.append('visibility', 'public');
