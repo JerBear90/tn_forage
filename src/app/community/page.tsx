@@ -1086,13 +1086,31 @@ function CommunityContent() {
               onCancel={() => setShowNewForm(false)}
             />
           ) : (
-            <button
-              type="button"
-              onClick={() => setShowNewForm(true)}
-              className="w-full mb-6 rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] min-h-[48px]"
-            >
-              + New Sighting
-            </button>
+            <div className="flex gap-2 mb-6">
+              <button
+                type="button"
+                onClick={() => setShowNewForm(true)}
+                className="flex-1 rounded-lg bg-brand-teal text-white font-semibold text-sm py-3 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors active:scale-[0.98] min-h-[48px]"
+              >
+                + New Sighting
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const { syncLocalPosts } = await import('@/services/communityPostsService');
+                  const result = await syncLocalPosts();
+                  if (result.synced > 0) {
+                    await loadData();
+                    setLoading(false);
+                  }
+                }}
+                className="shrink-0 rounded-lg border border-brand-teal/30 bg-brand-teal/5 text-brand-teal font-medium text-xs px-3 py-3 hover:bg-brand-teal/10 transition-colors min-h-[48px]"
+                aria-label="Sync local posts to cloud"
+                title="Push local posts to the community"
+              >
+                🔄 Sync
+              </button>
+            </div>
           )}
 
           {/* Sightings list */}

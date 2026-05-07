@@ -139,3 +139,46 @@ export async function createCommunityPost(post: {
     return { success: true, id };
   }
 }
+
+/**
+ * Sync all local-only community posts to PocketBase.
+ * Finds posts in IndexedDB that haven't been synced and pushes them.
+ * Returns the number of posts successfully synced.
+ */
+export async function syncLocalPosts(): Promise<{ synced: number; failed: number }> {
+  let synced = 0;
+  let failed = 0;
+
+  try {
+    const localDrafts = await getAllRecords('communityDrafts');
+    const userId = pb.authStore.record?.id;
+    const userName = pb.authStore.record?.['name'] as string ?? 'Anonymous';
+
+    if (!userId) return { synced: 0, failed: 0 };
+
+    for (const draft of localDrafts) {
+      // Skip posts that came from PocketBase (they have short IDs like "abc123def456")
+      // Local posts have UUIDs or "local-" prefix
+      const isLocal = draft.id.includes('-') && draft.id.length > 20;
+      if (!isLocal) continue;
+
+      try {
+        await pb.collection('community_posts').create({
+          userId,
+          userName,
+          speciesGuess: draft.speciesGuess ?? '',
+          notes: draft.notes,
+          visibility: draft.visibility,
+          coordinates: draft.coordinates ?? null,
+        });
+        synced++;
+      } catch {
+        failed++;
+      }
+    }
+  } catch {
+    // PocketBase not available
+  }
+
+  return { synced, failed };
+}
