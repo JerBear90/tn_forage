@@ -817,6 +817,7 @@ interface SubTabNavProps {
 function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
   const tabs: { key: CommunitySubSection; label: string }[] = [
     { key: 'feed', label: 'Feed' },
+    { key: 'id-this', label: 'ID This' },
     { key: 'challenges', label: 'Challenges' },
     { key: 'blog', label: 'Blog' },
   ];
@@ -1118,11 +1119,6 @@ function CommunityContent() {
           )}
 
           {/* Sightings list */}
-          {isAuthenticated && (
-            <div className="mb-6">
-              <IdRequest />
-            </div>
-          )}
           {loading ? (
             <div
               className="space-y-4"
@@ -1174,6 +1170,24 @@ function CommunityContent() {
             </>
           )}
         </>
+      )}
+
+      {/* ID This sub-section */}
+      {activeSection === 'id-this' && (
+        <section className="space-y-4">
+          <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
+            Upload a photo and ask the community to help identify what you found.
+          </p>
+          {isAuthenticated ? (
+            <IdRequest />
+          ) : (
+            <div className="rounded-lg border border-brand-teal/20 bg-brand-teal/5 px-4 py-3 text-center">
+              <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70">
+                <Link href="/login" className="font-medium text-brand-teal hover:underline">Sign in</Link> to submit an ID request.
+              </p>
+            </div>
+          )}
+        </section>
       )}
 
       {/* Challenges sub-section */}
