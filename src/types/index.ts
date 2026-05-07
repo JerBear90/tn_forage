@@ -742,7 +742,7 @@ export interface ArticleSource {
   name: string;
   author?: string;
   publication?: string;
-  url: string;
+  url?: string;
 }
 
 export interface BlogArticle {
@@ -756,6 +756,7 @@ export interface BlogArticle {
   tags: string[];
   sources: ArticleSource[];
   lastUpdated: string;
+  readTimeMinutes?: number;
 }
 
 // --- Custom Routes ---

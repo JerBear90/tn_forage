@@ -917,7 +917,7 @@ export default function ProfileContent() {
         {isAuthenticated && (
           <button
             type="button"
-            onClick={() => logout()}
+            onClick={() => { logout(); window.location.href = '/'; }}
             className="w-full rounded-lg border border-brand-teal/20 bg-white/60 dark:bg-brand-charcoal/40 px-4 py-3 text-sm font-medium text-brand-charcoal dark:text-brand-sand hover:bg-brand-teal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-colors min-h-[44px]"
           >
             Sign out

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { getAllRecords } from "@/offline/db";
 import type { BlogArticle } from "@/types";
+import { seedBlogArticles } from "@/data/blogArticles";
 import Link from "next/link";
 
 /**
@@ -19,10 +20,16 @@ export default function BlogArticlePage() {
     async function loadArticle() {
       try {
         const all = await getAllRecords("blogArticles");
-        const found = (all as BlogArticle[]).find((a) => a.id === params.id);
+        let found = (all as BlogArticle[]).find((a) => a.id === params.id);
+        if (!found) {
+          // Check seed articles
+          found = seedBlogArticles.find((a) => a.id === params.id) ?? null;
+        }
         setArticle(found ?? null);
       } catch {
-        // Silently fail
+        // Fallback to seed articles
+        const found = seedBlogArticles.find((a) => a.id === params.id) ?? null;
+        setArticle(found);
       } finally {
         setIsLoading(false);
       }
@@ -103,6 +110,17 @@ export default function BlogArticlePage() {
               day: "numeric",
             })}
           </time>
+          {article.readTimeMinutes && (
+            <>
+              <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">•</span>
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {article.readTimeMinutes} min read
+              </span>
+            </>
+          )}
         </div>
 
         {/* Tags */}

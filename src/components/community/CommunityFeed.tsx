@@ -820,7 +820,7 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
                 type="button"
                 onClick={handleAddComment}
                 disabled={!comment.trim()}
-                className="text-sm font-semibold text-brand-teal disabled:text-brand-charcoal/30 dark:disabled:text-brand-sand/30 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="text-sm font-semibold text-brand-teal disabled:text-brand-charcoal/30 dark:disabled:text-brand-sand/30 min-h-[44px] px-3 flex items-center justify-center shrink-0"
                 aria-label="Post comment"
               >
                 Post
