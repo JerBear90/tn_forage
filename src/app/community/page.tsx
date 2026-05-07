@@ -700,14 +700,16 @@ function SightingCard({ sighting, knownSpecies, onFlag }: SightingCardProps) {
 // Sub-Tab Navigation Helpers
 // ---------------------------------------------------------------------------
 
-const VALID_SECTIONS: CommunitySubSection[] = ['sightings', 'challenges', 'blog'];
+const VALID_SECTIONS: CommunitySubSection[] = ['feed', 'id-this', 'challenges', 'blog'];
 
 function parseHashSection(hash: string): CommunitySubSection {
   const cleaned = hash.replace('#', '').toLowerCase();
+  // Support legacy 'sightings' hash
+  if (cleaned === 'sightings') return 'feed';
   if (VALID_SECTIONS.includes(cleaned as CommunitySubSection)) {
     return cleaned as CommunitySubSection;
   }
-  return 'sightings';
+  return 'feed';
 }
 
 // ---------------------------------------------------------------------------
@@ -814,7 +816,7 @@ interface SubTabNavProps {
 
 function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
   const tabs: { key: CommunitySubSection; label: string }[] = [
-    { key: 'sightings', label: 'Sightings' },
+    { key: 'feed', label: 'Sightings' },
     { key: 'challenges', label: 'Challenges' },
     { key: 'blog', label: 'Blog' },
   ];
@@ -863,7 +865,7 @@ function CommunityContent() {
     if (typeof window !== 'undefined') {
       return parseHashSection(window.location.hash);
     }
-    return 'sightings';
+    return 'feed';
   });
 
   // Listen for hash changes (browser back/forward, direct link)
@@ -1062,7 +1064,7 @@ function CommunityContent() {
       <SubTabNav activeSection={activeSection} onSectionChange={handleSectionChange} />
 
       {/* Sightings sub-section */}
-      {activeSection === 'sightings' && (
+      {activeSection === 'feed' && (
         <>
           {/* Safety notice */}
           <div
