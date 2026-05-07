@@ -7,20 +7,11 @@
  * share it publicly on the community feed.
  */
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { putRecord } from '@/offline/db';
 import { pb } from '@/auth/authService';
 import { useAuth } from '@/auth/useAuth';
-
-function generateId(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-  });
-}
 
 function resolveAvatarUrl(userId: string | undefined, avatar: string | undefined): string | undefined {
   if (!avatar) return undefined;
@@ -53,6 +44,9 @@ function CheckInContent() {
   const [sharePublicly, setSharePublicly] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -61,37 +55,68 @@ function CheckInContent() {
     }
   }, [isAuthenticated, router, parkId, parkName]);
 
+  function handlePhotoSelect(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  }
+
   async function handleCheckIn() {
     setSaving(true);
-    const now = new Date().toISOString();
 
-    // Create a community draft as a check-in post (local)
-    await putRecord('communityDrafts', {
-      id: generateId(),
-      userId: user?.id || 'local-user',
-      displayName: user?.displayName || undefined,
-      avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
-      speciesGuess: parkName,
-      photos: [],
-      notes: `[Check-in] Checked in at ${parkName}${notes ? '. ' + notes.trim() : ''}`,
-      visibility: sharePublicly ? 'public' : 'private',
-      createdAt: now,
-      updatedAt: now,
-    });
+    // Compress photo if needed
+    let uploadFile: File | undefined;
+    if (photoFile) {
+      if (photoFile.size > 4 * 1024 * 1024) {
+        try {
+          uploadFile = await new Promise<File>((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              let { width, height } = img;
+              const max = 1600;
+              if (width > max || height > max) {
+                if (width > height) { height = (height / width) * max; width = max; }
+                else { width = (width / height) * max; height = max; }
+              }
+              canvas.width = width; canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              if (!ctx) { reject(new Error('No ctx')); return; }
+              ctx.drawImage(img, 0, 0, width, height);
+              canvas.toBlob((blob) => {
+                if (!blob) { reject(new Error('Compress failed')); return; }
+                resolve(new File([blob], 'checkin.jpg', { type: 'image/jpeg' }));
+              }, 'image/jpeg', 0.7);
+            };
+            img.onerror = () => reject(new Error('Load failed'));
+            img.src = URL.createObjectURL(photoFile);
+          });
+        } catch {
+          uploadFile = photoFile;
+        }
+      } else {
+        uploadFile = photoFile;
+      }
+    }
 
-    // Sync to PocketBase if sharing publicly
+    // Post to PocketBase directly (no local save)
     if (sharePublicly) {
       try {
         const { createCommunityPost } = await import('@/services/communityPostService');
         await createCommunityPost({
-          userId: user?.id || 'local-user',
-          displayName: user?.displayName || undefined,
-          avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
+          userId: pb.authStore.record?.id || user?.id || 'local-user',
+          displayName: user?.displayName || pb.authStore.record?.name || undefined,
+          avatarUrl: resolveAvatarUrl(user?.id || pb.authStore.record?.id, user?.avatar || pb.authStore.record?.avatar as string),
           speciesGuess: parkName,
           notes: `Checked in at ${parkName}${notes ? '. ' + notes.trim() : ''}`,
+          photoFiles: uploadFile ? [uploadFile] : undefined,
         });
-      } catch {
-        // Offline — saved locally
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        alert(`Failed to check in: ${msg}`);
+        setSaving(false);
+        return;
       }
     }
 
@@ -166,6 +191,44 @@ function CheckInContent() {
               {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
             </p>
           </div>
+        </div>
+
+        {/* Photo */}
+        <div>
+          <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand mb-2">
+            Add a photo <span className="text-brand-charcoal/50 dark:text-brand-sand/50 font-normal">(optional)</span>
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { handlePhotoSelect(e.target.files); e.target.value = ''; }}
+          />
+          {photoPreview ? (
+            <div className="relative w-full h-40 rounded-lg overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photoPreview} alt="Check-in photo" className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={() => { setPhotoFile(null); if (photoPreview) URL.revokeObjectURL(photoPreview); setPhotoPreview(null); }}
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center text-sm"
+                aria-label="Remove photo"
+              >✕</button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-brand-moss/30 bg-brand-moss/5 py-4 text-brand-moss hover:bg-brand-moss/10 transition-colors min-h-[48px]"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+              </svg>
+              <span className="text-sm font-medium">Add Photo</span>
+            </button>
+          )}
         </div>
 
         {/* Notes */}
