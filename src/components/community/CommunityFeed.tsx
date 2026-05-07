@@ -112,50 +112,52 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
 
     async function loadFeed() {
       const items: FeedItem[] = [];
+      let pbLoaded = false;
 
       // Try loading from PocketBase first (shared feed)
       try {
         const { fetchCommunityPosts } = await import('@/services/communityPostService');
         const { posts } = await fetchCommunityPosts(1, 50);
-        if (posts.length > 0) {
-          for (const post of posts) {
-            items.push({
-              id: post.id,
-              type: post.postType,
-              userId: post.userId,
-              displayName: post.displayName,
-              avatarUrl: post.avatarUrl,
-              title: post.speciesGuess,
-              notes: post.notes || '',
-              photos: post.photos, // Already full URLs from PocketBase
-              coordinates: post.coordinates,
-              createdAt: post.created,
-              parkName: post.postType === 'checkin' ? post.speciesGuess : undefined,
-            });
-          }
+        for (const post of posts) {
+          items.push({
+            id: post.id,
+            type: post.postType || 'sighting',
+            userId: post.userId,
+            displayName: post.displayName,
+            avatarUrl: post.avatarUrl,
+            title: post.speciesGuess,
+            notes: post.notes || '',
+            photos: post.photos,
+            coordinates: post.coordinates,
+            createdAt: post.created,
+            parkName: post.postType === 'checkin' ? post.speciesGuess : undefined,
+          });
         }
-      } catch {
-        // PocketBase unavailable — fall back to local
+        pbLoaded = posts.length > 0;
+      } catch (err) {
+        // PocketBase unavailable
+        console.warn('[CommunityFeed] PocketBase fetch failed:', err);
       }
 
-      // Also include local posts not yet synced (from IndexedDB)
-      const publicPosts = sightings
-        .filter((s) => s.visibility === 'public')
-        .filter((s) => !items.some((item) => item.id === s.id)) // Avoid duplicates
-        .map((s): FeedItem => ({
-          id: s.id,
-          type: s.notes?.startsWith('[Check-in]') ? 'checkin' : 'sighting',
-          userId: s.userId,
-          displayName: s.displayName,
-          avatarUrl: s.avatarUrl,
-          title: s.speciesGuess,
-          notes: s.notes?.replace('[Check-in] ', '') || '',
-          photos: s.photos || [],
-          coordinates: s.coordinates,
-          createdAt: s.createdAt,
-          parkName: s.notes?.startsWith('[Check-in]') ? s.speciesGuess : undefined,
-        }));
-      items.push(...publicPosts);
+      // If PocketBase didn't return anything, use local sightings
+      if (!pbLoaded) {
+        const publicPosts = sightings
+          .filter((s) => s.visibility === 'public')
+          .map((s): FeedItem => ({
+            id: s.id,
+            type: s.notes?.startsWith('[Check-in]') ? 'checkin' : 'sighting',
+            userId: s.userId,
+            displayName: s.displayName,
+            avatarUrl: s.avatarUrl,
+            title: s.speciesGuess,
+            notes: s.notes?.replace('[Check-in] ', '') || '',
+            photos: s.photos || [],
+            coordinates: s.coordinates,
+            createdAt: s.createdAt,
+            parkName: s.notes?.startsWith('[Check-in]') ? s.speciesGuess : undefined,
+          }));
+        items.push(...publicPosts);
+      }
 
       // Shared trips (those with syncStatus 'pending' and marked as shared)
       try {
