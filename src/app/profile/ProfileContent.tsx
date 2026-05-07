@@ -128,9 +128,22 @@ export default function ProfileContent() {
           }
         }
 
-        // Load avatar blob from photos store (keyed as "avatar-{userId}")
+        // Load avatar: priority is SSO avatar URL > uploaded blob > default
         const effectiveId = userId || cachedProfile?.id;
-        if (effectiveId) {
+        
+        // First check if user has an avatar URL from SSO (Google)
+        const userAvatarField = user?.avatar;
+        if (userAvatarField) {
+          if (userAvatarField.startsWith('http://') || userAvatarField.startsWith('https://')) {
+            // Full URL (Google OAuth avatar)
+            if (!cancelled) setAvatarUrl(userAvatarField);
+          } else if (effectiveId) {
+            // PocketBase filename — construct URL
+            const pbUrl = `${(await import('@/auth/authService')).pb.baseURL}/api/files/_pb_users_auth_/${effectiveId}/${userAvatarField}`;
+            if (!cancelled) setAvatarUrl(pbUrl);
+          }
+        } else if (effectiveId) {
+          // Fallback: check IndexedDB photos store for manually uploaded avatar
           const avatarRecord = await getRecord(
             "photos",
             `avatar-${effectiveId}`,
