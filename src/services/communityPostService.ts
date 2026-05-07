@@ -131,7 +131,9 @@ export async function createCommunityPost(data: CreatePostData): Promise<Communi
     };
   } catch (err) {
     console.error('[CommunityPostService] Failed to create post:', err);
-    return null;
+    // Re-throw with details so the UI can show the actual error
+    const message = err instanceof Error ? err.message : JSON.stringify(err);
+    throw new Error(`PocketBase create failed: ${message}`);
   }
 }
 

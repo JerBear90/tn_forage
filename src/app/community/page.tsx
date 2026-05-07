@@ -197,7 +197,8 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
       }
     } catch (err) {
       console.error('[NewSightingForm] PocketBase post failed:', err);
-      alert('Failed to post. Please check your connection and try again.');
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      alert(`Failed to post: ${msg}`);
       setSaving(false);
       return;
     }
