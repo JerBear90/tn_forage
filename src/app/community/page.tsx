@@ -746,52 +746,16 @@ function CommunityContent() {
     window.location.hash = section;
   }, []);
 
-  // Pull-to-refresh state (Req 9.2, 9.3, 9.4, 9.5)
-  const [refreshing, setRefreshing] = useState(false);
-  const touchStartY = useRef<number | null>(null);
-  const [pullDistance, setPullDistance] = useState(0);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const PULL_THRESHOLD = 80;
-
   // Key to force CommunityFeed to reload
   const [feedKey, setFeedKey] = useState(0);
 
-  // Trigger feed reload (used for pull-to-refresh and after posting)
+  // Trigger feed reload
   const loadData = useCallback(async () => {
     setFeedKey((k) => k + 1);
   }, []);
 
-  // Pull-to-refresh touch handlers (Req 9.2, 9.3, 9.4, 9.5)
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    // Only activate when scrolled to top
-    const container = scrollContainerRef.current;
-    if (container && container.scrollTop <= 0) {
-      touchStartY.current = e.touches[0].clientY;
-    }
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (touchStartY.current === null || refreshing) return;
-    const currentY = e.touches[0].clientY;
-    const diff = currentY - touchStartY.current;
-    if (diff > 0) {
-      setPullDistance(Math.min(diff, PULL_THRESHOLD * 1.5));
-    }
-  }, [refreshing]);
-
-  const handleTouchEnd = useCallback(async () => {
-    if (touchStartY.current === null) return;
-    touchStartY.current = null;
-
-    if (pullDistance >= PULL_THRESHOLD && !refreshing) {
-      setRefreshing(true);
-      setPullDistance(0);
-      await loadData();
-      setRefreshing(false);
-    } else {
-      setPullDistance(0);
-    }
-  }, [pullDistance, refreshing, loadData]);
+  // Pull-to-refresh disabled — feed reloads on navigation and after posting
+  // Users can tap the feed tab again to refresh
 
   const handleSave = useCallback((_draft: CommunityDraft) => {
     setShowNewForm(false);
@@ -806,30 +770,8 @@ function CommunityContent() {
 
   return (
     <main
-      ref={scrollContainerRef}
       className="flex min-h-screen flex-col px-4 py-6 max-w-lg mx-auto pb-28 overflow-y-auto"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
     >
-      {/* Pull-to-refresh indicator (Req 9.2, 9.3) */}
-      {(pullDistance > 0 || refreshing) && (
-        <div
-          className="flex items-center justify-center transition-all duration-200"
-          style={{ height: refreshing ? 48 : pullDistance * 0.5 }}
-          role="status"
-          aria-label={refreshing ? 'Refreshing sightings' : 'Pull to refresh'}
-        >
-          {refreshing ? (
-            <div className="animate-spin rounded-full h-6 w-6 border-2 border-brand-teal border-t-transparent" />
-          ) : pullDistance >= PULL_THRESHOLD ? (
-            <p className="text-xs text-brand-teal font-medium">Release to refresh</p>
-          ) : (
-            <p className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40">Pull to refresh</p>
-          )}
-        </div>
-      )}
-
       <header className="mb-6">
         <Link
           href="/"
