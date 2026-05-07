@@ -891,19 +891,6 @@ function CommunityContent() {
         />
       )}
 
-      {/* Floating Add Post Button */}
-      {isAuthenticated && !showNewForm && activeSection === 'feed' && (
-        <button
-          type="button"
-          onClick={() => setShowNewForm(true)}
-          className="fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full bg-brand-teal text-white shadow-lg flex items-center justify-center hover:bg-brand-teal/90 active:scale-95 transition-all"
-          aria-label="New post"
-        >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-        </button>
-      )}
     </main>
   );
 }
