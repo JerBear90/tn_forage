@@ -19,7 +19,6 @@ export interface CommunityPost {
   speciesGuess?: string;
   notes?: string;
   coordinates?: { lat: number; lng: number };
-  postType: 'sighting' | 'checkin' | 'trip';
   photos: string[]; // PocketBase file URLs
   created: string;
   updated: string;
@@ -32,7 +31,6 @@ export interface CreatePostData {
   speciesGuess?: string;
   notes?: string;
   coordinates?: { lat: number; lng: number };
-  postType: 'sighting' | 'checkin' | 'trip';
   photoFiles?: File[];
 }
 
@@ -68,7 +66,6 @@ export async function fetchCommunityPosts(page = 1, perPage = 20): Promise<{
         speciesGuess: (record.speciesGuess as string) || undefined,
         notes: (record.notes as string) || undefined,
         coordinates: record.coordinates as { lat: number; lng: number } | undefined,
-        postType: (record.postType as 'sighting' | 'checkin' | 'trip') || 'sighting',
         photos: photoUrls,
         created: record.created as string,
         updated: record.updated as string,
@@ -97,7 +94,6 @@ export async function createCommunityPost(data: CreatePostData): Promise<Communi
     formData.append('notes', data.notes || ' ');
     formData.append('visibility', 'public');
     if (data.coordinates) formData.append('coordinates', JSON.stringify(data.coordinates));
-    if (data.postType) formData.append('postType', data.postType);
 
     // Attach photo files
     if (data.photoFiles) {
@@ -125,7 +121,6 @@ export async function createCommunityPost(data: CreatePostData): Promise<Communi
       speciesGuess: (record.speciesGuess as string) || undefined,
       notes: (record.notes as string) || undefined,
       coordinates: record.coordinates as { lat: number; lng: number } | undefined,
-      postType: (record.postType as 'sighting' | 'checkin' | 'trip') || 'sighting',
       photos: photoUrls,
       created: record.created as string,
       updated: record.updated as string,

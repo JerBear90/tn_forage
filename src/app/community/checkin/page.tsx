@@ -89,7 +89,6 @@ function CheckInContent() {
           avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
           speciesGuess: parkName,
           notes: `Checked in at ${parkName}${notes ? '. ' + notes.trim() : ''}`,
-          postType: 'checkin',
         });
       } catch {
         // Offline — saved locally

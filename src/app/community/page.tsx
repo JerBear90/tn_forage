@@ -3,15 +3,13 @@
 /**
  * ForageWise — Community Page
  *
- * Displays user-submitted sightings from IndexedDB communityDrafts store,
- * plus sub-tab navigation for Sightings, Challenges, and Blog sections.
+ * Displays community posts from PocketBase,
+ * plus sub-tab navigation for Feed, ID This, Challenges, and Blog sections.
  *
- * - Hash-based sub-tab routing: /community#sightings, /community#challenges, /community#blog
- * - Private-by-default sightings (task 14.4)
+ * - Hash-based sub-tab routing: /community#feed, /community#challenges, /community#blog
  * - Location fuzzing for public posts (task 14.5)
  * - Flagging with reason options (task 14.3)
  * - Comment/suggest ID placeholders (task 14.2)
- * - Matched species images on sighting cards (task 12.4)
  * - TrendingSpeciesSection, photo preview, pull-to-refresh (task 12.6)
  */
 
@@ -138,6 +136,12 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
   }, []);
 
   async function handleSubmit() {
+    // Require internet to post
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      alert('You need internet to post. Please connect and try again.');
+      return;
+    }
+
     setSaving(true);
     const now = new Date().toISOString();
 
@@ -149,48 +153,15 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
     // Apply location privacy — fuzz for public posts
     const coords = applyLocationPrivacy(rawCoords, 'public');
 
-    // Save photo blobs to IndexedDB for local display
-    const photoIds: string[] = [];
+    // Collect photo files for upload
     const photoFilesForUpload: File[] = [];
     for (const photo of photoFiles) {
       if (photo.file) {
-        try {
-          const arrayBuffer = await photo.file.arrayBuffer();
-          const blob = new Blob([arrayBuffer], { type: photo.file.type });
-          await putRecord('photos', {
-            id: photo.id,
-            blob,
-            mimeType: photo.file.type || 'image/jpeg',
-            caption: '',
-            createdAt: now,
-            syncStatus: 'pending' as const,
-          });
-          photoIds.push(photo.id);
-          photoFilesForUpload.push(photo.file);
-        } catch {
-          // Skip failed photos
-        }
+        photoFilesForUpload.push(photo.file);
       }
     }
 
-    const draft: CommunityDraft = {
-      id: generateId(),
-      userId: user?.id || 'local-user',
-      displayName: user?.displayName || undefined,
-      avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
-      speciesGuess: speciesGuess.trim() || undefined,
-      photos: photoIds,
-      coordinates: coords,
-      notes: notes.trim(),
-      visibility: 'public',
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    // Save locally
-    await putRecord('communityDrafts', draft);
-
-    // Sync to PocketBase (so other users can see it)
+    // Post directly to PocketBase
     try {
       const { createCommunityPost } = await import('@/services/communityPostService');
       const result = await createCommunityPost({
@@ -200,15 +171,34 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
         speciesGuess: speciesGuess.trim() || undefined,
         notes: notes.trim() || undefined,
         coordinates: coords,
-        postType: 'sighting',
         photoFiles: photoFilesForUpload,
       });
       if (!result) {
-        console.warn('[NewSightingForm] Post saved locally but failed to sync to PocketBase. User may not be authenticated.');
+        alert('Failed to post. You may need to sign in again.');
+        setSaving(false);
+        return;
       }
     } catch (err) {
-      console.warn('[NewSightingForm] PocketBase sync failed:', err);
+      console.error('[NewSightingForm] PocketBase post failed:', err);
+      alert('Failed to post. Please check your connection and try again.');
+      setSaving(false);
+      return;
     }
+
+    // Build a minimal draft object for the onSave callback (triggers feed reload)
+    const draft: CommunityDraft = {
+      id: generateId(),
+      userId: user?.id || 'local-user',
+      displayName: user?.displayName || undefined,
+      avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
+      speciesGuess: speciesGuess.trim() || undefined,
+      photos: [],
+      coordinates: coords,
+      notes: notes.trim(),
+      visibility: 'public',
+      createdAt: now,
+      updatedAt: now,
+    };
 
     onSave(draft);
     setSaving(false);
@@ -668,8 +658,6 @@ function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
 
 function CommunityContent() {
   const { isAuthenticated } = useAuth();
-  const [sightings, setSightings] = useState<CommunityDraft[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showNewForm, setShowNewForm] = useState(false);
   const [flagTarget, setFlagTarget] = useState<string | null>(null);
   const [flaggedIds, setFlaggedIds] = useState<Set<string>>(new Set());
@@ -705,49 +693,13 @@ function CommunityContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const PULL_THRESHOLD = 80;
 
-  // Load sightings from PocketBase (online) or IndexedDB (offline)
+  // Key to force CommunityFeed to reload
+  const [feedKey, setFeedKey] = useState(0);
+
+  // Trigger feed reload (used for pull-to-refresh and after posting)
   const loadData = useCallback(async () => {
-    try {
-      const { fetchCommunityPosts } = await import('@/services/communityPostService');
-      const { posts } = await fetchCommunityPosts(1, 50);
-
-      // Convert to CommunityDraft format for display
-      const drafts: CommunityDraft[] = posts.map((p) => ({
-        id: p.id,
-        userId: p.userId,
-        displayName: p.displayName,
-        avatarUrl: p.avatarUrl,
-        speciesGuess: p.speciesGuess || undefined,
-        photos: p.photos,
-        coordinates: p.coordinates ?? undefined,
-        notes: p.notes || '',
-        visibility: 'public' as const,
-        createdAt: p.created,
-        updatedAt: p.updated,
-      }));
-
-      setSightings(drafts);
-    } catch {
-      // Fallback: load from local IndexedDB
-      try {
-        const drafts = await getAllRecords('communityDrafts');
-        const sorted = (drafts as CommunityDraft[]).sort(
-          (a, b) => b.createdAt.localeCompare(a.createdAt),
-        );
-        setSightings(sorted);
-      } catch { /* store may not exist */ }
-    }
+    setFeedKey((k) => k + 1);
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      await loadData();
-      if (!cancelled) setLoading(false);
-    }
-    load();
-    return () => { cancelled = true; };
-  }, [loadData]);
 
   // Pull-to-refresh touch handlers (Req 9.2, 9.3, 9.4, 9.5)
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -781,10 +733,11 @@ function CommunityContent() {
     }
   }, [pullDistance, refreshing, loadData]);
 
-  const handleSave = useCallback((draft: CommunityDraft) => {
-    setSightings((prev) => [draft, ...prev]);
+  const handleSave = useCallback((_draft: CommunityDraft) => {
     setShowNewForm(false);
-  }, []);
+    // Reload feed from PocketBase to show the new post
+    loadData();
+  }, [loadData]);
 
   const handleFlag = useCallback((flag: CommunityFlag) => {
     setFlaggedIds((prev) => new Set(prev).add(flag.targetId));
@@ -847,7 +800,7 @@ function CommunityContent() {
             />
           ) : (
             <CommunityFeed
-              sightings={sightings}
+              key={feedKey}
               onAddPost={isAuthenticated ? () => setShowNewForm(true) : undefined}
             />
           )}

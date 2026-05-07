@@ -1,19 +1,16 @@
 'use client';
 
 /**
- * CommunityFeed — Instagram-style feed of public community sightings,
- * trips, and check-ins.
+ * CommunityFeed — Instagram-style feed of public community sightings.
  *
- * Shows posts as cards with user info, images, like/share actions,
+ * Loads posts exclusively from PocketBase. Shows posts as cards with user info,
+ * images (served via PocketBase file URLs), like/share actions,
  * location, species guess, notes, and timestamps.
- * Photos are loaded from IndexedDB blobs and displayed as object URLs.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/auth/useAuth';
-import type { CommunityDraft, Trip } from '@/types';
-import { getAllRecords, getDB } from '@/offline/db';
 
 // ---------------------------------------------------------------------------
 // localStorage helpers
@@ -49,23 +46,6 @@ function saveFollowedUsers(ids: Set<string>) {
 }
 
 // ---------------------------------------------------------------------------
-// Photo loading from IndexedDB
-// ---------------------------------------------------------------------------
-
-async function loadPhotoUrl(photoId: string): Promise<string | null> {
-  try {
-    const db = await getDB();
-    const photo = await db.get('photos', photoId);
-    if (photo?.blob) {
-      return URL.createObjectURL(photo.blob);
-    }
-  } catch {
-    // Photo not found in store
-  }
-  return null;
-}
-
-// ---------------------------------------------------------------------------
 // Unified Feed Item type
 // ---------------------------------------------------------------------------
 
@@ -93,11 +73,10 @@ interface FeedItem {
 // ---------------------------------------------------------------------------
 
 interface CommunityFeedProps {
-  sightings: CommunityDraft[];
   onAddPost?: () => void;
 }
 
-export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedProps) {
+export default function CommunityFeed({ onAddPost }: CommunityFeedProps) {
   const { isAuthenticated } = useAuth();
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [followedUsers, setFollowedUsers] = useState<Set<string>>(new Set());
@@ -105,24 +84,21 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load feed items: from PocketBase (shared) + local fallback
+  // Load feed items from PocketBase only
   useEffect(() => {
     setLikedIds(getLikedIds());
     setFollowedUsers(getFollowedUsers());
 
     async function loadFeed() {
       const items: FeedItem[] = [];
-      let pbLoaded = false;
 
-      // Try loading from PocketBase first (shared feed)
       try {
         const { fetchCommunityPosts } = await import('@/services/communityPostService');
         const { posts } = await fetchCommunityPosts(1, 50);
-        console.log('[CommunityFeed] PocketBase returned', posts.length, 'posts');
         for (const post of posts) {
           items.push({
             id: post.id,
-            type: post.postType || 'sighting',
+            type: 'sighting',
             userId: post.userId,
             displayName: post.displayName,
             avatarUrl: post.avatarUrl,
@@ -131,55 +107,10 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
             photos: post.photos,
             coordinates: post.coordinates,
             createdAt: post.created,
-            parkName: post.postType === 'checkin' ? post.speciesGuess : undefined,
           });
         }
-        pbLoaded = posts.length > 0;
       } catch (err) {
-        // PocketBase unavailable
         console.warn('[CommunityFeed] PocketBase fetch failed:', err);
-      }
-
-      // Always include local public posts not already in PocketBase results
-      const publicPosts = sightings
-        .filter((s) => s.visibility === 'public')
-        .filter((s) => !items.some((item) => item.id === s.id))
-        .map((s): FeedItem => ({
-          id: s.id,
-          type: s.notes?.startsWith('[Check-in]') ? 'checkin' : 'sighting',
-          userId: s.userId,
-          displayName: s.displayName,
-          avatarUrl: s.avatarUrl,
-          title: s.speciesGuess,
-          notes: s.notes?.replace('[Check-in] ', '') || '',
-          photos: s.photos || [],
-            coordinates: s.coordinates,
-            createdAt: s.createdAt,
-            parkName: s.notes?.startsWith('[Check-in]') ? s.speciesGuess : undefined,
-          }));
-        items.push(...publicPosts);
-
-      // Shared trips (those with syncStatus 'pending' and marked as shared)
-      try {
-        const trips = await getAllRecords('trips') as Trip[];
-        const sharedTripIds = getSharedTripIds();
-        const sharedTrips = trips.filter((t) => sharedTripIds.has(t.id));
-        for (const trip of sharedTrips) {
-          items.push({
-            id: `trip-${trip.id}`,
-            type: 'trip',
-            userId: trip.userId,
-            title: trip.customLocation || trip.locationId || 'Foraging Trip',
-            notes: trip.notes || '',
-            photos: [],
-            createdAt: trip.date,
-            tripDate: trip.date,
-            tripLocation: trip.customLocation || trip.locationId || '',
-            targetSpecies: trip.targetSpecies,
-          });
-        }
-      } catch {
-        // trips store may not exist
       }
 
       // Sort all items newest first
@@ -189,7 +120,7 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
     }
 
     loadFeed();
-  }, [sightings]);
+  }, []);
 
   const toggleLike = useCallback((id: string) => {
     setLikedIds((prev) => {
@@ -356,34 +287,12 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   const lastTapRef = useRef<number>(0);
   const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load photos — if they're URLs (from PocketBase), use directly; otherwise load from IndexedDB
+  // Photos are always URLs from PocketBase — use directly
   useEffect(() => {
-    let cancelled = false;
     if (item.photos.length > 0) {
-      // Check if photos are already URLs (from PocketBase)
-      const allAreUrls = item.photos.every((p) => p.startsWith('http://') || p.startsWith('https://'));
-      if (allAreUrls) {
-        setPhotoUrls(item.photos);
-      } else {
-        // Load from IndexedDB
-        Promise.all(item.photos.map((id) => loadPhotoUrl(id))).then((urls) => {
-          if (!cancelled) {
-            setPhotoUrls(urls.filter((u): u is string => u !== null));
-          }
-        });
-      }
+      setPhotoUrls(item.photos);
     }
-    return () => { cancelled = true; };
   }, [item.photos]);
-
-  // Clean up object URLs on unmount (only for blob URLs, not http URLs)
-  useEffect(() => {
-    return () => {
-      photoUrls.forEach((url) => {
-        if (url.startsWith('blob:')) URL.revokeObjectURL(url);
-      });
-    };
-  }, [photoUrls]);
 
   // Load comments from localStorage
   useEffect(() => {
