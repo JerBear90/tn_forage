@@ -55,7 +55,14 @@ export async function fetchCommunityPosts(page = 1, perPage = 20): Promise<{
         const files = Array.isArray(photoFiles) ? photoFiles : [photoFiles];
         photoUrls = files
           .filter((f) => f)
-          .map((filename) => pb.files.getURL(record, filename));
+          .map((filename) => {
+            // Try SDK method first, fallback to manual URL construction
+            try {
+              return pb.files.getURL(record, filename);
+            } catch {
+              return `${pb.baseURL}/api/files/community_posts/${record.id}/${filename}`;
+            }
+          });
       }
 
       return {
