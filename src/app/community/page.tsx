@@ -705,18 +705,20 @@ function CommunityContent() {
   // Load sightings from PocketBase (online) or IndexedDB (offline)
   const loadData = useCallback(async () => {
     try {
-      const { getCommunityPosts } = await import('@/services/communityPostsService');
-      const { posts } = await getCommunityPosts(1, 50);
+      const { fetchCommunityPosts } = await import('@/services/communityPostService');
+      const { posts } = await fetchCommunityPosts(1, 50);
 
       // Convert to CommunityDraft format for display
       const drafts: CommunityDraft[] = posts.map((p) => ({
         id: p.id,
         userId: p.userId,
+        displayName: p.displayName,
+        avatarUrl: p.avatarUrl,
         speciesGuess: p.speciesGuess || undefined,
         photos: p.photos,
         coordinates: p.coordinates ?? undefined,
-        notes: p.notes,
-        visibility: p.visibility,
+        notes: p.notes || '',
+        visibility: 'public' as const,
         createdAt: p.created,
         updatedAt: p.updated,
       }));
@@ -862,12 +864,14 @@ function CommunityContent() {
                 <button
                   type="button"
                   onClick={async () => {
-                    const { syncLocalPosts } = await import('@/services/communityPostsService');
-                    const result = await syncLocalPosts();
-                    alert(`Synced: ${result.synced}, Failed: ${result.failed}${result.errors.length > 0 ? '\n' + result.errors.join('\n') : ''}`);
-                    if (result.synced > 0) {
+                    try {
+                      const { fetchCommunityPosts } = await import('@/services/communityPostService');
+                      await fetchCommunityPosts(1, 50);
                       await loadData();
                       setLoading(false);
+                      alert('Feed refreshed from server.');
+                    } catch (e) {
+                      alert('Failed to sync: ' + (e instanceof Error ? e.message : 'Unknown error'));
                     }
                   }}
                   className="rounded-lg border border-brand-teal/30 bg-brand-teal/5 text-brand-teal font-medium text-xs px-3 py-2 hover:bg-brand-teal/10 transition-colors"

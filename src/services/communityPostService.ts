@@ -2,7 +2,7 @@
  * ForageWise — Community Post Service
  *
  * Handles reading and writing community posts to PocketBase.
- * Falls back to local IndexedDB when offline.
+ * Matches the live PocketHost community_posts collection schema.
  */
 
 import { pb } from '@/auth/authService';
@@ -47,6 +47,7 @@ export async function fetchCommunityPosts(page = 1, perPage = 20): Promise<{
   try {
     const result = await pb.collection('community_posts').getList(page, perPage, {
       sort: '-created',
+      filter: 'visibility = "public"',
     });
 
     const posts: CommunityPost[] = result.items.map((record) => {
@@ -63,7 +64,7 @@ export async function fetchCommunityPosts(page = 1, perPage = 20): Promise<{
       return {
         id: record.id,
         userId: (record.userId as string) || '',
-        displayName: (record.displayName as string) || undefined,
+        displayName: (record.userName as string) || (record.displayName as string) || undefined,
         avatarUrl: (record.avatarUrl as string) || undefined,
         speciesGuess: (record.speciesGuess as string) || undefined,
         notes: (record.notes as string) || undefined,
@@ -90,12 +91,14 @@ export async function createCommunityPost(data: CreatePostData): Promise<Communi
   try {
     const formData = new FormData();
     formData.append('userId', data.userId);
+    formData.append('userName', data.displayName || 'Anonymous');
     if (data.displayName) formData.append('displayName', data.displayName);
     if (data.avatarUrl) formData.append('avatarUrl', data.avatarUrl);
     if (data.speciesGuess) formData.append('speciesGuess', data.speciesGuess);
     if (data.notes) formData.append('notes', data.notes);
+    formData.append('visibility', 'public');
     if (data.coordinates) formData.append('coordinates', JSON.stringify(data.coordinates));
-    formData.append('postType', data.postType);
+    if (data.postType) formData.append('postType', data.postType);
 
     // Attach photo files
     if (data.photoFiles) {
@@ -118,7 +121,7 @@ export async function createCommunityPost(data: CreatePostData): Promise<Communi
     return {
       id: record.id,
       userId: (record.userId as string) || '',
-      displayName: (record.displayName as string) || undefined,
+      displayName: (record.userName as string) || (record.displayName as string) || undefined,
       avatarUrl: (record.avatarUrl as string) || undefined,
       speciesGuess: (record.speciesGuess as string) || undefined,
       notes: (record.notes as string) || undefined,
