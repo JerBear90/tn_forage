@@ -312,20 +312,18 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
         />
       ))}
 
-      {/* Fixed Add Post button at bottom */}
+      {/* Floating + button (bottom-right) */}
       {onAddPost && (
-        <div className="fixed bottom-20 left-0 right-0 z-40 px-4 max-w-lg mx-auto">
-          <button
-            type="button"
-            onClick={onAddPost}
-            className="w-full rounded-full bg-brand-teal text-white font-semibold text-sm py-3.5 shadow-lg shadow-brand-teal/30 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-all active:scale-[0.97] min-h-[48px] flex items-center justify-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Add Post
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onAddPost}
+          className="fixed bottom-24 right-5 z-40 w-14 h-14 rounded-full bg-brand-teal text-white shadow-lg shadow-brand-teal/40 hover:bg-brand-teal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal transition-all active:scale-90 flex items-center justify-center"
+          aria-label="Create new post"
+        >
+          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
       )}
     </div>
   );
