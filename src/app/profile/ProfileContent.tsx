@@ -7,11 +7,10 @@ import { useTheme } from "@/hooks/useTheme";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { putRecord, getRecord } from "@/offline/db";
 import { getFollowerCount, getFollowingCount } from "@/social/followService";
-import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileTabs from "@/components/profile/ProfileTabs";
 import FindsTimeline from "@/components/profile/FindsTimeline";
 import LifeList from "@/components/LifeList";
-import type { UserProfileLocal, UserProfileExtended } from "@/types";
+import type { UserProfileLocal } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -614,29 +613,25 @@ export default function ProfileContent() {
         </div>
       </section>
 
-      {/* ── Social Profile Header ── */}
-      <section className="mb-6">
-        <ProfileHeader
-          profile={
-            {
-              ...(profile || {
-                id: "local-user",
-                email: "",
-                displayName: "Not signed in",
-                role: "guest" as const,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              }),
-              bio: "",
-              followerCount,
-              followingCount,
-              completedTripCount: tripCount,
-              achievementCount: 0,
-              defaultVisibility: "private",
-            } as UserProfileExtended
-          }
-          isOwnProfile={true}
-        />
+      {/* ── Followers / Following ── */}
+      <section className="mb-6 rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-4">
+        <div className="flex items-center justify-center gap-6">
+          <Link
+            href="/profile/follows?tab=followers"
+            className="text-center hover:text-brand-teal transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand block">{followerCount}</span>
+            <span className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">Followers</span>
+          </Link>
+          <div className="w-px h-8 bg-brand-charcoal/10 dark:bg-brand-sand/10" />
+          <Link
+            href="/profile/follows?tab=following"
+            className="text-center hover:text-brand-teal transition-colors"
+          >
+            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand block">{followingCount}</span>
+            <span className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">Following</span>
+          </Link>
+        </div>
       </section>
 
       {/* ── Stats Grid (Trips, Achievements, Badges) ── */}

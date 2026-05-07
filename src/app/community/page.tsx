@@ -167,18 +167,24 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
       }
     }
 
-    // Post directly to PocketBase
+    // Post directly to PocketBase (with 15s timeout)
     try {
       const { createCommunityPost } = await import('@/services/communityPostService');
-      const result = await createCommunityPost({
-        userId: user?.id || 'local-user',
-        displayName: user?.displayName || undefined,
-        avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
-        speciesGuess: speciesGuess.trim() || undefined,
-        notes: notes.trim() || undefined,
-        coordinates: coords,
-        photoFiles: photoFilesForUpload,
-      });
+      const timeoutPromise = new Promise<null>((_, reject) => 
+        setTimeout(() => reject(new Error('Request timed out')), 15000)
+      );
+      const result = await Promise.race([
+        createCommunityPost({
+          userId: user?.id || 'local-user',
+          displayName: user?.displayName || undefined,
+          avatarUrl: resolveAvatarUrl(user?.id, user?.avatar),
+          speciesGuess: speciesGuess.trim() || undefined,
+          notes: notes.trim() || undefined,
+          coordinates: coords,
+          photoFiles: photoFilesForUpload,
+        }),
+        timeoutPromise,
+      ]);
       if (!result) {
         alert('Failed to post. You may need to sign in again.');
         setSaving(false);
