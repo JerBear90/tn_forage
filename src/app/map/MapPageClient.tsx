@@ -508,7 +508,7 @@ function UserPinDetailPanel({
 
   return (
     <div
-      className="absolute top-3 left-3 right-3 z-[1000] rounded-xl border border-purple-200 dark:border-purple-800 bg-white/95 dark:bg-dark-surface/95 backdrop-blur-sm shadow-lg p-4 space-y-3"
+      className="fixed inset-x-0 bottom-0 z-[10000] rounded-t-2xl border-t border-purple-200 dark:border-purple-800 bg-white dark:bg-brand-charcoal shadow-2xl p-4 space-y-3 max-h-[60vh] overflow-y-auto"
       role="dialog"
       aria-label={`Pin details: ${displayLabel}`}
     >
