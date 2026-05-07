@@ -20,6 +20,8 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
   const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
   const [question, setQuestion] = useState('');
   const [location, setLocation] = useState('');
+  const [shareLocation, setShareLocation] = useState(false);
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +97,7 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
         })(),
         speciesGuess: `[ID Request] ${question.trim()}`,
         notes: question.trim() + (location.trim() ? `\n📍 Found at: ${location.trim()}` : ''),
+        coordinates: shareLocation && gpsCoords ? gpsCoords : undefined,
         photoFiles,
       });
 
@@ -207,7 +210,7 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
       </div>
 
       {/* Location */}
-      <div className="mb-4">
+      <div className="mb-3">
         <label htmlFor="id-location" className="block text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 mb-1">
           Where did you find it? (optional)
         </label>
@@ -219,6 +222,35 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
           placeholder="e.g., Fall Creek Falls, near the creek"
           className="w-full rounded-lg border border-brand-teal/20 bg-white/80 dark:bg-brand-charcoal/60 px-3 py-2 text-sm text-brand-charcoal dark:text-brand-sand placeholder:text-brand-charcoal/40 dark:placeholder:text-brand-sand/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
         />
+      </div>
+
+      {/* Share GPS location toggle */}
+      <div className="mb-4 flex items-center justify-between rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 px-3 py-2.5">
+        <div>
+          <p className="text-xs font-medium text-brand-charcoal dark:text-brand-sand">Share GPS location</p>
+          <p className="text-[10px] text-brand-charcoal/50 dark:text-brand-sand/50">Help others find this spot</p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={shareLocation}
+          onClick={() => {
+            if (!shareLocation && !gpsCoords) {
+              navigator.geolocation?.getCurrentPosition(
+                (pos) => setGpsCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                () => { /* silently fail */ }
+              );
+            }
+            setShareLocation(!shareLocation);
+          }}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            shareLocation ? 'bg-brand-teal' : 'bg-gray-300 dark:bg-gray-600'
+          }`}
+        >
+          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+            shareLocation ? 'translate-x-6' : 'translate-x-1'
+          }`} />
+        </button>
       </div>
 
       {/* Submit */}
