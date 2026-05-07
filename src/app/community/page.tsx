@@ -816,7 +816,7 @@ interface SubTabNavProps {
 
 function SubTabNav({ activeSection, onSectionChange }: SubTabNavProps) {
   const tabs: { key: CommunitySubSection; label: string }[] = [
-    { key: 'feed', label: 'Sightings' },
+    { key: 'feed', label: 'Feed' },
     { key: 'challenges', label: 'Challenges' },
     { key: 'blog', label: 'Blog' },
   ];
