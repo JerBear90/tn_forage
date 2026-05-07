@@ -286,6 +286,7 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   const [votedIds, setVotedIds] = useState<Record<string, 1 | -1>>({});
   const lastTapRef = useRef<number>(0);
   const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const swipeStartX = useRef<number | null>(null);
 
   // Photos are always URLs from PocketBase — use directly
   useEffect(() => {
@@ -458,8 +459,21 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
           onClick={handleDoubleTap}
           role="button"
           tabIndex={0}
-          aria-label="Double-tap to like, tap to expand"
+          aria-label="Double-tap to like, tap to expand. Swipe to see more photos."
           onKeyDown={(e) => { if (e.key === 'Enter') setExpanded(true); }}
+          onTouchStart={(e) => { swipeStartX.current = e.touches[0].clientX; }}
+          onTouchEnd={(e) => {
+            if (swipeStartX.current === null) return;
+            const diff = e.changedTouches[0].clientX - swipeStartX.current;
+            swipeStartX.current = null;
+            if (Math.abs(diff) > 50) {
+              if (diff < 0 && galleryIndex < photoUrls.length - 1) {
+                setGalleryIndex((i) => i + 1);
+              } else if (diff > 0 && galleryIndex > 0) {
+                setGalleryIndex((i) => i - 1);
+              }
+            }
+          }}
         >
           {photoUrls.length > 0 ? (
             // eslint-disable-next-line @next/next/no-img-element
