@@ -335,19 +335,21 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
       if (!isLiked) onLike();
       setShowHeart(true);
       setTimeout(() => setShowHeart(false), 800);
-      // Clear the single-tap timer
-      if (singleTapTimer.current) {
-        clearTimeout(singleTapTimer.current);
-        singleTapTimer.current = null;
-      }
-    } else {
-      // Single tap — open expanded after delay (to wait for potential double-tap)
-      singleTapTimer.current = setTimeout(() => {
-        setExpanded(true);
-      }, 300);
     }
     lastTapRef.current = now;
   }, [isLiked, onLike]);
+
+  // Single tap on image opens expanded view (separate from double-tap)
+  const handleImageTap = useCallback(() => {
+    // Use a short delay to check if it's a double-tap
+    if (singleTapTimer.current) {
+      clearTimeout(singleTapTimer.current);
+      singleTapTimer.current = null;
+    }
+    singleTapTimer.current = setTimeout(() => {
+      setExpanded(true);
+    }, 250);
+  }, []);
 
   // Add comment (top-level or reply)
   const handleAddComment = useCallback(() => {
@@ -456,10 +458,11 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
       ) : (
         <div
           className="relative w-full aspect-[4/3] bg-brand-charcoal/5 dark:bg-brand-sand/5 cursor-pointer select-none overflow-hidden"
-          onClick={handleDoubleTap}
+          onClick={(e) => { handleDoubleTap(); handleImageTap(); }}
+          onDoubleClick={() => { if (singleTapTimer.current) { clearTimeout(singleTapTimer.current); singleTapTimer.current = null; } }}
           role="button"
           tabIndex={0}
-          aria-label="Double-tap to like, tap to expand. Swipe to see more photos."
+          aria-label="Tap to view post, double-tap to like"
           onKeyDown={(e) => { if (e.key === 'Enter') setExpanded(true); }}
           onTouchStart={(e) => { swipeStartX.current = e.touches[0].clientX; }}
           onTouchEnd={(e) => {
@@ -822,7 +825,7 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
             </div>
 
             {/* Comment input — pinned at very bottom, above everything */}
-            <div className="shrink-0 bg-white dark:bg-brand-charcoal border-t border-brand-charcoal/10 dark:border-brand-sand/10 px-4 py-3 mb-5 flex flex-col gap-2">
+            <div className="shrink-0 bg-white dark:bg-brand-charcoal border-t border-brand-charcoal/10 dark:border-brand-sand/10 px-3 py-3 mb-5 flex flex-col gap-2">
               {replyingTo && (
                 <div className="flex items-center justify-between text-xs text-brand-teal">
                   <span>Replying to comment...</span>
@@ -830,30 +833,20 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
                 </div>
               )}
               <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                {item.avatarUrl && item.avatarUrl.startsWith('http') ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.avatarUrl} alt="Your avatar" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                ) : (
-                  <svg className="w-4 h-4 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-                  </svg>
-                )}
-              </div>
               <input
                 type="text"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleAddComment(); }}
                 placeholder="Add a comment..."
-                className="flex-1 rounded-full border border-brand-charcoal/15 dark:border-brand-sand/15 bg-brand-sand/30 dark:bg-brand-charcoal/60 px-4 py-2.5 text-sm text-brand-charcoal dark:text-brand-sand placeholder:text-brand-charcoal/40 dark:placeholder:text-brand-sand/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 min-h-[44px]"
+                className="flex-1 min-w-0 rounded-full border border-brand-charcoal/15 dark:border-brand-sand/15 bg-brand-sand/30 dark:bg-brand-charcoal/60 px-4 py-2.5 text-sm text-brand-charcoal dark:text-brand-sand placeholder:text-brand-charcoal/40 dark:placeholder:text-brand-sand/40 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 min-h-[44px]"
                 aria-label="Write a comment"
               />
               <button
                 type="button"
                 onClick={handleAddComment}
                 disabled={!comment.trim()}
-                className="text-sm font-semibold text-brand-teal disabled:text-brand-charcoal/30 dark:disabled:text-brand-sand/30 min-h-[44px] px-3 flex items-center justify-center shrink-0"
+                className="text-sm font-semibold text-brand-teal disabled:text-brand-charcoal/30 dark:disabled:text-brand-sand/30 min-h-[44px] px-2 shrink-0"
                 aria-label="Post comment"
               >
                 Post
