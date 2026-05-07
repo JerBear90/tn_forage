@@ -10,7 +10,7 @@ import {
   useMap,
 } from 'react-leaflet';
 import L from 'leaflet';
-import type { Park, Trail, Route, Coordinates } from '@/types';
+import type { Park, Trail, Route, Coordinates, MicrohabitatPinRecord } from '@/types';
 import type { MushroomLocationMarker } from '@/hooks/useMushroomMapData';
 import type { ParkCondition } from '@/hooks/useForagingConditions';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -60,6 +60,7 @@ function createCircleIcon(color: string): L.DivIcon {
 }
 
 const parkIcon = createCircleIcon(COLOR_TEAL);
+const userPinIcon = createCircleIcon('#9333EA'); // Purple for user pins
 
 // ---------------------------------------------------------------------------
 // Custom cluster icon using brand teal
@@ -262,6 +263,10 @@ export interface ForageWiseMapProps {
   onMushroomSpeciesClick?: (speciesId: string) => void;
   /** Park foraging conditions for the weather overlay */
   foragingConditions?: ParkCondition[];
+  /** User's private microhabitat pins */
+  userPins?: MicrohabitatPinRecord[];
+  /** Called when a user pin marker is clicked */
+  onUserPinClick?: (pinId: string) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -276,6 +281,8 @@ export default function ForageWiseMap({
   mushroomMarkers,
   onMushroomSpeciesClick,
   foragingConditions,
+  userPins,
+  onUserPinClick,
 }: ForageWiseMapProps) {
   const [filters, setFilters] = useState<MapFilterState>(DEFAULT_MAP_FILTER_STATE);
 
@@ -326,6 +333,11 @@ export default function ForageWiseMap({
         {/* Foraging Conditions overlay — shown when conditions.foragingConditions is active */}
         {filters.conditions.foragingConditions && foragingConditions && foragingConditions.length > 0 && (
           <ForagingConditionsLayer conditions={foragingConditions} />
+        )}
+
+        {/* User private pins layer */}
+        {userPins && userPins.length > 0 && (
+          <UserPinMarkers userPins={userPins} onUserPinClick={onUserPinClick} />
         )}
       </MapContainer>
     </div>
@@ -428,6 +440,31 @@ function RoutePolylines({
           />
         );
       })}
+    </FeatureGroup>
+  );
+}
+
+function UserPinMarkers({
+  userPins,
+  onUserPinClick,
+}: {
+  userPins: MicrohabitatPinRecord[];
+  onUserPinClick?: (pinId: string) => void;
+}) {
+  return (
+    <FeatureGroup>
+      {userPins.map((pin) => (
+        <Marker
+          key={pin.id}
+          position={[pin.coordinates.lat, pin.coordinates.lng]}
+          icon={userPinIcon}
+          eventHandlers={{
+            click: () => onUserPinClick?.(pin.id),
+          }}
+          title={pin.notes.split(' — ')[0].replace(/\s*\[.*\]$/, '') || 'Pin'}
+          alt={`User pin: ${pin.notes.split(' — ')[0].replace(/\s*\[.*\]$/, '') || 'Pin'}`}
+        />
+      ))}
     </FeatureGroup>
   );
 }

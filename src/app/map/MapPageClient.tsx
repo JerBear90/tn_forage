@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMapData } from '@/hooks/useMapData';
 import { useMushroomMapData } from '@/hooks/useMushroomMapData';
@@ -15,6 +15,7 @@ import MapListView, { type ConditionFilter } from '@/map/MapListView';
 import SeasonHeatmap, { type HeatmapItem } from '@/components/SeasonHeatmap';
 import SkeletonCard from '@/components/skeletons/SkeletonCard';
 import type { DetailPanelItem } from '@/map/MapDetailPanel';
+import type { MicrohabitatPinRecord } from '@/types';
 
 /**
  * Dynamically import the Leaflet map component with SSR disabled.
@@ -65,6 +66,21 @@ export default function MapPageClient() {
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [heatmapCategoryFilter, setHeatmapCategoryFilter] = useState<'all' | 'mushroom' | 'plant' | 'tree'>('all');
   const [conditionFilter, setConditionFilter] = useState<ConditionFilter>('all');
+  const [userPins, setUserPins] = useState<MicrohabitatPinRecord[]>([]);
+  const [showMyPinsOnly, setShowMyPinsOnly] = useState(false);
+  const [selectedUserPin, setSelectedUserPin] = useState<MicrohabitatPinRecord | null>(null);
+
+  // Load user pins from IndexedDB on mount
+  useEffect(() => {
+    async function loadPins() {
+      try {
+        const { getAllRecords } = await import('@/offline/db');
+        const pins = await getAllRecords('microhabitatPins');
+        setUserPins(pins as MicrohabitatPinRecord[]);
+      } catch { /* IndexedDB may not be available */ }
+    }
+    loadPins();
+  }, []);
 
   // Map species data to HeatmapItem format
   const heatmapItems: HeatmapItem[] = useMemo(
@@ -164,6 +180,42 @@ export default function MapPageClient() {
     },
     [router]
   );
+
+  /**
+   * Handle user pin click — show pin detail panel.
+   */
+  const handleUserPinClick = useCallback(
+    (pinId: string) => {
+      const pin = userPins.find((p) => p.id === pinId);
+      if (pin) {
+        setPanelItem(null);
+        setSelectedUserPin(pin);
+      }
+    },
+    [userPins]
+  );
+
+  /**
+   * Handle deleting a user pin from the detail panel.
+   */
+  const handleDeleteUserPin = useCallback(
+    async (pinId: string) => {
+      try {
+        const { deleteRecord } = await import('@/offline/db');
+        await deleteRecord('microhabitatPins', pinId);
+        setUserPins((prev) => prev.filter((p) => p.id !== pinId));
+        setSelectedUserPin(null);
+      } catch { /* silently fail */ }
+    },
+    []
+  );
+
+  /**
+   * Callback from PrivateMapPins when pins change (add/delete).
+   */
+  const handlePinsChanged = useCallback((pins: MicrohabitatPinRecord[]) => {
+    setUserPins(pins);
+  }, []);
 
   return (
     <main className="flex flex-col">
@@ -279,6 +331,20 @@ export default function MapPageClient() {
 
         <DownloadMapButton />
 
+        <button
+          type="button"
+          onClick={() => { setShowMyPinsOnly(!showMyPinsOnly); setSelectedUserPin(null); }}
+          aria-pressed={showMyPinsOnly}
+          aria-label={showMyPinsOnly ? 'Show all map layers' : 'Show my pins only'}
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
+            showMyPinsOnly
+              ? 'bg-purple-600 text-white'
+              : 'bg-white/60 dark:bg-dark-surface/60 text-brand-charcoal dark:text-dark-text border border-brand-charcoal/10'
+          }`}
+        >
+          📌 {showMyPinsOnly ? 'Show All' : 'My Pins'}
+        </button>
+
         {showHeatmap && (
           <div
             id="map-season-heatmap"
@@ -352,18 +418,29 @@ export default function MapPageClient() {
           </div>
         ) : (
           <ForageWiseMap
-            parks={parks}
-            trails={trails}
-            routes={routes}
+            parks={showMyPinsOnly ? [] : parks}
+            trails={showMyPinsOnly ? [] : trails}
+            routes={showMyPinsOnly ? [] : routes}
             onMarkerClick={handleMarkerClick}
-            mushroomMarkers={mushroomMarkers}
+            mushroomMarkers={showMyPinsOnly ? [] : mushroomMarkers}
             onMushroomSpeciesClick={handleMushroomSpeciesClick}
-            foragingConditions={foragingConditions}
+            foragingConditions={showMyPinsOnly ? [] : foragingConditions}
+            userPins={userPins}
+            onUserPinClick={handleUserPinClick}
           />
         )}
 
         {/* Detail panel overlays the map — positioned at top */}
         <MapDetailPanel item={panelItem} onClose={handleClosePanel} conditionsMap={conditionsMap} />
+
+        {/* User Pin Detail Panel */}
+        {selectedUserPin && (
+          <UserPinDetailPanel
+            pin={selectedUserPin}
+            onClose={() => setSelectedUserPin(null)}
+            onDelete={handleDeleteUserPin}
+          />
+        )}
       </div>
 
       {/* List view — shown when in list mode */}
@@ -403,8 +480,92 @@ export default function MapPageClient() {
 
       {/* Private Map Pins — personal secret spots */}
       <div className="mx-4 mb-4">
-        <PrivateMapPins />
+        <PrivateMapPins onPinsChanged={handlePinsChanged} />
       </div>
     </main>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// User Pin Detail Panel
+// ---------------------------------------------------------------------------
+
+function UserPinDetailPanel({
+  pin,
+  onClose,
+  onDelete,
+}: {
+  pin: MicrohabitatPinRecord;
+  onClose: () => void;
+  onDelete: (pinId: string) => void;
+}) {
+  const displayLabel = pin.notes.split(' — ')[0].replace(/\s*\[.*\]$/, '') || 'Pin';
+  const displayNotes = pin.notes.includes(' — ')
+    ? pin.notes.split(' — ').slice(1).join(' — ').replace(/\s*\[.*\]$/, '')
+    : '';
+  const pinCategory = pin.notes.match(/\[(mushroom|plant|tree)\]/)?.[1] || 'mushroom';
+  const categoryIcon = pinCategory === 'mushroom' ? '🍄' : pinCategory === 'plant' ? '🌿' : '🌳';
+
+  return (
+    <div
+      className="absolute top-3 left-3 right-3 z-[1000] rounded-xl border border-purple-200 dark:border-purple-800 bg-white/95 dark:bg-dark-surface/95 backdrop-blur-sm shadow-lg p-4 space-y-3"
+      role="dialog"
+      aria-label={`Pin details: ${displayLabel}`}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{categoryIcon}</span>
+            <h3 className="text-sm font-bold text-brand-charcoal dark:text-dark-text truncate">
+              {displayLabel}
+            </h3>
+          </div>
+          <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+            {pinCategory}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="shrink-0 rounded-full p-1.5 hover:bg-brand-charcoal/10 dark:hover:bg-brand-sand/10 transition-colors"
+          aria-label="Close pin details"
+        >
+          <svg className="w-4 h-4 text-brand-charcoal/60 dark:text-brand-sand/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Notes */}
+      {displayNotes && (
+        <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted">
+          {displayNotes}
+        </p>
+      )}
+
+      {/* Metadata */}
+      <div className="flex flex-wrap gap-3 text-[11px] text-brand-charcoal/60 dark:text-brand-sand/50">
+        <span>📍 {pin.coordinates.lat.toFixed(4)}, {pin.coordinates.lng.toFixed(4)}</span>
+        <span>📅 {new Date(pin.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+        {pin.visits.length > 0 && <span>👁️ {pin.visits.length} visit{pin.visits.length !== 1 ? 's' : ''}</span>}
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2 pt-1">
+        <button
+          type="button"
+          onClick={() => onDelete(pin.id)}
+          className="flex-1 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-medium py-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+          aria-label={`Delete pin: ${displayLabel}`}
+        >
+          Delete Pin
+        </button>
+      </div>
+
+      <p className="text-[9px] text-brand-charcoal/40 dark:text-brand-sand/40 text-center">
+        🔒 Private — only visible to you
+      </p>
+    </div>
   );
 }
