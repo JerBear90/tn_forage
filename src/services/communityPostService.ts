@@ -47,7 +47,6 @@ export async function fetchCommunityPosts(page = 1, perPage = 20): Promise<{
   try {
     const result = await pb.collection('community_posts').getList(page, perPage, {
       sort: '-created',
-      filter: 'visibility = "public"',
     });
 
     const posts: CommunityPost[] = result.items.map((record) => {
@@ -95,7 +94,7 @@ export async function createCommunityPost(data: CreatePostData): Promise<Communi
     if (data.displayName) formData.append('displayName', data.displayName);
     if (data.avatarUrl) formData.append('avatarUrl', data.avatarUrl);
     if (data.speciesGuess) formData.append('speciesGuess', data.speciesGuess);
-    if (data.notes) formData.append('notes', data.notes);
+    formData.append('notes', data.notes || ' ');
     formData.append('visibility', 'public');
     if (data.coordinates) formData.append('coordinates', JSON.stringify(data.coordinates));
     if (data.postType) formData.append('postType', data.postType);
