@@ -118,6 +118,7 @@ export default function CommunityFeed({ sightings, onAddPost }: CommunityFeedPro
       try {
         const { fetchCommunityPosts } = await import('@/services/communityPostService');
         const { posts } = await fetchCommunityPosts(1, 50);
+        console.log('[CommunityFeed] PocketBase returned', posts.length, 'posts');
         for (const post of posts) {
           items.push({
             id: post.id,
