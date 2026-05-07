@@ -681,7 +681,19 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
               </div>
 
               {/* Post image gallery */}
-              <div className="relative w-full bg-black">
+              <div
+                className="relative w-full bg-black"
+                onTouchStart={(e) => { swipeStartX.current = e.touches[0].clientX; }}
+                onTouchEnd={(e) => {
+                  if (swipeStartX.current === null) return;
+                  const diff = e.changedTouches[0].clientX - swipeStartX.current;
+                  swipeStartX.current = null;
+                  if (Math.abs(diff) > 50) {
+                    if (diff < 0 && galleryIndex < photoUrls.length - 1) setGalleryIndex((i) => i + 1);
+                    else if (diff > 0 && galleryIndex > 0) setGalleryIndex((i) => i - 1);
+                  }
+                }}
+              >
                 {photoUrls.length > 0 ? (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
