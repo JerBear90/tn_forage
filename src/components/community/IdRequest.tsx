@@ -86,6 +86,13 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
       const result = await createCommunityPost({
         userId: pb.authStore.record?.id || user?.id || 'local-user',
         displayName: user?.displayName || pb.authStore.record?.name || undefined,
+        avatarUrl: (() => {
+          const avatar = user?.avatar || pb.authStore.record?.avatar as string | undefined;
+          if (!avatar) return undefined;
+          if (avatar.startsWith('http')) return avatar;
+          const uid = user?.id || pb.authStore.record?.id;
+          return uid ? `${pb.baseURL}/api/files/_pb_users_auth_/${uid}/${avatar}` : undefined;
+        })(),
         speciesGuess: `[ID Request] ${question.trim()}`,
         notes: question.trim() + (location.trim() ? `\n📍 Found at: ${location.trim()}` : ''),
         photoFiles,
