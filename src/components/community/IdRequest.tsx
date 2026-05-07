@@ -9,16 +9,7 @@
  */
 
 import { useState, useRef, useCallback } from 'react';
-import { putRecord } from '@/offline/db';
 import { useAuth } from '@/auth/useAuth';
-
-function generateId(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-  });
-}
 
 export interface IdRequestProps {
   onSubmitted?: () => void;
@@ -57,26 +48,38 @@ export default function IdRequest({ onSubmitted }: IdRequestProps) {
     setError(null);
 
     try {
-      await putRecord('communityDrafts', {
-        id: generateId(),
+      // Post to PocketBase so it shows in the feed with "Needs ID" badge
+      const { createCommunityPost } = await import('@/services/communityPostService');
+      const { pb } = await import('@/auth/authService');
+
+      if (!pb.authStore.isValid) {
+        setError('Please sign in again to submit an ID request.');
+        setSubmitting(false);
+        return;
+      }
+
+      const result = await createCommunityPost({
         userId: user?.id || 'local-user',
+        displayName: user?.displayName || undefined,
         speciesGuess: `[ID Request] ${question.trim()}`,
-        photos: [],
-        notes: question.trim(),
-        visibility: 'public' as const,
-        coordinates: undefined,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        notes: question.trim() + (location.trim() ? `\n📍 Found at: ${location.trim()}` : ''),
+        photoFiles: photoBlob ? [new File([photoBlob], 'id-request.jpg', { type: photoBlob.type || 'image/jpeg' })] : undefined,
       });
+
+      if (!result) {
+        setError('Failed to post. Please check your connection and try again.');
+        setSubmitting(false);
+        return;
+      }
 
       setSubmitted(true);
       onSubmitted?.();
     } catch {
-      setError('Failed to submit. It will be saved and sent when online.');
+      setError('Failed to submit. Please check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
-  }, [photoBlob, question, user?.id, onSubmitted]);
+  }, [photoBlob, question, location, user?.id, user?.displayName, onSubmitted]);
 
   if (!isAuthenticated) {
     return null; // Only show for authenticated users

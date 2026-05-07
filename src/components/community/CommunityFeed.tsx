@@ -400,7 +400,8 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   }, [comments, item.id, votedIds]);
 
   // Type badge
-  const typeBadge = item.type === 'trip' ? '🗺️ Trip Plan' : item.type === 'checkin' ? '📍 Check-in' : null;
+  const isIdRequest = item.title?.startsWith('[ID Request]') || false;
+  const typeBadge = isIdRequest ? '🔍 Needs ID' : item.type === 'trip' ? '🗺️ Trip Plan' : item.type === 'checkin' ? '📍 Check-in' : null;
 
   return (
     <article
@@ -498,6 +499,12 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008M6 18h.008M18 6h.008M18 18h.008M3 9.75V4.5A1.5 1.5 0 014.5 3h4.125M3 14.25v5.25A1.5 1.5 0 004.5 21h4.125M21 9.75V4.5A1.5 1.5 0 0019.5 3h-4.125M21 14.25v5.25a1.5 1.5 0 01-1.5 1.5h-4.125" />
               </svg>
               <span className="text-[10px] font-semibold text-white">{galleryIndex + 1}/{photoUrls.length}</span>
+            </div>
+          )}
+          {/* Needs ID badge overlay */}
+          {isIdRequest && (
+            <div className="absolute top-2.5 left-2.5 bg-amber-500 rounded-md px-2 py-1 flex items-center gap-1 shadow-md">
+              <span className="text-[10px] font-bold text-white">🔍 NEEDS ID</span>
             </div>
           )}
           {/* Gallery arrows */}
