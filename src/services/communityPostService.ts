@@ -84,6 +84,12 @@ export async function fetchCommunityPosts(page = 1, perPage = 20): Promise<{
 // ---------------------------------------------------------------------------
 
 export async function createCommunityPost(data: CreatePostData): Promise<CommunityPost | null> {
+  // Verify auth before attempting
+  if (!pb.authStore.isValid) {
+    console.error('[CommunityPostService] No valid auth token. User must sign in.');
+    return null;
+  }
+
   try {
     const formData = new FormData();
     formData.append('userId', data.userId);

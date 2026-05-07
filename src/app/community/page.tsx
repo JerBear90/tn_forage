@@ -99,7 +99,7 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
   const [speciesGuess, setSpeciesGuess] = useState('');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
-  const [locationMode, setLocationMode] = useState<'gps' | 'manual'>('gps');
+  const [locationMode, setLocationMode] = useState<'gps' | 'manual'>('manual');
   const geo = useGeolocation();
 
   // Photo handling — stores photo IDs, names, files, and preview URLs
@@ -139,6 +139,12 @@ function NewSightingForm({ onSave, onCancel }: NewSightingFormProps) {
     // Require internet to post
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       alert('You need internet to post. Please connect and try again.');
+      return;
+    }
+
+    // Check PocketBase auth
+    if (!pb.authStore.isValid) {
+      alert('Your session has expired. Please sign in again to post.');
       return;
     }
 
