@@ -28,7 +28,6 @@ import type {
 
 /** Tab names displayed in the UI */
 export const TAB_NAMES = [
-  "Completed Trips",
   "Achievements",
   "Badges",
   "Reviews",
@@ -51,7 +50,7 @@ export interface ProfileTabsProps {
 // ---------------------------------------------------------------------------
 
 export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) {
-  const [activeTab, setActiveTab] = useState<ProfileTab>("Completed Trips");
+  const [activeTab, setActiveTab] = useState<ProfileTab>("Achievements");
   const [trips, setTrips] = useState<Trip[]>([]);
   const [achievements, setAchievements] = useState<AchievementLocal[]>([]);
   const [reviews, setReviews] = useState<ReviewLocal[]>([]);
@@ -149,39 +148,6 @@ export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) 
           </p>
         ) : (
           <>
-            {/* Completed Trips */}
-            {activeTab === "Completed Trips" && (
-              <div
-                role="tabpanel"
-                id="tabpanel-completed-trips"
-                aria-label="Completed Trips"
-              >
-                {displayTrips.length === 0 ? (
-                  <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50 text-center py-6">
-                    No completed trips yet.
-                  </p>
-                ) : (
-                  <ul className="space-y-3">
-                    {displayTrips.map((trip) => (
-                      <li
-                        key={trip.id}
-                        className="rounded-lg bg-brand-teal/5 dark:bg-brand-teal/10 px-3 py-2.5"
-                      >
-                        <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
-                          {trip.customLocation || trip.locationId || "Trip"}
-                        </p>
-                        <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
-                          {trip.date}
-                          {trip.targetSpecies.length > 0 &&
-                            ` · ${trip.targetSpecies.length} species`}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-
             {/* Achievements */}
             {activeTab === "Achievements" && (
               <div
