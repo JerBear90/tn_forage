@@ -11,6 +11,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/auth/useAuth';
+import { useDoubleTap } from '@/hooks/useDoubleTap';
 
 // ---------------------------------------------------------------------------
 // localStorage helpers
@@ -283,8 +284,6 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<ThreadedComment[]>([]);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const lastTapRef = useRef<number>(0);
-  const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const swipeStartX = useRef<number | null>(null);
 
   // Photos are always URLs from PocketBase — use directly
@@ -315,29 +314,17 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   // Count all comments recursively
   const totalCommentCount = countAllComments(comments);
 
-  // Double-tap to like, single tap to expand
-  const handleDoubleTap = useCallback(() => {
-    const now = Date.now();
-    if (now - lastTapRef.current < 300) {
-      // Double tap — like
-      if (!isLiked) onLike();
-      setShowHeart(true);
-      setTimeout(() => setShowHeart(false), 800);
-    }
-    lastTapRef.current = now;
+  // Double-tap to like via useDoubleTap hook
+  const handleDoubleTapLike = useCallback(() => {
+    if (!isLiked) onLike();
+    setShowHeart(true);
+    setTimeout(() => setShowHeart(false), 800);
   }, [isLiked, onLike]);
 
-  // Single tap on image opens expanded view (separate from double-tap)
-  const handleImageTap = useCallback(() => {
-    // Use a short delay to check if it's a double-tap
-    if (singleTapTimer.current) {
-      clearTimeout(singleTapTimer.current);
-      singleTapTimer.current = null;
-    }
-    singleTapTimer.current = setTimeout(() => {
-      setExpanded(true);
-    }, 250);
-  }, []);
+  const { handleTap } = useDoubleTap({
+    onDoubleTap: handleDoubleTapLike,
+    onSingleTap: () => setExpanded(true),
+  });
 
   // Add comment (top-level or reply)
   const handleAddComment = useCallback(async () => {
@@ -378,14 +365,8 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
 
   return (
     <article
-      className="rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white dark:bg-brand-charcoal/50 overflow-hidden cursor-pointer"
+      className="rounded-xl border border-brand-charcoal/10 dark:border-brand-sand/10 bg-white dark:bg-brand-charcoal/50 overflow-hidden"
       aria-label={`Post by ${displayName}: ${item.title || 'Community post'}`}
-      onClick={(e) => {
-        // Don't open if clicking on buttons (like, share, follow, arrows)
-        const target = e.target as HTMLElement;
-        if (target.closest('button') || target.closest('a')) return;
-        setExpanded(true);
-      }}
     >
       {/* Header: avatar, name, follow */}
       <div className="flex items-center justify-between px-4 py-3">
@@ -406,9 +387,11 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
             )}
           </div>
           <div>
-            <span className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand block">
-              {displayName}
-            </span>
+            <Link href={`/community/user/${item.userId}`} onClick={(e) => e.stopPropagation()} className="hover:underline">
+              <span className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand block">
+                {displayName}
+              </span>
+            </Link>
             {typeBadge && (
               <span className="text-xs text-brand-teal font-medium">{typeBadge}</span>
             )}
@@ -431,11 +414,12 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
       {/* Image or Trip Card */}
       {item.type === 'trip' ? (
         <TripCard item={item} />
-      ) : (
+      ) : photoUrls.length > 0 ? (
         <div
-          className="relative w-full aspect-[4/3] bg-brand-charcoal/5 dark:bg-brand-sand/5 select-none overflow-hidden"
+          className="relative w-full aspect-[4/3] bg-brand-charcoal/5 dark:bg-brand-sand/5 select-none overflow-hidden cursor-pointer"
           role="img"
           aria-label={item.title || 'Post photo'}
+          onClick={handleTap}
           onKeyDown={(e) => { if (e.key === 'Enter') setExpanded(true); }}
           onTouchStart={(e) => { swipeStartX.current = e.touches[0].clientX; }}
           onTouchEnd={(e) => {
@@ -451,26 +435,12 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
             }
           }}
         >
-          {photoUrls.length > 0 ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={photoUrls[galleryIndex] || photoUrls[0]}
-              alt={item.title || 'Community sighting photo'}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <svg
-                className="w-16 h-16 text-brand-charcoal/15 dark:text-brand-sand/15"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-              </svg>
-            </div>
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photoUrls[galleryIndex] || photoUrls[0]}
+            alt={item.title || 'Community sighting photo'}
+            className="w-full h-full object-cover"
+          />
           {/* Gallery dots indicator */}
           {photoUrls.length > 1 && (
             <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1.5">
@@ -527,7 +497,7 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
             </div>
           )}
         </div>
-      )}
+      ) : null}
 
       {/* Actions: like, comment, share */}
       <div className="flex items-center gap-2 px-4 pt-3">
@@ -576,7 +546,7 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
       </div>
 
       {/* Content: location, species, notes, time */}
-      <div className="px-4 pb-4 pt-2 space-y-1.5">
+      <div className="px-4 pb-4 pt-2 space-y-1.5 cursor-pointer" onClick={() => setExpanded(true)}>
         {/* Location */}
         {item.coordinates && (
           <div className="flex items-center gap-1 text-xs text-brand-charcoal/50 dark:text-brand-sand/50">

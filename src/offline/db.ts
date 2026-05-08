@@ -30,6 +30,7 @@ import type {
   CommunityFlag,
   Challenge,
   ChallengeBadge,
+  ChallengeSubmission,
   FollowLocal,
   ReviewLocal,
   SocialPhoto,
@@ -63,7 +64,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const DB_NAME = 'foragewise';
-export const DB_VERSION = 5;
+export const DB_VERSION = 6;
 
 export interface ForageWiseDB extends DBSchema {
   species: {
@@ -223,6 +224,15 @@ export interface ForageWiseDB extends DBSchema {
     indexes: {
       'by-challengeId': string;
       'by-isEarned': string;
+    };
+  };
+  challengeSubmissions: {
+    key: string;
+    value: ChallengeSubmission;
+    indexes: {
+      'by-userId': string;
+      'by-challengeId': string;
+      'by-status': string;
     };
   };
   follows: {
@@ -454,6 +464,7 @@ export const STORE_NAMES: (keyof ForageWiseDB)[] = [
   'communityFlags',
   'challenges',
   'challengeBadges',
+  'challengeSubmissions',
   'follows',
   'reviews',
   'socialPhotos',
@@ -745,6 +756,14 @@ export function getDB(): Promise<IDBPDatabase<ForageWiseDB>> {
           badgesStore.createIndex('by-challengeId', 'challengeId');
           badgesStore.createIndex('by-isEarned', 'isEarned');
         }
+
+        // ---- Version 6: Add challengeSubmissions store ----
+        if (oldVersion < 6) {
+          const submissionsStore = db.createObjectStore('challengeSubmissions', { keyPath: 'id' });
+          submissionsStore.createIndex('by-userId', 'userId');
+          submissionsStore.createIndex('by-challengeId', 'challengeId');
+          submissionsStore.createIndex('by-status', 'status');
+        }
       },
     });
   }
@@ -759,7 +778,7 @@ export type StoreName = 'species' | 'plants' | 'trees' | 'parks' | 'trails'
   | 'routes' | 'trips' | 'expeditionLogs' | 'photos' | 'userProfileLocal'
   | 'membershipLocal' | 'authMetaLocal' | 'syncQueue' | 'settings'
   | 'cachedMapRegions' | 'communityDrafts' | 'communityFlags' | 'challenges'
-  | 'challengeBadges' | 'follows' | 'reviews' | 'socialPhotos' | 'achievements'
+  | 'challengeBadges' | 'challengeSubmissions' | 'follows' | 'reviews' | 'socialPhotos' | 'achievements'
   | 'feedItems' | 'reviewAggregations' | 'blogArticles' | 'customRoutes'
   | 'eventEntries' | 'trailConditionReports' | 'checkIns' | 'guidedTours'
   | 'journalEntries' | 'harvestEntries' | 'microhabitatPins' | 'foragingProfiles'

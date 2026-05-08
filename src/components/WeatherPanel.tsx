@@ -275,7 +275,7 @@ export default function WeatherPanel({ isOpen, onClose }: WeatherPanelProps) {
 
           {!isOnline && (
             <div className="rounded-lg bg-brand-earth/10 border border-brand-earth/20 px-3 py-2 text-sm text-brand-earth dark:text-brand-earth-300">
-              Weather requires an internet connection. Connect to see live conditions.
+              You&apos;re offline so these features are not available
             </div>
           )}
 

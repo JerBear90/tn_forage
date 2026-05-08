@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useChallenges } from "@/hooks/useChallenges";
 import ChallengesCard from "@/components/ChallengesCard";
 import BadgeCelebration from "@/components/BadgeCelebration";
+import ChallengeSubmitModal from "@/components/ChallengeSubmitModal";
 
 /**
  * ForageWise — ChallengesSection Component
@@ -39,6 +41,8 @@ export default function ChallengesSection({
     justEarnedBadge,
     dismissBadgeCelebration,
   } = useChallenges();
+
+  const [submittingChallengeId, setSubmittingChallengeId] = useState<string | null>(null);
 
   const displayedChallenges = preview ? getChallengesPreview() : challenges;
 
@@ -123,13 +127,37 @@ export default function ChallengesSection({
 
       <div className="space-y-3">
         {displayedChallenges.map((challenge) => (
-          <ChallengesCard
-            key={challenge.id}
-            challenge={challenge}
-            onCriterionChange={updateCriterion}
-          />
+          <div key={challenge.id} className="space-y-2">
+            <ChallengesCard
+              challenge={challenge}
+              onCriterionChange={updateCriterion}
+            />
+            {/* Submit button for non-completed challenges */}
+            {!challenge.completedAt && (
+              <button
+                onClick={() => setSubmittingChallengeId(challenge.id)}
+                className="w-full min-h-[44px] px-4 py-2.5 rounded-lg border border-brand-teal text-brand-teal dark:text-brand-teal-200 text-sm font-medium hover:bg-brand-teal/10 dark:hover:bg-brand-teal/20 transition-colors"
+                aria-label={`Submit photo for challenge: ${challenge.title}`}
+              >
+                Submit Photo
+              </button>
+            )}
+          </div>
         ))}
       </div>
+
+      {/* Challenge submit modal */}
+      {submittingChallengeId && (
+        <ChallengeSubmitModal
+          challengeId={submittingChallengeId}
+          onClose={() => setSubmittingChallengeId(null)}
+          onSubmitted={() => {
+            setSubmittingChallengeId(null);
+            // Trigger a reload by re-mounting — the hook will re-fetch on next mount
+            window.location.reload();
+          }}
+        />
+      )}
     </section>
   );
 }

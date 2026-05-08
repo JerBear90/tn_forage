@@ -24,6 +24,7 @@ interface FollowEntry {
   id: string;
   userId: string;
   displayName: string;
+  avatarUrl?: string;
 }
 
 function FollowsContent() {
@@ -98,18 +99,29 @@ function FollowsContent() {
         }
       } catch { /* ignore */ }
 
-      // Resolve real names from PocketBase community_posts
+      // Resolve real names and avatars from PocketBase community_posts
       try {
         const { pb } = await import('@/auth/authService');
-        const allUserIds = [...new Set([...followingList.map(f => f.userId), ...followerList.map(f => f.userId)])];
+        const allUserIds = Array.from(new Set([...followingList.map(f => f.userId), ...followerList.map(f => f.userId)]));
         for (const uid of allUserIds.slice(0, 20)) {
           try {
             const result = await pb.collection('community_posts').getList(1, 1, { filter: `userId = "${uid}"` });
             if (result.items.length > 0) {
               const name = (result.items[0].userName as string) || undefined;
-              if (name) {
-                followingList.forEach(f => { if (f.userId === uid) f.displayName = name; });
-                followerList.forEach(f => { if (f.userId === uid) f.displayName = name; });
+              const avatarUrl = (result.items[0].avatarUrl as string) || undefined;
+              if (name || avatarUrl) {
+                followingList.forEach(f => {
+                  if (f.userId === uid) {
+                    if (name) f.displayName = name;
+                    if (avatarUrl) f.avatarUrl = avatarUrl;
+                  }
+                });
+                followerList.forEach(f => {
+                  if (f.userId === uid) {
+                    if (name) f.displayName = name;
+                    if (avatarUrl) f.avatarUrl = avatarUrl;
+                  }
+                });
               }
             }
           } catch { /* skip individual lookup */ }
@@ -268,7 +280,22 @@ function FollowsContent() {
               className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-brand-charcoal/50 border border-brand-charcoal/10 dark:border-brand-sand/10"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-full bg-brand-moss/20 flex items-center justify-center flex-shrink-0">
+                {entry.avatarUrl && entry.avatarUrl.startsWith('http') ? (
+                  <img
+                    src={entry.avatarUrl}
+                    alt={`${entry.displayName} avatar`}
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement | null;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className={`w-10 h-10 rounded-full bg-brand-moss/20 items-center justify-center flex-shrink-0${entry.avatarUrl && entry.avatarUrl.startsWith('http') ? ' hidden' : ' flex'}`}
+                >
                   <svg className="w-5 h-5 text-brand-moss" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                   </svg>

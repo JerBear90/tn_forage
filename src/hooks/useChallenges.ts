@@ -22,7 +22,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { getAllRecords, putRecord } from "@/offline/db";
 import { seedDatabase } from "@/data/seedDatabase";
-import type { Challenge, ChallengeBadge } from "@/types";
+import { fetchUserSubmissions, submitChallenge as submitChallengeService } from "@/services/challengeSubmissionService";
+import { pb } from "@/auth/authService";
+import type { Challenge, ChallengeBadge, ChallengeSubmission } from "@/types";
 
 export interface UseChallengesResult {
   challenges: Challenge[];
@@ -38,6 +40,8 @@ export interface UseChallengesResult {
   earnedBadges: ChallengeBadge[];
   justEarnedBadge: ChallengeBadge | null;
   dismissBadgeCelebration: () => void;
+  submitChallenge: (challengeId: string, photoFile: File) => Promise<ChallengeSubmission>;
+  submissionLoading: boolean;
 }
 
 /**
@@ -50,6 +54,7 @@ export function useChallenges(): UseChallengesResult {
   const [justEarnedBadge, setJustEarnedBadge] = useState<ChallengeBadge | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submissionLoading, setSubmissionLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,7 +69,75 @@ export function useChallenges(): UseChallengesResult {
 
         if (cancelled) return;
 
-        setChallenges(records);
+        // Check PocketBase for approved submissions and mark challenges as completed
+        let updatedRecords = records;
+        try {
+          const userId = pb.authStore.record?.id;
+          if (userId) {
+            const submissions = await fetchUserSubmissions(userId);
+            const approvedSubmissions = submissions.filter(
+              (s) => s.status === 'approved',
+            );
+
+            if (approvedSubmissions.length > 0) {
+              updatedRecords = records.map((challenge) => {
+                if (challenge.completedAt) return challenge;
+
+                const approvedSub = approvedSubmissions.find(
+                  (s) => s.challengeId === challenge.id,
+                );
+                if (approvedSub) {
+                  const completedAt = approvedSub.reviewedAt || new Date().toISOString();
+                  const updatedChallenge: Challenge = {
+                    ...challenge,
+                    completedAt,
+                    lastUpdated: completedAt,
+                    criteria: challenge.criteria.map((c) => ({
+                      ...c,
+                      completed: true,
+                      completedAt: completedAt,
+                    })),
+                  };
+                  // Persist to IndexedDB
+                  putRecord("challenges", updatedChallenge).catch(() => {});
+                  return updatedChallenge;
+                }
+                return challenge;
+              });
+
+              // Award badges for newly completed challenges
+              for (const sub of approvedSubmissions) {
+                const challenge = records.find((c) => c.id === sub.challengeId);
+                if (challenge && !challenge.completedAt) {
+                  const badge = badgeRecords.find(
+                    (b) => b.challengeId === sub.challengeId && !b.isEarned,
+                  );
+                  if (badge) {
+                    const earnedBadge: ChallengeBadge = {
+                      ...badge,
+                      isEarned: true,
+                      earnedAt: sub.reviewedAt || new Date().toISOString(),
+                    };
+                    await putRecord("challengeBadges", earnedBadge);
+                    // eslint-disable-next-line no-loop-func
+                    if (!cancelled) {
+                      setBadges((prev) =>
+                        prev.map((b) => (b.id === earnedBadge.id ? earnedBadge : b)),
+                      );
+                      setJustEarnedBadge(earnedBadge);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } catch {
+          // PocketBase unreachable — gracefully use local challenge state
+        }
+
+        if (cancelled) return;
+
+        setChallenges(updatedRecords);
         setBadges(badgeRecords);
       } catch (err) {
         if (!cancelled) {
@@ -194,6 +267,22 @@ export function useChallenges(): UseChallengesResult {
     setJustEarnedBadge(null);
   }, []);
 
+  /**
+   * Submit a challenge photo. Wraps the service call and exposes loading state.
+   */
+  const submitChallengePhoto = useCallback(
+    async (challengeId: string, photoFile: File): Promise<ChallengeSubmission> => {
+      setSubmissionLoading(true);
+      try {
+        const submission = await submitChallengeService(challengeId, photoFile);
+        return submission;
+      } finally {
+        setSubmissionLoading(false);
+      }
+    },
+    [],
+  );
+
   /** Derived: only earned badges */
   const earnedBadges = badges.filter((b) => b.isEarned);
 
@@ -207,5 +296,7 @@ export function useChallenges(): UseChallengesResult {
     earnedBadges,
     justEarnedBadge,
     dismissBadgeCelebration,
+    submitChallenge: submitChallengePhoto,
+    submissionLoading,
   };
 }

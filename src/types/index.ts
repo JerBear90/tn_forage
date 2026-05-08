@@ -1143,3 +1143,19 @@ export interface BreadcrumbReferrer {
   title: string;
   category: string;
 }
+
+// ---------------------------------------------------------------------------
+// Challenge Submissions
+// ---------------------------------------------------------------------------
+
+/** A challenge photo submission record */
+export interface ChallengeSubmission {
+  id: string;
+  userId: string;
+  challengeId: string;
+  photoUrl: string;
+  status: 'pending_review' | 'approved' | 'rejected';
+  reviewedAt?: string;
+  reviewedBy?: string;
+  createdAt: string;
+}
