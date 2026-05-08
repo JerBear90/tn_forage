@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [blogNotifications, setBlogNotifications] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { openFeedback } = useFeedback();
 
@@ -27,6 +28,38 @@ export default function SettingsPage() {
       alert("Export failed. Please try again.");
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const handleResetData = async () => {
+    if (!confirm("This will clear all offline data (species, parks, etc.) and reload it fresh. Your posts and account are safe. Continue?")) return;
+    setIsResetting(true);
+    try {
+      // Delete the IndexedDB database entirely
+      const { getDB } = await import("@/offline/db");
+      const db = await getDB();
+      db.close();
+      await new Promise<void>((resolve, reject) => {
+        const req = indexedDB.deleteDatabase("foragewise-db");
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+        req.onblocked = () => resolve(); // proceed anyway
+      });
+      // Also clear service worker caches
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      // Unregister service workers
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((r) => r.unregister()));
+      }
+      // Reload the page — DataLoader will re-seed everything
+      window.location.reload();
+    } catch {
+      alert("Reset failed. Try clearing your browser data manually.");
+      setIsResetting(false);
     }
   };
 
@@ -89,13 +122,28 @@ export default function SettingsPage() {
       {/* Data */}
       <section className="mb-6">
         <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-2">Your Data</h2>
-        <button
-          onClick={handleExport}
-          disabled={isExporting}
-          className="w-full rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3 text-sm text-brand-charcoal dark:text-brand-sand hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5 text-left disabled:opacity-50"
-        >
-          {isExporting ? "Exporting..." : "Export all data (JSON)"}
-        </button>
+        <div className="space-y-2">
+          <button
+            onClick={handleExport}
+            disabled={isExporting}
+            className="w-full rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3 text-sm text-brand-charcoal dark:text-brand-sand hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5 text-left disabled:opacity-50"
+          >
+            {isExporting ? "Exporting..." : "Export all data (JSON)"}
+          </button>
+          <button
+            onClick={handleResetData}
+            disabled={isResetting}
+            className="w-full rounded-lg border border-brand-teal/20 bg-brand-teal/5 dark:bg-brand-teal/10 p-3 text-sm text-brand-teal font-medium hover:bg-brand-teal/10 dark:hover:bg-brand-teal/20 text-left disabled:opacity-50 min-h-[44px] flex items-center gap-2"
+          >
+            <svg aria-hidden="true" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.182" />
+            </svg>
+            {isResetting ? "Resetting..." : "Reset & Reload All Data"}
+          </button>
+          <p className="text-[10px] text-brand-charcoal/50 dark:text-brand-sand/50 px-1">
+            Clears offline species, parks, and search data then reloads fresh. Your posts and account are not affected.
+          </p>
+        </div>
       </section>
 
       {/* Feedback */}
