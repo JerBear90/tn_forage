@@ -54,7 +54,7 @@ export function useFuzzySearch() {
     try {
       const allItems: SearchableItem[] = [];
 
-      // Load species from IndexedDB
+      // Load species (mushrooms) from IndexedDB
       try {
         const speciesRecords = await getAllRecords('species');
         for (const s of speciesRecords) {
@@ -70,6 +70,42 @@ export function useFuzzySearch() {
         }
       } catch {
         // IndexedDB species read failed — continue without species
+      }
+
+      // Load plants from IndexedDB
+      try {
+        const plantRecords = await getAllRecords('plants');
+        for (const p of plantRecords) {
+          const plant = p as { commonName?: string; scientificName?: string; images?: string[] };
+          allItems.push({
+            id: p.id,
+            type: 'species',
+            title: plant.commonName || plant.scientificName || p.id,
+            subtitle: plant.scientificName,
+            imageUrl: plant.images?.[0] || undefined,
+            route: `/field-guide/${p.id}`,
+          });
+        }
+      } catch {
+        // IndexedDB plants read failed — continue without plants
+      }
+
+      // Load trees from IndexedDB
+      try {
+        const treeRecords = await getAllRecords('trees');
+        for (const t of treeRecords) {
+          const tree = t as { commonName?: string; scientificName?: string; images?: string[] };
+          allItems.push({
+            id: t.id,
+            type: 'species',
+            title: tree.commonName || tree.scientificName || t.id,
+            subtitle: tree.scientificName,
+            imageUrl: tree.images?.[0] || undefined,
+            route: `/field-guide/${t.id}`,
+          });
+        }
+      } catch {
+        // IndexedDB trees read failed — continue without trees
       }
 
       // Load parks from IndexedDB
