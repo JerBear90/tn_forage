@@ -604,8 +604,22 @@ function CreateTripPageInner() {
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   if (savedTripId) markTripAsShared(savedTripId);
+                  // Post trip to PocketBase feed
+                  try {
+                    const { createCommunityPost } = await import('@/services/communityPostService');
+                    const { pb } = await import('@/auth/authService');
+                    if (pb.authStore.isValid) {
+                      const tripLocation = selectedParkName || customLocation || 'Foraging Trip';
+                      await createCommunityPost({
+                        userId: pb.authStore.record?.id || 'local-user',
+                        displayName: pb.authStore.record?.name || undefined,
+                        speciesGuess: `🗺️ Trip: ${tripLocation}`,
+                        notes: `Planning a trip to ${tripLocation} on ${date}${notes.trim() ? '. ' + notes.trim() : ''}${targetSpecies.length > 0 ? '\nLooking for: ' + targetSpecies.join(', ') : ''}`,
+                      });
+                    }
+                  } catch { /* silently fail */ }
                   if (!isAuthenticated) {
                     router.push('/login?returnTo=/community#feed');
                   } else {

@@ -103,6 +103,29 @@ export default function ProfileContent() {
 
   // The effective profile: auth user first, then cached
   const profile = user ?? cachedProfile;
+
+  if (!isAuthenticated && !cachedProfile) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center px-4 py-6 max-w-lg mx-auto">
+        <div className="text-center">
+          <span className="text-5xl block mb-4" aria-hidden="true">👤</span>
+          <h1 className="text-xl font-bold text-brand-charcoal dark:text-brand-sand font-heading mb-2">
+            Sign in to view your profile
+          </h1>
+          <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60 mb-6">
+            Create an account or sign in to access your profile, posts, and settings.
+          </p>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 rounded-lg bg-brand-teal px-6 py-3 text-sm font-semibold text-white hover:bg-brand-teal/90 transition-colors"
+          >
+            Sign In
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   const displayName = profile?.displayName || "Not signed in";
   const email = profile?.email || "";
 
