@@ -98,6 +98,24 @@ function FollowsContent() {
         }
       } catch { /* ignore */ }
 
+      // Resolve real names from PocketBase community_posts
+      try {
+        const { pb } = await import('@/auth/authService');
+        const allUserIds = [...new Set([...followingList.map(f => f.userId), ...followerList.map(f => f.userId)])];
+        for (const uid of allUserIds.slice(0, 20)) {
+          try {
+            const result = await pb.collection('community_posts').getList(1, 1, { filter: `userId = "${uid}"` });
+            if (result.items.length > 0) {
+              const name = (result.items[0].userName as string) || undefined;
+              if (name) {
+                followingList.forEach(f => { if (f.userId === uid) f.displayName = name; });
+                followerList.forEach(f => { if (f.userId === uid) f.displayName = name; });
+              }
+            }
+          } catch { /* skip individual lookup */ }
+        }
+      } catch { /* skip name resolution */ }
+
       setFollowing(followingList);
       setFollowers(followerList);
       setFollowingIds(followingIdSet);
