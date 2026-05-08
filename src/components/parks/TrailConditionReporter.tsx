@@ -39,8 +39,8 @@ export default function TrailConditionReporter({ trailId, onSubmit }: TrailCondi
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
-      <h4 className="text-sm font-semibold text-gray-800 mb-2">Report Trail Conditions</h4>
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
+      <h4 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-2">Report Trail Conditions</h4>
       <div className="grid grid-cols-3 gap-2 mb-3" role="group" aria-label="Trail condition categories">
         {CATEGORIES.map((cat) => (
           <button
@@ -49,7 +49,7 @@ export default function TrailConditionReporter({ trailId, onSubmit }: TrailCondi
             className={`rounded-md border px-2 py-2 text-xs font-medium transition-colors ${
               selected.includes(cat.value)
                 ? "border-teal-500 bg-teal-50 text-teal-800"
-                : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                : "border-brand-charcoal/10 dark:border-brand-sand/10 bg-white dark:bg-transparent text-brand-charcoal/70 dark:text-brand-sand/70 hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5"
             }`}
             aria-pressed={selected.includes(cat.value)}
           >
@@ -62,7 +62,7 @@ export default function TrailConditionReporter({ trailId, onSubmit }: TrailCondi
         value={details}
         onChange={(e) => setDetails(e.target.value.slice(0, 500))}
         placeholder="Optional details (max 500 chars)"
-        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm mb-3 resize-none"
+        className="w-full rounded border border-brand-charcoal/10 dark:border-brand-sand/10 px-2 py-1.5 text-sm mb-3 resize-none"
         rows={2}
         maxLength={500}
         aria-label="Condition details"

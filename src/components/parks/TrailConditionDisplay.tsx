@@ -19,13 +19,13 @@ const COLOR_CLASSES = {
 export default function TrailConditionDisplay({ condition }: TrailConditionDisplayProps) {
   if (!condition || !condition.hasData) {
     return (
-      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+      <span className="inline-flex items-center rounded-full bg-brand-charcoal/10 dark:bg-brand-sand/10 px-2 py-0.5 text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
         No recent reports
       </span>
     );
   }
 
-  const colorClass = condition.color ? COLOR_CLASSES[condition.color] : "bg-gray-100 text-gray-600";
+  const colorClass = condition.color ? COLOR_CLASSES[condition.color] : "bg-brand-charcoal/10 dark:bg-brand-sand/10 text-brand-charcoal/70 dark:text-brand-sand/70";
   const label = condition.displayedCategory?.replace("-", "/") ?? "Unknown";
 
   return (

@@ -116,7 +116,7 @@ export default function BlogPage() {
         ))}
       </div>
       {articles.length === 0 && (
-        <p className="text-sm text-gray-500 text-center mt-8">No articles available.</p>
+        <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60 text-center mt-8">No articles available.</p>
       )}
     </div>
   );

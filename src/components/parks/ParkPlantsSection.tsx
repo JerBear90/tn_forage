@@ -15,10 +15,10 @@ export default function ParkPlantsSection({ plants }: ParkPlantsSectionProps) {
 
   return (
     <section className="mt-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-3">Plants Found Here</h3>
+      <h3 className="text-lg font-semibold text-brand-charcoal dark:text-brand-sand mb-3">Plants Found Here</h3>
       <div className="space-y-4">
         {plants.map((plant) => (
-          <div key={plant.id} className="rounded-lg border border-gray-200 p-4">
+          <div key={plant.id} className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
             <div className="flex gap-3">
               {plant.images[0] && (
                 <img
@@ -28,9 +28,9 @@ export default function ParkPlantsSection({ plants }: ParkPlantsSectionProps) {
                 />
               )}
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-gray-800">{plant.commonName}</h4>
-                <p className="text-xs text-gray-500 italic">{plant.scientificName}</p>
-                <p className="text-xs text-gray-600 mt-1">{plant.habitat.slice(0, 120)}...</p>
+                <h4 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">{plant.commonName}</h4>
+                <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 italic">{plant.scientificName}</p>
+                <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mt-1">{plant.habitat.slice(0, 120)}...</p>
               </div>
             </div>
 

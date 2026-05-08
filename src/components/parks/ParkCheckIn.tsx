@@ -38,7 +38,7 @@ export default function ParkCheckIn({
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
       {!isCheckedIn ? (
         <button
           onClick={onCheckIn}
@@ -50,18 +50,18 @@ export default function ParkCheckIn({
         <div>
           <div className="flex items-center gap-2 mb-3">
             <span className="text-green-600">✓</span>
-            <span className="text-sm font-medium text-gray-800">Checked in!</span>
+            <span className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">Checked in!</span>
           </div>
 
           {/* Rating */}
           <div className="mb-3">
-            <p className="text-xs text-gray-600 mb-1">Rate this park:</p>
+            <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mb-1">Rate this park:</p>
             <div className="flex gap-1" role="radiogroup" aria-label="Park rating">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   onClick={() => onRate(star)}
-                  className={`text-xl ${(currentRating ?? 0) >= star ? "text-yellow-400" : "text-gray-300"}`}
+                  className={`text-xl ${(currentRating ?? 0) >= star ? "text-yellow-400" : "text-brand-charcoal/20 dark:text-brand-sand/20"}`}
                   aria-label={`${star} star${star > 1 ? "s" : ""}`}
                   role="radio"
                   aria-checked={(currentRating ?? 0) >= star}
@@ -74,7 +74,7 @@ export default function ParkCheckIn({
 
           {/* To-do list */}
           <div className="mb-3">
-            <p className="text-xs text-gray-600 mb-1">Things to see/do:</p>
+            <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mb-1">Things to see/do:</p>
             <div className="flex gap-2 mb-2">
               <input
                 type="text"
@@ -82,10 +82,10 @@ export default function ParkCheckIn({
                 onChange={(e) => setNewTodo(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddTodo()}
                 placeholder="Add item..."
-                className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+                className="flex-1 rounded border border-brand-charcoal/10 dark:border-brand-sand/10 px-2 py-1 text-sm"
                 aria-label="New to-do item"
               />
-              <button onClick={handleAddTodo} className="rounded bg-gray-200 px-2 text-sm hover:bg-gray-300">+</button>
+              <button onClick={handleAddTodo} className="rounded bg-brand-charcoal/10 dark:bg-brand-sand/10 px-2 text-sm hover:bg-brand-charcoal/20 dark:hover:bg-brand-sand/20">+</button>
             </div>
             {todos.length > 0 && (
               <ul className="space-y-1">
@@ -95,10 +95,10 @@ export default function ParkCheckIn({
                       type="checkbox"
                       checked={todo.completed}
                       onChange={() => onToggleTodo(todo.id)}
-                      className="rounded border-gray-300"
+                      className="rounded border-brand-charcoal/10 dark:border-brand-sand/10"
                       aria-label={todo.text}
                     />
-                    <span className={`text-sm ${todo.completed ? "line-through text-gray-400" : "text-gray-700"}`}>
+                    <span className={`text-sm ${todo.completed ? "line-through text-brand-charcoal/50 dark:text-brand-sand/50" : "text-brand-charcoal dark:text-brand-sand"}`}>
                       {todo.text}
                     </span>
                   </li>

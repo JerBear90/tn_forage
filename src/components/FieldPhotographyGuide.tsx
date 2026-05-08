@@ -15,9 +15,9 @@ const PHOTO_CHECKLIST = [
  */
 export default function FieldPhotographyGuide() {
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
-      <h3 className="text-sm font-semibold text-gray-800 mb-1">Photography Guide</h3>
-      <p className="text-xs text-gray-600 mb-3">
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
+      <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-1">Photography Guide</h3>
+      <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mb-3">
         Good photos are essential for identification. Capture these angles:
       </p>
 
@@ -28,8 +28,8 @@ export default function FieldPhotographyGuide() {
               📷
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-800">{item.label}</p>
-              <p className="text-xs text-gray-500">{item.tip}</p>
+              <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">{item.label}</p>
+              <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">{item.tip}</p>
             </div>
           </li>
         ))}

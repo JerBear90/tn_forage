@@ -15,32 +15,32 @@ interface BuddyMatchingPanelProps {
 export default function BuddyMatchingPanel({ profile, matches, onSendInvitation }: BuddyMatchingPanelProps) {
   if (!profile || !profile.optedIn) {
     return (
-      <div className="rounded-lg border border-gray-200 p-4 text-center">
-        <p className="text-sm text-gray-600 mb-2">Create a foraging profile to find buddies.</p>
-        <p className="text-xs text-gray-500">Set your experience level, interests, and preferred regions.</p>
+      <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4 text-center">
+        <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mb-2">Create a foraging profile to find buddies.</p>
+        <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">Set your experience level, interests, and preferred regions.</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
-      <h3 className="text-sm font-semibold text-gray-800 mb-3">Foraging Buddies</h3>
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
+      <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-3">Foraging Buddies</h3>
 
       {matches.length === 0 ? (
-        <p className="text-xs text-gray-500">No matches found yet. Check back later.</p>
+        <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">No matches found yet. Check back later.</p>
       ) : (
         <ul className="space-y-3">
           {matches.map((match) => (
-            <li key={match.id} className="flex items-center gap-3 rounded-md border border-gray-100 p-3">
+            <li key={match.id} className="flex items-center gap-3 rounded-md border border-brand-charcoal/10 dark:border-brand-sand/10 p-3">
               <div className="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold text-sm">
                 {match.experienceLevel[0].toUpperCase()}
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-800 capitalize">{match.experienceLevel}</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand capitalize">{match.experienceLevel}</p>
+                <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
                   {match.interests.join(", ")} · {match.preferredRegions.join(", ")}
                 </p>
-                <p className="text-xs text-gray-400">{match.availability.join(", ")}</p>
+                <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">{match.availability.join(", ")}</p>
               </div>
               <button
                 onClick={() => onSendInvitation(match.userId)}

@@ -14,7 +14,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import OnlineHint from "@/components/OnlineHint";
 import {
   useSpeciesDetail,
@@ -81,7 +81,7 @@ function categoryBadgeClasses(category: SpeciesCategory): string {
     case "tree":
       return "bg-brand-forest/15 text-brand-forest border-brand-forest/30";
     default:
-      return "bg-gray-100 text-gray-600 border-gray-300";
+      return "bg-brand-charcoal/10 dark:bg-brand-sand/10 text-brand-charcoal/70 dark:text-brand-sand/70 border-brand-charcoal/10 dark:border-brand-sand/10";
   }
 }
 
@@ -174,54 +174,70 @@ function ImageGallery({ images }: { images: string[] }) {
   );
 }
 
-/** Lookalike card with image and link to detail page */
+/** Lookalike card with image — links to detail page only if species exists */
 function LookalikeCard({
   lookalike,
   isToxicSection,
+  exists = true,
 }: {
   lookalike: Lookalike;
   isToxicSection: boolean;
+  exists?: boolean;
 }) {
-  return (
-    <Link
-      href={`/field-guide/${lookalike.speciesId}`}
-      aria-label={`View details for ${lookalike.commonName}${isToxicSection ? ' (toxic)' : ''}`}
-      className={`block rounded-lg border p-3 transition-shadow hover:ring-2 hover:ring-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
-        isToxicSection
-          ? "border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700"
-          : "border-brand-charcoal/10 bg-white/60 dark:bg-dark-surface/60 dark:border-dark-border"
-      }`}
-    >
-      <div className="flex gap-3">
-        {/* Lookalike image */}
-        <div className="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-brand-charcoal/5 dark:bg-brand-charcoal/20">
-          <SpeciesImage
-            src={`/images/species/${lookalike.speciesId}.jpg`}
-            alt={`${lookalike.commonName} photo`}
-            variant="card"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            {isToxicSection && (
-              <span
-                className="inline-block rounded-full bg-red-600 text-white text-xs font-bold px-2 py-0.5"
-                aria-label="Toxic"
-              >
-                ⚠ TOXIC
-              </span>
-            )}
-            <span className="font-semibold text-sm text-brand-charcoal dark:text-dark-text">
-              {lookalike.commonName}
-            </span>
-          </div>
-          <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted leading-relaxed line-clamp-2">
-            {lookalike.differentiatingFeatures}
-          </p>
-        </div>
+  const cardContent = (
+    <div className="flex gap-3">
+      {/* Lookalike image */}
+      <div className="shrink-0 w-16 h-16 rounded-md overflow-hidden bg-brand-charcoal/5 dark:bg-brand-charcoal/20">
+        <SpeciesImage
+          src={`/images/species/${lookalike.speciesId}.jpg`}
+          alt={`${lookalike.commonName} photo`}
+          variant="card"
+          className="w-full h-full object-cover"
+        />
       </div>
-    </Link>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          {isToxicSection && (
+            <span
+              className="inline-block rounded-full bg-red-600 text-white text-xs font-bold px-2 py-0.5"
+              aria-label="Toxic"
+            >
+              ⚠ TOXIC
+            </span>
+          )}
+          <span className="font-semibold text-sm text-brand-charcoal dark:text-dark-text">
+            {lookalike.commonName}
+          </span>
+        </div>
+        <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted leading-relaxed line-clamp-2">
+          {lookalike.differentiatingFeatures}
+        </p>
+      </div>
+    </div>
+  );
+
+  const baseClasses = `block rounded-lg border p-3 ${
+    isToxicSection
+      ? "border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700"
+      : "border-brand-charcoal/10 bg-white/60 dark:bg-dark-surface/60 dark:border-dark-border"
+  }`;
+
+  if (exists) {
+    return (
+      <Link
+        href={`/field-guide/${lookalike.speciesId}`}
+        aria-label={`View details for ${lookalike.commonName}${isToxicSection ? ' (toxic)' : ''}`}
+        className={`${baseClasses} transition-shadow hover:ring-2 hover:ring-brand-teal/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal`}
+      >
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={baseClasses} aria-label={`${lookalike.commonName}${isToxicSection ? ' (toxic)' : ''}`}>
+      {cardContent}
+    </div>
   );
 }
 
@@ -260,6 +276,30 @@ function SpeciesOrPlantDetail({
 
   // Resolve tree association names to IDs for linking
   const treeAssociationMap = useAssociatedSpeciesLookup(d.treeAssociations);
+
+  // Check which lookalike species actually exist in IndexedDB
+  const [existingLookalikeIds, setExistingLookalikeIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let cancelled = false;
+    async function checkLookalikes() {
+      const allLookalikes = [...(d.toxicLookalikes || []), ...(d.lookalikes || [])];
+      if (allLookalikes.length === 0) return;
+      try {
+        const { getRecord } = await import('@/offline/db');
+        const existing = new Set<string>();
+        for (const la of allLookalikes) {
+          // Check across species, plants, and trees stores
+          const found = await getRecord('species', la.speciesId)
+            || await getRecord('plants', la.speciesId)
+            || await getRecord('trees', la.speciesId);
+          if (found) existing.add(la.speciesId);
+        }
+        if (!cancelled) setExistingLookalikeIds(existing);
+      } catch { /* gracefully degrade — all will render as non-links */ }
+    }
+    checkLookalikes();
+    return () => { cancelled = true; };
+  }, [d.toxicLookalikes, d.lookalikes]);
 
   return (
     <>
@@ -376,6 +416,7 @@ function SpeciesOrPlantDetail({
                 key={la.speciesId}
                 lookalike={la}
                 isToxicSection={true}
+                exists={existingLookalikeIds.has(la.speciesId)}
               />
             ))}
           </div>
@@ -393,6 +434,7 @@ function SpeciesOrPlantDetail({
                   key={la.speciesId}
                   lookalike={la}
                   isToxicSection={false}
+                  exists={existingLookalikeIds.has(la.speciesId)}
                 />
               ))}
           </div>

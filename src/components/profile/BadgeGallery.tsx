@@ -14,7 +14,7 @@ interface BadgeGalleryProps {
 export default function BadgeGallery({ badges, onBadgeClick }: BadgeGalleryProps) {
   return (
     <div>
-      <h3 className="text-sm font-semibold text-gray-800 mb-3">Badges</h3>
+      <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-3">Badges</h3>
       <div className="grid grid-cols-4 gap-3" role="list" aria-label="Badge gallery">
         {badges.map((badge) => (
           <button
@@ -26,10 +26,10 @@ export default function BadgeGallery({ badges, onBadgeClick }: BadgeGalleryProps
             aria-label={`${badge.title}${badge.isEarned ? " — earned" : " — locked"}`}
             role="listitem"
           >
-            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center text-2xl mb-1">
+            <div className="h-12 w-12 rounded-full bg-brand-charcoal/10 dark:bg-brand-sand/10 flex items-center justify-center text-2xl mb-1">
               {badge.icon || "🏆"}
             </div>
-            <span className="text-xs text-center text-gray-700 line-clamp-2">{badge.title}</span>
+            <span className="text-xs text-center text-brand-charcoal dark:text-brand-sand line-clamp-2">{badge.title}</span>
             {badge.isEarned && badge.earnedAt && (
               <span className="text-[10px] text-teal-600 mt-0.5">
                 {new Date(badge.earnedAt).toLocaleDateString()}
@@ -39,7 +39,7 @@ export default function BadgeGallery({ badges, onBadgeClick }: BadgeGalleryProps
         ))}
       </div>
       {badges.length === 0 && (
-        <p className="text-xs text-gray-500">Complete challenges to earn badges.</p>
+        <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">Complete challenges to earn badges.</p>
       )}
     </div>
   );

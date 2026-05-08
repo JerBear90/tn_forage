@@ -93,14 +93,14 @@ export default function LocationSharingPanel({
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
-      <h3 className="text-sm font-semibold text-gray-800 mb-3">Share Your Location</h3>
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
+      <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-3">Share Your Location</h3>
 
-      <label className="block text-xs text-gray-600 mb-1">Duration</label>
+      <label className="block text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mb-1">Duration</label>
       <select
         value={duration}
         onChange={(e) => setDuration(Number(e.target.value))}
-        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm mb-3"
+        className="w-full rounded border border-brand-charcoal/10 dark:border-brand-sand/10 px-2 py-1.5 text-sm mb-3"
         aria-label="Sharing duration"
       >
         {DURATION_OPTIONS.map((opt) => (
@@ -108,14 +108,14 @@ export default function LocationSharingPanel({
         ))}
       </select>
 
-      <label className="block text-xs text-gray-600 mb-1">Add Recipient</label>
+      <label className="block text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mb-1">Add Recipient</label>
       <div className="flex gap-2 mb-2">
         <input
           type="text"
           placeholder="Name"
           value={recipientName}
           onChange={(e) => setRecipientName(e.target.value)}
-          className="flex-1 rounded border border-gray-300 px-2 py-1.5 text-sm"
+          className="flex-1 rounded border border-brand-charcoal/10 dark:border-brand-sand/10 px-2 py-1.5 text-sm"
           aria-label="Recipient name"
         />
         <input
@@ -123,16 +123,16 @@ export default function LocationSharingPanel({
           placeholder="Email or phone"
           value={recipientContact}
           onChange={(e) => setRecipientContact(e.target.value)}
-          className="flex-1 rounded border border-gray-300 px-2 py-1.5 text-sm"
+          className="flex-1 rounded border border-brand-charcoal/10 dark:border-brand-sand/10 px-2 py-1.5 text-sm"
           aria-label="Recipient contact"
         />
-        <button onClick={addRecipient} className="rounded bg-gray-200 px-2 text-sm hover:bg-gray-300">+</button>
+        <button onClick={addRecipient} className="rounded bg-brand-charcoal/10 dark:bg-brand-sand/10 px-2 text-sm hover:bg-brand-charcoal/20 dark:hover:bg-brand-sand/20">+</button>
       </div>
 
       {recipients.length > 0 && (
         <ul className="mb-3 space-y-1">
           {recipients.map((r) => (
-            <li key={r.id} className="text-xs text-gray-600">{r.name} ({r.identifier})</li>
+            <li key={r.id} className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70">{r.name} ({r.identifier})</li>
           ))}
         </ul>
       )}

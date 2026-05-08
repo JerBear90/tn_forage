@@ -124,7 +124,7 @@ export default function NotificationSignupPrompt() {
                   htmlFor="notify-phone"
                   className="block text-sm font-medium text-brand-charcoal dark:text-brand-sand mb-1"
                 >
-                  Phone <span className="text-xs text-gray-400">(optional, for SMS alerts)</span>
+                  Phone <span className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">(optional, for SMS alerts)</span>
                 </label>
                 <input
                   id="notify-phone"

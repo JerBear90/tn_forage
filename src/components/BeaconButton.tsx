@@ -67,8 +67,8 @@ export default function BeaconButton({
       </button>
 
       {showOptions && (
-        <div className="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white border border-gray-200 shadow-lg z-10 p-2" role="menu">
-          <p className="text-xs text-gray-500 px-2 py-1">Set inactivity timer:</p>
+        <div className="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white dark:bg-brand-charcoal border border-brand-charcoal/10 dark:border-brand-sand/10 shadow-lg z-10 p-2" role="menu">
+          <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 px-2 py-1">Set inactivity timer:</p>
           {DURATION_OPTIONS.map((opt) => (
             <button
               key={opt.value}
@@ -76,7 +76,7 @@ export default function BeaconButton({
                 onActivate(opt.value);
                 setShowOptions(false);
               }}
-              className="block w-full text-left rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-800"
+              className="block w-full text-left rounded-md px-3 py-2 text-sm text-brand-charcoal dark:text-brand-sand hover:bg-teal-50 hover:text-teal-800"
               role="menuitem"
             >
               {opt.label}

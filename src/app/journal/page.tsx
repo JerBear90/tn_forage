@@ -14,7 +14,7 @@ export default function JournalPage() {
 
   return (
     <div className="p-4 pb-24">
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Foraging Journal</h1>
+      <h1 className="text-xl font-bold text-brand-charcoal dark:text-brand-sand mb-4">Foraging Journal</h1>
 
       <JournalEntryForm
         onSubmit={(params) => createEntry({ ...params, notes: params.notes })}
@@ -27,25 +27,25 @@ export default function JournalPage() {
       )}
 
       <div className="mt-6">
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">Recent Entries</h2>
+        <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-3">Recent Entries</h2>
         {isLoading ? (
           <div className="animate-pulse space-y-3">
-            {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-gray-200 rounded-lg" />)}
+            {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-lg" />)}
           </div>
         ) : entries.length === 0 ? (
-          <p className="text-xs text-gray-500 text-center">No journal entries yet. Log your first find above.</p>
+          <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 text-center">No journal entries yet. Log your first find above.</p>
         ) : (
           <div className="space-y-3">
             {entries.map((entry) => (
-              <div key={entry.id} className="rounded-lg border border-gray-200 p-3">
+              <div key={entry.id} className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
                     {entry.speciesGuess ?? entry.speciesId ?? "Unknown"}
                   </span>
-                  <span className="text-xs text-gray-500">{entry.date}</span>
+                  <span className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">{entry.date}</span>
                 </div>
-                <p className="text-xs text-gray-600 line-clamp-2">{entry.notes}</p>
-                <p className="text-[10px] text-gray-400 mt-1">
+                <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 line-clamp-2">{entry.notes}</p>
+                <p className="text-[10px] text-brand-charcoal/50 dark:text-brand-sand/50 mt-1">
                   {entry.weather.temperatureF}°F · {entry.weather.conditions}
                 </p>
               </div>

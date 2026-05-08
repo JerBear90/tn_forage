@@ -150,9 +150,9 @@ export default function UsersManagementPage() {
           </thead>
           <tbody>
             {loading && !result ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Loading users...</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-brand-charcoal/60 dark:text-brand-sand/60">Loading users...</td></tr>
             ) : result && result.users.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">No users found{debouncedQuery ? ` matching "${debouncedQuery}"` : ''}.</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-brand-charcoal/60 dark:text-brand-sand/60">No users found{debouncedQuery ? ` matching "${debouncedQuery}"` : ''}.</td></tr>
             ) : (
               result?.users.map((user) => (
                 <tr key={user.id} className="border-b border-brand-charcoal/5 dark:border-brand-sand/5 hover:bg-brand-sand/50 dark:hover:bg-brand-charcoal/30">
@@ -202,7 +202,7 @@ export default function UsersManagementPage() {
 
       {result && result.totalPages > 1 && (
         <nav className="flex items-center justify-between" aria-label="Pagination">
-          <p className="text-sm text-gray-500">Page {result.page} of {result.totalPages}</p>
+          <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60">Page {result.page} of {result.totalPages}</p>
           <div className="flex gap-2">
             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="rounded-lg border border-brand-charcoal/20 px-4 py-2 text-sm font-medium disabled:opacity-50 dark:border-brand-sand/20 dark:text-brand-sand">Previous</button>
             <button onClick={() => setPage((p) => Math.min(result.totalPages, p + 1))} disabled={page >= result.totalPages} className="rounded-lg border border-brand-charcoal/20 px-4 py-2 text-sm font-medium disabled:opacity-50 dark:border-brand-sand/20 dark:text-brand-sand">Next</button>

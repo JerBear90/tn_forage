@@ -68,9 +68,9 @@ export default function VoiceIdAssistant({ onResults }: VoiceIdAssistantProps) {
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
-      <h3 className="text-sm font-semibold text-gray-800 mb-2">Voice ID Assistant</h3>
-      <p className="text-xs text-gray-600 mb-3">
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
+      <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-2">Voice ID Assistant</h3>
+      <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mb-3">
         Describe the mushroom you found — color, shape, where it was growing, nearby trees.
       </p>
 
@@ -93,19 +93,19 @@ export default function VoiceIdAssistant({ onResults }: VoiceIdAssistantProps) {
           value={transcript}
           onChange={(e) => setTranscript(e.target.value)}
           placeholder="Or type your description..."
-          className="flex-1 rounded border border-gray-300 px-2 py-1.5 text-sm"
+          className="flex-1 rounded border border-brand-charcoal/10 dark:border-brand-sand/10 px-2 py-1.5 text-sm"
           onKeyDown={(e) => e.key === "Enter" && handleTextSubmit()}
           aria-label="Mushroom description"
         />
-        <button onClick={handleTextSubmit} className="rounded bg-gray-200 px-3 text-sm hover:bg-gray-300">
+        <button onClick={handleTextSubmit} className="rounded bg-brand-charcoal/10 dark:bg-brand-sand/10 px-3 text-sm hover:bg-brand-charcoal/20 dark:hover:bg-brand-sand/20">
           Go
         </button>
       </div>
 
       {result && (
-        <div className="rounded-md bg-gray-50 p-3">
-          <h4 className="text-xs font-medium text-gray-700 mb-1">Extracted Features:</h4>
-          <ul className="text-xs text-gray-600 space-y-0.5">
+        <div className="rounded-md bg-brand-charcoal/5 dark:bg-brand-sand/5 p-3">
+          <h4 className="text-xs font-medium text-brand-charcoal dark:text-brand-sand mb-1">Extracted Features:</h4>
+          <ul className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 space-y-0.5">
             {result.extractedFeatures.capColor && <li>Cap color: {result.extractedFeatures.capColor}</li>}
             {result.extractedFeatures.capShape && <li>Cap shape: {result.extractedFeatures.capShape}</li>}
             {result.extractedFeatures.undersideType && <li>Underside: {result.extractedFeatures.undersideType}</li>}

@@ -15,38 +15,38 @@ interface MicrohabitatPinProps {
  */
 export default function MicrohabitatPin({ pin, successRate, onRecordVisit, onDelete }: MicrohabitatPinProps) {
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
       <div className="flex items-start justify-between mb-2">
         <div>
-          <h4 className="text-sm font-semibold text-gray-800">
+          <h4 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">
             {pin.associatedSpeciesId ? `Habitat Pin` : "Microhabitat Pin"}
           </h4>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
             {pin.substrate} · {pin.slopeAspect ?? "flat"} slope
             {pin.nearWater && " · near water"}
           </p>
         </div>
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-          pin.syncPreference === "local-only" ? "bg-gray-100 text-gray-600" : "bg-blue-100 text-blue-600"
+          pin.syncPreference === "local-only" ? "bg-brand-charcoal/10 dark:bg-brand-sand/10 text-brand-charcoal/70 dark:text-brand-sand/70" : "bg-blue-100 text-blue-600"
         }`}>
           {pin.syncPreference === "local-only" ? "🔒 Private" : "☁️ Synced"}
         </span>
       </div>
 
       {pin.dominantTrees.length > 0 && (
-        <p className="text-xs text-gray-600 mb-2">Trees: {pin.dominantTrees.join(", ")}</p>
+        <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mb-2">Trees: {pin.dominantTrees.join(", ")}</p>
       )}
 
-      {pin.notes && <p className="text-xs text-gray-600 mb-2">{pin.notes}</p>}
+      {pin.notes && <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mb-2">{pin.notes}</p>}
 
       <div className="flex items-center gap-4 mb-3">
         <div className="text-center">
           <p className="text-lg font-bold text-teal-700">{successRate}%</p>
-          <p className="text-[10px] text-gray-500">Success rate</p>
+          <p className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60">Success rate</p>
         </div>
         <div className="text-center">
-          <p className="text-lg font-bold text-gray-700">{pin.visits.length}</p>
-          <p className="text-[10px] text-gray-500">Visits</p>
+          <p className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">{pin.visits.length}</p>
+          <p className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60">Visits</p>
         </div>
       </div>
 
@@ -59,7 +59,7 @@ export default function MicrohabitatPin({ pin, successRate, onRecordVisit, onDel
         </button>
         <button
           onClick={() => onRecordVisit(false)}
-          className="flex-1 rounded-md bg-gray-200 px-2 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-300"
+          className="flex-1 rounded-md bg-brand-charcoal/10 dark:bg-brand-sand/10 px-2 py-1.5 text-xs font-medium text-brand-charcoal dark:text-brand-sand hover:bg-brand-charcoal/20 dark:hover:bg-brand-sand/20"
         >
           ✗ Not found
         </button>

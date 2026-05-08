@@ -9,7 +9,7 @@ interface FruitingForecastCardProps {
 const LIKELIHOOD_STYLES = {
   high: "bg-green-100 text-green-800 border-green-200",
   medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  low: "bg-gray-100 text-gray-600 border-gray-200",
+  low: "bg-brand-charcoal/10 dark:bg-brand-sand/10 text-brand-charcoal/70 dark:text-brand-sand/70 border-brand-charcoal/10 dark:border-brand-sand/10",
 };
 
 /**

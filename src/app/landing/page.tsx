@@ -28,7 +28,7 @@ export default function LandingPage() {
 
       {/* Features */}
       <section className="px-6 py-12 max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Why ForageWise?</h2>
+        <h2 className="text-2xl font-bold text-brand-charcoal dark:text-brand-sand text-center mb-8">Why ForageWise?</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { icon: "🍄", title: "Comprehensive Field Guide", desc: "30+ mushroom species, 16+ plants, and Tennessee's trees — all with safety-first identification steps." },
@@ -40,8 +40,8 @@ export default function LandingPage() {
           ].map((feature) => (
             <div key={feature.title} className="text-center p-4">
               <span className="text-4xl block mb-3">{feature.icon}</span>
-              <h3 className="text-sm font-semibold text-gray-800 mb-1">{feature.title}</h3>
-              <p className="text-xs text-gray-600">{feature.desc}</p>
+              <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-1">{feature.title}</h3>
+              <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70">{feature.desc}</p>
             </div>
           ))}
         </div>
@@ -60,7 +60,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8 text-center text-xs text-gray-500">
+      <footer className="px-6 py-8 text-center text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
         <div className="flex justify-center gap-4 mb-2">
           <Link href="/terms" className="hover:text-teal-600">Terms of Service</Link>
           <Link href="/privacy" className="hover:text-teal-600">Privacy Policy</Link>

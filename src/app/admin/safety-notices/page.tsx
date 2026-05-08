@@ -79,7 +79,7 @@ export default function SafetyNoticesPage() {
                 className="w-full px-3 py-2 rounded-lg border border-brand-charcoal/20 dark:border-brand-sand/20 bg-brand-sand dark:bg-brand-charcoal text-brand-charcoal dark:text-brand-sand text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 disabled
               />
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
                 Species search will be available when the species editor is
                 connected.
               </p>

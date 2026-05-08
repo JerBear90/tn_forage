@@ -42,45 +42,45 @@ export default function SettingsPage() {
 
   return (
     <div className="p-4 pb-24 max-w-lg mx-auto">
-      <h1 className="text-xl font-bold text-gray-800 mb-6">Settings</h1>
+      <h1 className="text-xl font-bold text-brand-charcoal dark:text-brand-sand mb-6">Settings</h1>
 
       {/* Analytics */}
       <section className="mb-6">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">Privacy</h2>
-        <label className="flex items-center justify-between rounded-lg border border-gray-200 p-3">
-          <span className="text-sm text-gray-700">Opt out of usage analytics</span>
+        <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-2">Privacy</h2>
+        <label className="flex items-center justify-between rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3">
+          <span className="text-sm text-brand-charcoal dark:text-brand-sand">Opt out of usage analytics</span>
           <input
             type="checkbox"
             checked={analyticsOptOut}
             onChange={(e) => setAnalyticsOptOut(e.target.checked)}
-            className="rounded border-gray-300"
+            className="rounded border-brand-charcoal/10 dark:border-brand-sand/10"
           />
         </label>
       </section>
 
       {/* Notifications */}
       <section className="mb-6">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">Notifications</h2>
+        <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-2">Notifications</h2>
         <div className="space-y-2">
-          <label className="flex items-center justify-between rounded-lg border border-gray-200 p-3">
-            <span className="text-sm text-gray-700">Push notifications</span>
-            <input type="checkbox" checked={pushEnabled} onChange={(e) => setPushEnabled(e.target.checked)} className="rounded border-gray-300" />
+          <label className="flex items-center justify-between rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3">
+            <span className="text-sm text-brand-charcoal dark:text-brand-sand">Push notifications</span>
+            <input type="checkbox" checked={pushEnabled} onChange={(e) => setPushEnabled(e.target.checked)} className="rounded border-brand-charcoal/10 dark:border-brand-sand/10" />
           </label>
-          <label className="flex items-center justify-between rounded-lg border border-gray-200 p-3">
-            <span className="text-sm text-gray-700">New blog article alerts</span>
-            <input type="checkbox" checked={blogNotifications} onChange={(e) => setBlogNotifications(e.target.checked)} className="rounded border-gray-300" />
+          <label className="flex items-center justify-between rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3">
+            <span className="text-sm text-brand-charcoal dark:text-brand-sand">New blog article alerts</span>
+            <input type="checkbox" checked={blogNotifications} onChange={(e) => setBlogNotifications(e.target.checked)} className="rounded border-brand-charcoal/10 dark:border-brand-sand/10" />
           </label>
         </div>
       </section>
 
       {/* Legal */}
       <section className="mb-6">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">Legal</h2>
+        <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-2">Legal</h2>
         <div className="space-y-2">
-          <Link href="/terms" className="block rounded-lg border border-gray-200 p-3 text-sm text-gray-700 hover:bg-gray-50">
+          <Link href="/terms" className="block rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3 text-sm text-brand-charcoal dark:text-brand-sand hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5">
             Terms of Service →
           </Link>
-          <Link href="/privacy" className="block rounded-lg border border-gray-200 p-3 text-sm text-gray-700 hover:bg-gray-50">
+          <Link href="/privacy" className="block rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3 text-sm text-brand-charcoal dark:text-brand-sand hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5">
             Privacy Policy →
           </Link>
         </div>
@@ -88,11 +88,11 @@ export default function SettingsPage() {
 
       {/* Data */}
       <section className="mb-6">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">Your Data</h2>
+        <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-2">Your Data</h2>
         <button
           onClick={handleExport}
           disabled={isExporting}
-          className="w-full rounded-lg border border-gray-200 p-3 text-sm text-gray-700 hover:bg-gray-50 text-left disabled:opacity-50"
+          className="w-full rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3 text-sm text-brand-charcoal dark:text-brand-sand hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5 text-left disabled:opacity-50"
         >
           {isExporting ? "Exporting..." : "Export all data (JSON)"}
         </button>
@@ -133,7 +133,7 @@ export default function SettingsPage() {
               <button onClick={handleDelete} className="flex-1 rounded-md bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700">
                 Confirm Delete
               </button>
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 rounded-md bg-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-300">
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 rounded-md bg-brand-charcoal/10 dark:bg-brand-sand/10 px-3 py-2 text-sm text-brand-charcoal dark:text-brand-sand hover:bg-brand-charcoal/20 dark:hover:bg-brand-sand/20">
                 Cancel
               </button>
             </div>

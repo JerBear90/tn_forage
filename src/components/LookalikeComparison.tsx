@@ -13,7 +13,7 @@ interface LookalikeComparisonProps {
  */
 export default function LookalikeComparison({ species, lookalike }: LookalikeComparisonProps) {
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
       <div className="bg-red-50 border border-red-200 rounded-md p-2 mb-4">
         <p className="text-xs text-red-800 font-medium text-center">
           ⚠️ When in doubt, do NOT consume. Always verify with a qualified expert.
@@ -26,8 +26,8 @@ export default function LookalikeComparison({ species, lookalike }: LookalikeCom
           {species.images[0] && (
             <img src={species.images[0]} alt={species.commonName} className="w-full h-32 rounded-md object-cover mb-2" />
           )}
-          <h4 className="text-sm font-semibold text-gray-800">{species.commonName}</h4>
-          <p className="text-xs text-gray-500 italic mb-2">{species.scientificName}</p>
+          <h4 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">{species.commonName}</h4>
+          <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 italic mb-2">{species.scientificName}</p>
           <div className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
             species.edibilityLabel === "toxic" ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
           }`}>
@@ -40,8 +40,8 @@ export default function LookalikeComparison({ species, lookalike }: LookalikeCom
           {lookalike.images[0] && (
             <img src={lookalike.images[0]} alt={lookalike.commonName} className="w-full h-32 rounded-md object-cover mb-2" />
           )}
-          <h4 className="text-sm font-semibold text-gray-800">{lookalike.commonName}</h4>
-          <p className="text-xs text-gray-500 italic mb-2">{lookalike.scientificName}</p>
+          <h4 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand">{lookalike.commonName}</h4>
+          <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 italic mb-2">{lookalike.scientificName}</p>
           <div className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
             lookalike.edibilityLabel === "toxic" ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
           }`}>
@@ -51,29 +51,29 @@ export default function LookalikeComparison({ species, lookalike }: LookalikeCom
       </div>
 
       {/* Key differences */}
-      <div className="mt-4 border-t border-gray-200 pt-3">
-        <h4 className="text-xs font-semibold text-gray-700 mb-2">Key Differences</h4>
+      <div className="mt-4 border-t border-brand-charcoal/10 dark:border-brand-sand/10 pt-3">
+        <h4 className="text-xs font-semibold text-brand-charcoal dark:text-brand-sand mb-2">Key Differences</h4>
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left py-1 text-gray-500">Feature</th>
-              <th className="text-left py-1 text-gray-700">{species.commonName}</th>
-              <th className="text-left py-1 text-gray-700">{lookalike.commonName}</th>
+            <tr className="border-b border-brand-charcoal/10 dark:border-brand-sand/10">
+              <th className="text-left py-1 text-brand-charcoal/60 dark:text-brand-sand/60">Feature</th>
+              <th className="text-left py-1 text-brand-charcoal dark:text-brand-sand">{species.commonName}</th>
+              <th className="text-left py-1 text-brand-charcoal dark:text-brand-sand">{lookalike.commonName}</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b border-gray-50">
-              <td className="py-1 text-gray-500">Spore Print</td>
+            <tr className="border-b border-brand-charcoal/5 dark:border-brand-sand/5">
+              <td className="py-1 text-brand-charcoal/60 dark:text-brand-sand/60">Spore Print</td>
               <td className="py-1">{species.sporePrint ?? "—"}</td>
               <td className="py-1">{lookalike.sporePrint ?? "—"}</td>
             </tr>
-            <tr className="border-b border-gray-50">
-              <td className="py-1 text-gray-500">Habitat</td>
+            <tr className="border-b border-brand-charcoal/5 dark:border-brand-sand/5">
+              <td className="py-1 text-brand-charcoal/60 dark:text-brand-sand/60">Habitat</td>
               <td className="py-1">{species.habitat.slice(0, 50)}...</td>
               <td className="py-1">{lookalike.habitat.slice(0, 50)}...</td>
             </tr>
             <tr>
-              <td className="py-1 text-gray-500">Season</td>
+              <td className="py-1 text-brand-charcoal/60 dark:text-brand-sand/60">Season</td>
               <td className="py-1">{species.season.join(", ")}</td>
               <td className="py-1">{lookalike.season.join(", ")}</td>
             </tr>

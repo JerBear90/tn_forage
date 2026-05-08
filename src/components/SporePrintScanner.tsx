@@ -55,10 +55,10 @@ export default function SporePrintScanner({ speciesColors, onResults }: SporePri
   }, [speciesColors, onResults]);
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
-      <h3 className="text-sm font-semibold text-gray-800 mb-3">Spore Print Scanner</h3>
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
+      <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-3">Spore Print Scanner</h3>
 
-      <p className="text-xs text-gray-600 mb-3">
+      <p className="text-xs text-brand-charcoal/70 dark:text-brand-sand/70 mb-3">
         Take a photo of your spore print on white paper. The scanner will match the color against known species.
       </p>
 
@@ -84,24 +84,24 @@ export default function SporePrintScanner({ speciesColors, onResults }: SporePri
 
       {extractedColor && (
         <div className="flex items-center gap-2 mb-3">
-          <div className="h-8 w-8 rounded border border-gray-300" style={{ backgroundColor: extractedColor }} />
-          <span className="text-sm text-gray-700">Extracted: {extractedColor}</span>
+          <div className="h-8 w-8 rounded border border-brand-charcoal/10 dark:border-brand-sand/10" style={{ backgroundColor: extractedColor }} />
+          <span className="text-sm text-brand-charcoal dark:text-brand-sand">Extracted: {extractedColor}</span>
         </div>
       )}
 
       {matches.length > 0 && (
         <div>
-          <h4 className="text-xs font-medium text-gray-600 mb-2">Possible Matches</h4>
+          <h4 className="text-xs font-medium text-brand-charcoal/70 dark:text-brand-sand/70 mb-2">Possible Matches</h4>
           <p className="text-[10px] text-amber-700 bg-amber-50 rounded p-1.5 mb-2">
             Spore print color is one identification factor among many. Always verify with multiple features and expert consultation.
           </p>
           <ul className="space-y-2">
             {matches.map((match) => (
-              <li key={match.speciesId} className="flex items-center gap-2 rounded border border-gray-100 p-2">
+              <li key={match.speciesId} className="flex items-center gap-2 rounded border border-brand-charcoal/10 dark:border-brand-sand/10 p-2">
                 <div className="h-6 w-6 rounded border" style={{ backgroundColor: match.expectedColor }} />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-800">{match.commonName}</p>
-                  <p className="text-xs text-gray-500">{match.confidencePercent}% color match</p>
+                  <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">{match.commonName}</p>
+                  <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">{match.confidencePercent}% color match</p>
                 </div>
               </li>
             ))}

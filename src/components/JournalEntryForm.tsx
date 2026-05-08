@@ -38,21 +38,21 @@ export default function JournalEntryForm({ onSubmit, defaultSpecies }: JournalEn
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
-      <h3 className="text-sm font-semibold text-gray-800 mb-3">Log a Find</h3>
+    <div className="rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-4">
+      <h3 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-3">Log a Find</h3>
       <input
         type="text"
         value={species}
         onChange={(e) => setSpecies(e.target.value)}
         placeholder="Species name or guess"
-        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm mb-2"
+        className="w-full rounded border border-brand-charcoal/10 dark:border-brand-sand/10 px-2 py-1.5 text-sm mb-2"
         aria-label="Species name"
       />
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Notes about the find..."
-        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm mb-3 resize-none"
+        className="w-full rounded border border-brand-charcoal/10 dark:border-brand-sand/10 px-2 py-1.5 text-sm mb-3 resize-none"
         rows={3}
         aria-label="Notes"
       />

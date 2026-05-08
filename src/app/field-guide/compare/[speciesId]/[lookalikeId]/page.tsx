@@ -34,13 +34,13 @@ export default function ComparePage() {
   }, [params.speciesId, params.lookalikeId]);
 
   if (isLoading) {
-    return <div className="p-4 animate-pulse"><div className="h-64 bg-gray-200 rounded-lg" /></div>;
+    return <div className="p-4 animate-pulse"><div className="h-64 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-lg" /></div>;
   }
 
   if (!species || !lookalike) {
     return (
       <div className="p-4 text-center">
-        <p className="text-sm text-gray-600">Species not found.</p>
+        <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70">Species not found.</p>
         <Link href="/field-guide" className="text-sm text-teal-600 hover:underline mt-2 inline-block">← Back to Field Guide</Link>
       </div>
     );
@@ -51,7 +51,7 @@ export default function ComparePage() {
       <Link href={`/field-guide/${params.speciesId}`} className="text-xs text-teal-600 hover:underline mb-4 inline-block">
         ← Back to {species.commonName}
       </Link>
-      <h1 className="text-lg font-bold text-gray-800 mb-4">Lookalike Comparison</h1>
+      <h1 className="text-lg font-bold text-brand-charcoal dark:text-brand-sand mb-4">Lookalike Comparison</h1>
       <LookalikeComparison species={species} lookalike={lookalike} />
     </div>
   );

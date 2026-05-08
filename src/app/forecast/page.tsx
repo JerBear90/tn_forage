@@ -15,7 +15,7 @@ export default function ForecastPage() {
   return (
     <div className="p-4 pb-24">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold text-gray-800">Fruiting Forecast</h1>
+        <h1 className="text-xl font-bold text-brand-charcoal dark:text-brand-sand">Fruiting Forecast</h1>
         <button
           onClick={refreshPredictions}
           disabled={isLoading}
@@ -25,7 +25,7 @@ export default function ForecastPage() {
         </button>
       </div>
 
-      <p className="text-xs text-gray-500 mb-1">
+      <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mb-1">
         Forecasts are estimates based on current weather conditions and species-specific fruiting triggers.
       </p>
       <p className="text-[10px] text-amber-700 bg-amber-50 rounded p-2 mb-4">
@@ -33,17 +33,17 @@ export default function ForecastPage() {
       </p>
 
       {lastUpdated && (
-        <p className="text-[10px] text-gray-400 mb-3">
+        <p className="text-[10px] text-brand-charcoal/50 dark:text-brand-sand/50 mb-3">
           Last updated: {new Date(lastUpdated).toLocaleString()}
         </p>
       )}
 
       {isLoading && predictions.length === 0 ? (
         <div className="animate-pulse space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-200 rounded-lg" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded-lg" />)}
         </div>
       ) : predictions.length === 0 ? (
-        <p className="text-sm text-gray-500 text-center mt-8">No forecast data available. Check back when online.</p>
+        <p className="text-sm text-brand-charcoal/60 dark:text-brand-sand/60 text-center mt-8">No forecast data available. Check back when online.</p>
       ) : (
         <div className="space-y-3">
           {predictions.map((prediction) => (

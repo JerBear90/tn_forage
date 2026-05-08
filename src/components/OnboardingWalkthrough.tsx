@@ -54,11 +54,11 @@ export default function OnboardingWalkthrough({ onComplete, onSkip }: Onboarding
   const screen = SCREENS[currentScreen];
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white px-6">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-brand-charcoal px-6">
       {/* Skip button */}
       <button
         onClick={onSkip}
-        className="absolute top-4 right-4 text-sm text-gray-500 hover:text-gray-700"
+        className="absolute top-4 right-4 text-sm text-brand-charcoal/60 dark:text-brand-sand/60 hover:text-brand-charcoal dark:hover:text-brand-sand"
       >
         Skip
       </button>
@@ -66,8 +66,8 @@ export default function OnboardingWalkthrough({ onComplete, onSkip }: Onboarding
       {/* Content */}
       <div className="flex flex-col items-center text-center max-w-sm">
         <span className="text-6xl mb-6" role="img" aria-hidden="true">{screen.icon}</span>
-        <h2 className="text-xl font-bold text-gray-800 mb-3">{screen.headline}</h2>
-        <p className="text-sm text-gray-600 mb-8">{screen.description}</p>
+        <h2 className="text-xl font-bold text-brand-charcoal dark:text-brand-sand mb-3">{screen.headline}</h2>
+        <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mb-8">{screen.description}</p>
       </div>
 
       {/* Progress dots */}
@@ -76,7 +76,7 @@ export default function OnboardingWalkthrough({ onComplete, onSkip }: Onboarding
           <span
             key={i}
             className={`h-2 w-2 rounded-full transition-colors ${
-              i === currentScreen ? "bg-teal-600" : "bg-gray-300"
+              i === currentScreen ? "bg-teal-600" : "bg-brand-charcoal/20 dark:bg-brand-sand/20"
             }`}
             role="tab"
             aria-selected={i === currentScreen}

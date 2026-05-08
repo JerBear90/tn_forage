@@ -91,7 +91,7 @@ function categoryBadgeClasses(category: SpeciesCategory): string {
     case "tree":
       return "bg-brand-forest/15 text-brand-forest border-brand-forest/30";
     default:
-      return "bg-gray-100 text-gray-600 border-gray-300";
+      return "bg-brand-charcoal/10 dark:bg-brand-sand/10 text-brand-charcoal/70 dark:text-brand-sand/70 border-brand-charcoal/10 dark:border-brand-sand/10";
   }
 }
 
