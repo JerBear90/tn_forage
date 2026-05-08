@@ -58,11 +58,13 @@ export function useFuzzySearch() {
       try {
         const speciesRecords = await getAllRecords('species');
         for (const s of speciesRecords) {
+          const species = s as { commonName?: string; scientificName?: string; images?: string[] };
           allItems.push({
             id: s.id,
             type: 'species',
-            title: (s as { commonName?: string }).commonName || (s as { scientificName?: string }).scientificName || s.id,
-            subtitle: (s as { scientificName?: string }).scientificName,
+            title: species.commonName || species.scientificName || s.id,
+            subtitle: species.scientificName,
+            imageUrl: species.images?.[0] || undefined,
             route: `/field-guide/${s.id}`,
           });
         }
@@ -74,11 +76,13 @@ export function useFuzzySearch() {
       try {
         const parkRecords = await getAllRecords('parks');
         for (const p of parkRecords) {
+          const park = p as { name?: string; region?: string; image?: string };
           allItems.push({
             id: p.id,
             type: 'park',
-            title: (p as { name?: string }).name || p.id,
-            subtitle: (p as { region?: string }).region,
+            title: park.name || p.id,
+            subtitle: park.region,
+            imageUrl: park.image || undefined,
             route: `/parks/${p.id}`,
           });
         }

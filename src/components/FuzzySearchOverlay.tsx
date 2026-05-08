@@ -161,15 +161,19 @@ export default function FuzzySearchOverlay({ isOpen, onClose }: FuzzySearchOverl
                           aria-label={`Go to ${result.title}`}
                         >
                           {result.imageUrl ? (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img
-                              src={result.imageUrl}
-                              alt=""
-                              className="w-9 h-9 rounded-lg object-cover shrink-0 bg-brand-charcoal/5 dark:bg-brand-sand/5"
-                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                            />
+                            <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-brand-charcoal/5 dark:bg-brand-sand/5">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={result.imageUrl}
+                                alt=""
+                                className="w-full h-full object-cover"
+                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                              />
+                            </div>
                           ) : (
-                            <CategoryIcon type={result.type} />
+                            <div className="w-9 h-9 rounded-lg shrink-0 bg-brand-charcoal/5 dark:bg-brand-sand/5 flex items-center justify-center">
+                              <CategoryIcon type={result.type} />
+                            </div>
                           )}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand truncate">
