@@ -283,7 +283,6 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<ThreadedComment[]>([]);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [votedIds, setVotedIds] = useState<Record<string, 1 | -1>>({});
   const lastTapRef = useRef<number>(0);
   const singleTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const swipeStartX = useRef<number | null>(null);
@@ -295,34 +294,23 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
     }
   }, [item.photos]);
 
-  // Load comments from localStorage
+  // Load comments from PocketBase
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(`fw_comments_v2_${item.id}`);
-      if (stored) {
-        setComments(JSON.parse(stored));
-      } else {
-        // Migrate old string[] comments
-        const oldStored = localStorage.getItem(`fw_comments_${item.id}`);
-        if (oldStored) {
-          const oldComments: string[] = JSON.parse(oldStored);
-          const migrated: ThreadedComment[] = oldComments.map((text, i) => ({
-            id: `migrated-${i}`,
-            text,
-            author: 'You',
-            timestamp: item.createdAt,
-            votes: 0,
-            replies: [],
-          }));
-          setComments(migrated);
-          localStorage.setItem(`fw_comments_v2_${item.id}`, JSON.stringify(migrated));
+    let cancelled = false;
+    async function loadComments() {
+      try {
+        const { fetchComments } = await import('@/services/commentsService');
+        const pbComments = await fetchComments(item.id);
+        if (!cancelled) {
+          // Convert flat PocketBase comments to threaded structure
+          const threaded = buildThreadedComments(pbComments);
+          setComments(threaded);
         }
-      }
-      // Load voted comment IDs
-      const votedStored = localStorage.getItem(`fw_votes_${item.id}`);
-      if (votedStored) setVotedIds(JSON.parse(votedStored));
-    } catch { /* ignore */ }
-  }, [item.id, item.createdAt]);
+      } catch { /* silently fail */ }
+    }
+    loadComments();
+    return () => { cancelled = true; };
+  }, [item.id]);
 
   // Count all comments recursively
   const totalCommentCount = countAllComments(comments);
@@ -352,55 +340,37 @@ function FeedCard({ item, isLiked, isFollowed, isCopied, onLike, onFollow, onSha
   }, []);
 
   // Add comment (top-level or reply)
-  const handleAddComment = useCallback(() => {
+  const handleAddComment = useCallback(async () => {
     if (!comment.trim()) return;
-    const newComment: ThreadedComment = {
-      id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      text: comment.trim(),
-      author: 'You',
-      timestamp: new Date().toISOString(),
-      votes: 0,
-      replies: [],
-    };
-
-    let updated: ThreadedComment[];
-    if (replyingTo) {
-      updated = addReplyToThread(comments, replyingTo, newComment);
-      setReplyingTo(null);
-    } else {
-      updated = [...comments, newComment];
-    }
-    setComments(updated);
-    localStorage.setItem(`fw_comments_v2_${item.id}`, JSON.stringify(updated));
+    try {
+      const { createComment } = await import('@/services/commentsService');
+      const result = await createComment({
+        postId: item.id,
+        text: comment.trim(),
+        parentId: replyingTo || undefined,
+      });
+      if (result) {
+        // Reload comments from PocketBase
+        const { fetchComments } = await import('@/services/commentsService');
+        const pbComments = await fetchComments(item.id);
+        setComments(buildThreadedComments(pbComments));
+      }
+    } catch { /* silently fail */ }
     setComment('');
-  }, [comment, comments, item.id, replyingTo]);
+    setReplyingTo(null);
+  }, [comment, item.id, replyingTo]);
 
-  // Vote on a comment (single vote per comment, tap again to cancel)
-  const handleVote = useCallback((commentId: string, direction: 1 | -1) => {
-    let updated: ThreadedComment[];
-    let newVotedIds: Record<string, 1 | -1>;
-
-    if (votedIds[commentId] === direction) {
-      // Same direction again — cancel the vote
-      updated = voteOnComment(comments, commentId, (direction * -1) as 1 | -1);
-      newVotedIds = { ...votedIds };
-      delete newVotedIds[commentId];
-    } else if (votedIds[commentId]) {
-      // Switching direction — undo previous + apply new
-      const adjustment = direction * 2;
-      updated = voteOnComment(comments, commentId, adjustment as 1 | -1);
-      newVotedIds = { ...votedIds, [commentId]: direction };
-    } else {
-      // Fresh vote
-      updated = voteOnComment(comments, commentId, direction);
-      newVotedIds = { ...votedIds, [commentId]: direction };
-    }
-
-    setComments(updated);
-    localStorage.setItem(`fw_comments_v2_${item.id}`, JSON.stringify(updated));
-    setVotedIds(newVotedIds);
-    localStorage.setItem(`fw_votes_${item.id}`, JSON.stringify(newVotedIds));
-  }, [comments, item.id, votedIds]);
+  // Vote on a comment
+  const handleVote = useCallback(async (commentId: string, direction: 1 | -1) => {
+    try {
+      const { voteComment } = await import('@/services/commentsService');
+      await voteComment(commentId, direction);
+      // Reload comments
+      const { fetchComments } = await import('@/services/commentsService');
+      const pbComments = await fetchComments(item.id);
+      setComments(buildThreadedComments(pbComments));
+    } catch { /* silently fail */ }
+  }, [item.id]);
 
   // Type badge
   const isIdRequest = item.title?.startsWith('[ID Request]') || false;
@@ -875,28 +845,33 @@ interface ThreadedComment {
   replies: ThreadedComment[];
 }
 
-function addReplyToThread(comments: ThreadedComment[], parentId: string, reply: ThreadedComment): ThreadedComment[] {
-  return comments.map((c) => {
-    if (c.id === parentId) {
-      return { ...c, replies: [...c.replies, reply] };
-    }
-    if (c.replies.length > 0) {
-      return { ...c, replies: addReplyToThread(c.replies, parentId, reply) };
-    }
-    return c;
-  });
-}
+function buildThreadedComments(flat: Array<{ id: string; postId: string; userId: string; userName: string; text: string; parentId?: string; votes: number; created: string }>): ThreadedComment[] {
+  const map = new Map<string, ThreadedComment>();
+  const roots: ThreadedComment[] = [];
 
-function voteOnComment(comments: ThreadedComment[], commentId: string, direction: 1 | -1): ThreadedComment[] {
-  return comments.map((c) => {
-    if (c.id === commentId) {
-      return { ...c, votes: c.votes + direction };
+  // First pass: create all comment objects
+  for (const c of flat) {
+    map.set(c.id, {
+      id: c.id,
+      text: c.text,
+      author: c.userName || 'Anonymous',
+      timestamp: c.created,
+      votes: c.votes,
+      replies: [],
+    });
+  }
+
+  // Second pass: build tree
+  for (const c of flat) {
+    const node = map.get(c.id)!;
+    if (c.parentId && map.has(c.parentId)) {
+      map.get(c.parentId)!.replies.push(node);
+    } else {
+      roots.push(node);
     }
-    if (c.replies.length > 0) {
-      return { ...c, replies: voteOnComment(c.replies, commentId, direction) };
-    }
-    return c;
-  });
+  }
+
+  return roots;
 }
 
 function countAllComments(comments: ThreadedComment[]): number {
