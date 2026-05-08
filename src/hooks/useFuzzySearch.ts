@@ -95,11 +95,22 @@ export function useFuzzySearch() {
         const seenUserIds = new Set<string>();
 
         for (const post of postsResult.items) {
+          // Build first photo URL if available
+          const photoFiles = post.photos as string[] | string | undefined;
+          let postImageUrl: string | undefined;
+          if (photoFiles) {
+            const files = Array.isArray(photoFiles) ? photoFiles : [photoFiles];
+            if (files[0]) {
+              postImageUrl = `${pb.baseURL}/api/files/community_posts/${post.id}/${files[0]}`;
+            }
+          }
+
           allItems.push({
             id: post.id,
             type: 'post',
-            title: (post.title as string) || (post.content as string)?.slice(0, 60) || 'Post',
+            title: (post.speciesGuess as string) || (post.notes as string)?.slice(0, 60) || 'Post',
             subtitle: (post.userName as string) || undefined,
+            imageUrl: postImageUrl,
             route: '/community#feed',
           });
 
@@ -107,11 +118,13 @@ export function useFuzzySearch() {
           const userId = post.userId as string;
           if (userId && !seenUserIds.has(userId)) {
             seenUserIds.add(userId);
+            const avatarUrl = (post.avatarUrl as string) || undefined;
             allItems.push({
               id: userId,
               type: 'user',
               title: (post.userName as string) || `Forager ${userId.slice(0, 8)}`,
               subtitle: undefined,
+              imageUrl: avatarUrl && avatarUrl.startsWith('http') ? avatarUrl : undefined,
               route: `/community/user/${userId}`,
             });
           }

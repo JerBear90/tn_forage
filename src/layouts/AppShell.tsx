@@ -119,9 +119,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             type="button"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
-            className="shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px] h-7 w-7 rounded-full text-brand-charcoal/60 dark:text-brand-sand/60 hover:bg-brand-teal/10 hover:text-brand-teal transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+            className="shrink-0 flex items-center justify-center h-7 w-7 rounded-full text-brand-charcoal/60 dark:text-brand-sand/60 hover:bg-brand-teal/10 hover:text-brand-teal transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
           >
-            <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
           </button>

@@ -12,6 +12,7 @@ export interface SearchableItem {
   type: 'post' | 'species' | 'park' | 'user';
   title: string;
   subtitle?: string;
+  imageUrl?: string;
   route: string;
 }
 
@@ -21,6 +22,7 @@ export interface SearchResult {
   type: 'post' | 'species' | 'park' | 'user';
   title: string;
   subtitle?: string;
+  imageUrl?: string;
   score: number;
   route: string;
 }
@@ -93,6 +95,7 @@ export function fuzzySearch(query: string, items: SearchableItem[]): SearchResul
         type: item.type,
         title: item.title,
         subtitle: item.subtitle,
+        imageUrl: item.imageUrl,
         score: bestScore,
         route: item.route,
       });

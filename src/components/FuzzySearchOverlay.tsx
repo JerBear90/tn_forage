@@ -160,7 +160,17 @@ export default function FuzzySearchOverlay({ isOpen, onClose }: FuzzySearchOverl
                           className="w-full flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-lg text-left hover:bg-brand-teal/10 dark:hover:bg-brand-teal/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
                           aria-label={`Go to ${result.title}`}
                         >
-                          <CategoryIcon type={result.type} />
+                          {result.imageUrl ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={result.imageUrl}
+                              alt=""
+                              className="w-9 h-9 rounded-lg object-cover shrink-0 bg-brand-charcoal/5 dark:bg-brand-sand/5"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                            />
+                          ) : (
+                            <CategoryIcon type={result.type} />
+                          )}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand truncate">
                               {result.title}
