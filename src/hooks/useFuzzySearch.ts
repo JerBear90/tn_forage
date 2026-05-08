@@ -54,76 +54,72 @@ export function useFuzzySearch() {
     try {
       const allItems: SearchableItem[] = [];
 
-      // Load species (mushrooms) from IndexedDB
-      try {
-        const speciesRecords = await getAllRecords('species');
-        for (const s of speciesRecords) {
-          const species = s as { commonName?: string; scientificName?: string; images?: string[] };
+      // Load all IndexedDB stores in parallel for speed
+      const [speciesResult, plantsResult, treesResult, parksResult] = await Promise.allSettled([
+        getAllRecords('species'),
+        getAllRecords('plants'),
+        getAllRecords('trees'),
+        getAllRecords('parks'),
+      ]);
+
+      // Process species (mushrooms)
+      if (speciesResult.status === 'fulfilled') {
+        for (const s of speciesResult.value) {
+          const rec = s as unknown as { id: string; commonName?: string; scientificName?: string; images?: string[] };
           allItems.push({
-            id: s.id,
+            id: rec.id,
             type: 'species',
-            title: species.commonName || species.scientificName || s.id,
-            subtitle: species.scientificName,
-            imageUrl: species.images?.[0] || undefined,
-            route: `/field-guide/${s.id}`,
+            title: rec.commonName || rec.scientificName || rec.id,
+            subtitle: rec.scientificName,
+            imageUrl: rec.images?.[0] || undefined,
+            route: `/field-guide/${rec.id}`,
           });
         }
-      } catch {
-        // IndexedDB species read failed — continue without species
       }
 
-      // Load plants from IndexedDB
-      try {
-        const plantRecords = await getAllRecords('plants');
-        for (const p of plantRecords) {
-          const plant = p as { commonName?: string; scientificName?: string; images?: string[] };
+      // Process plants
+      if (plantsResult.status === 'fulfilled') {
+        for (const p of plantsResult.value) {
+          const rec = p as unknown as { id: string; commonName?: string; scientificName?: string; images?: string[] };
           allItems.push({
-            id: p.id,
+            id: rec.id,
             type: 'species',
-            title: plant.commonName || plant.scientificName || p.id,
-            subtitle: plant.scientificName,
-            imageUrl: plant.images?.[0] || undefined,
-            route: `/field-guide/${p.id}`,
+            title: rec.commonName || rec.scientificName || rec.id,
+            subtitle: rec.scientificName,
+            imageUrl: rec.images?.[0] || undefined,
+            route: `/field-guide/${rec.id}`,
           });
         }
-      } catch {
-        // IndexedDB plants read failed — continue without plants
       }
 
-      // Load trees from IndexedDB
-      try {
-        const treeRecords = await getAllRecords('trees');
-        for (const t of treeRecords) {
-          const tree = t as { commonName?: string; scientificName?: string; images?: string[] };
+      // Process trees
+      if (treesResult.status === 'fulfilled') {
+        for (const t of treesResult.value) {
+          const rec = t as unknown as { id: string; commonName?: string; scientificName?: string; images?: string[] };
           allItems.push({
-            id: t.id,
+            id: rec.id,
             type: 'species',
-            title: tree.commonName || tree.scientificName || t.id,
-            subtitle: tree.scientificName,
-            imageUrl: tree.images?.[0] || undefined,
-            route: `/field-guide/${t.id}`,
+            title: rec.commonName || rec.scientificName || rec.id,
+            subtitle: rec.scientificName,
+            imageUrl: rec.images?.[0] || undefined,
+            route: `/field-guide/${rec.id}`,
           });
         }
-      } catch {
-        // IndexedDB trees read failed — continue without trees
       }
 
-      // Load parks from IndexedDB
-      try {
-        const parkRecords = await getAllRecords('parks');
-        for (const p of parkRecords) {
-          const park = p as { name?: string; region?: string; image?: string };
+      // Process parks
+      if (parksResult.status === 'fulfilled') {
+        for (const p of parksResult.value) {
+          const rec = p as unknown as { id: string; name?: string; region?: string; image?: string };
           allItems.push({
-            id: p.id,
+            id: rec.id,
             type: 'park',
-            title: park.name || p.id,
-            subtitle: park.region,
-            imageUrl: park.image || undefined,
-            route: `/parks/${p.id}`,
+            title: rec.name || rec.id,
+            subtitle: rec.region,
+            imageUrl: rec.image || undefined,
+            route: `/parks/${rec.id}`,
           });
         }
-      } catch {
-        // IndexedDB parks read failed — continue without parks
       }
 
       // Load recent posts from PocketBase (top 50)
