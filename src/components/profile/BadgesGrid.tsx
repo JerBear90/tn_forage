@@ -13,8 +13,9 @@
  * Requirements: 44px min touch targets, ARIA labels, dark mode support
  */
 
-import { useState } from "react";
-import type { ChallengeBadge } from "@/types";
+import { useState, useEffect } from "react";
+import { getAllRecords } from "@/offline/db";
+import type { ChallengeBadge, Challenge } from "@/types";
 
 interface BadgesGridProps {
   badges: ChallengeBadge[];
@@ -78,6 +79,9 @@ export default function BadgesGrid({ badges, earnedCount }: BadgesGridProps) {
 // ---------------------------------------------------------------------------
 
 function BadgeDetailModal({ badge, onClose }: { badge: ChallengeBadge; onClose: () => void }) {
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [loadingChallenge, setLoadingChallenge] = useState(true);
+
   const earnedDate = badge.earnedAt
     ? new Date(badge.earnedAt).toLocaleDateString(undefined, {
         month: "short",
@@ -85,6 +89,28 @@ function BadgeDetailModal({ badge, onClose }: { badge: ChallengeBadge; onClose: 
         year: "numeric",
       })
     : null;
+
+  // Load the related challenge from IndexedDB
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadChallenge() {
+      try {
+        const challenges = await getAllRecords("challenges");
+        const found = challenges.find((c) => c.id === badge.challengeId);
+        if (!cancelled) {
+          setChallenge(found ?? null);
+        }
+      } catch {
+        // Graceful fallback — just don't show criteria
+      } finally {
+        if (!cancelled) setLoadingChallenge(false);
+      }
+    }
+
+    loadChallenge();
+    return () => { cancelled = true; };
+  }, [badge.challengeId]);
 
   return (
     <div
@@ -96,7 +122,7 @@ function BadgeDetailModal({ badge, onClose }: { badge: ChallengeBadge; onClose: 
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-dark-surface border border-brand-teal/20 shadow-xl p-6 animate-slide-up">
+      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-dark-surface border border-brand-teal/20 shadow-xl p-6 animate-slide-up max-h-[85vh] overflow-y-auto">
         {/* Close button */}
         <div className="flex justify-end mb-2">
           <button
@@ -152,6 +178,46 @@ function BadgeDetailModal({ badge, onClose }: { badge: ChallengeBadge; onClose: 
             </div>
           )}
         </div>
+
+        {/* Challenge criteria checklist */}
+        {loadingChallenge ? (
+          <div className="mt-4 space-y-2 animate-pulse">
+            <div className="h-4 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-1/3" />
+            <div className="h-3 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-full" />
+            <div className="h-3 bg-brand-charcoal/10 dark:bg-brand-sand/10 rounded w-full" />
+          </div>
+        ) : challenge && challenge.criteria.length > 0 ? (
+          <div className="mt-5 border-t border-brand-charcoal/10 dark:border-dark-border pt-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wide text-brand-charcoal/50 dark:text-brand-sand/50 mb-3">
+              Challenges ({challenge.criteria.filter((c) => c.completed).length}/{challenge.criteria.length})
+            </h4>
+            <ul className="space-y-2">
+              {challenge.criteria.map((criterion) => (
+                <li
+                  key={criterion.id}
+                  className="flex items-start gap-2.5"
+                >
+                  {criterion.completed ? (
+                    <svg className="w-4 h-4 text-brand-teal shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  ) : (
+                    <div className="w-4 h-4 rounded-full border-2 border-brand-charcoal/20 dark:border-brand-sand/20 shrink-0 mt-0.5" />
+                  )}
+                  <span
+                    className={`text-sm leading-tight ${
+                      criterion.completed
+                        ? "text-brand-charcoal/70 dark:text-brand-sand/70 line-through"
+                        : "text-brand-charcoal dark:text-brand-sand"
+                    }`}
+                  >
+                    {criterion.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
     </div>
   );
