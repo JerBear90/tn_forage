@@ -6,6 +6,14 @@ const config: Config = {
   ],
   darkMode: "class",
   theme: {
+    screens: {
+      xs: "320px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+    },
     extend: {
       colors: {
         /* Dark mode surface and text tokens for WCAG AA compliance (Req 7.1) */

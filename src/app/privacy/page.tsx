@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
+import BackToSettings from "@/components/BackToSettings";
 
 export const metadata: Metadata = { title: "Privacy Policy — ForageWise" };
 
 /**
  * Privacy Policy page.
- * Requirements: 22.5–22.8
+ * Requirements: 4.1, 22.5–22.8
  */
 export default function PrivacyPage() {
   return (
     <div className="p-4 pb-24 max-w-2xl mx-auto">
+      <BackToSettings />
       <h1 className="text-xl font-bold text-brand-charcoal dark:text-brand-sand mb-4">Privacy Policy</h1>
       <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mb-6">Last updated: January 2025</p>
 

@@ -18,7 +18,7 @@ function calculateSuccessRate(visits: MicrohabitatVisit[]): number {
 }
 
 const visitArb: fc.Arbitrary<MicrohabitatVisit> = fc.record({
-  date: fc.date().map((d) => d.toISOString().split('T')[0]),
+  date: fc.date({ noInvalidDate: true }).map((d) => d.toISOString().split('T')[0]),
   speciesFound: fc.boolean(),
   notes: fc.option(fc.string({ maxLength: 50 })),
 });

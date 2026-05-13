@@ -43,7 +43,7 @@ const CONDITION_BADGE: Record<ConditionRating, { bg: string; icon: string; label
   excellent: { bg: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300', icon: '🟢', label: 'Excellent' },
   good:      { bg: 'bg-lime-100 text-lime-800 dark:bg-lime-900/30 dark:text-lime-300', icon: '🟡', label: 'Good' },
   fair:      { bg: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300', icon: '🟠', label: 'Fair' },
-  poor:      { bg: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', icon: '⚪', label: 'Poor' },
+  poor:      { bg: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300', icon: '⚪', label: 'Poor' },
 };
 
 const CONDITION_FILTER_TABS: { label: string; value: ConditionFilter }[] = [

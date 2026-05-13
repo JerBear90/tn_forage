@@ -125,7 +125,7 @@ export default function FeedbackPopup({ open, onClose }: FeedbackPopupProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-4 sm:items-center"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4 [@media(max-height:600px)]:items-start [@media(max-height:600px)]:pt-4"
       role="dialog"
       aria-label="App feedback"
       aria-modal="true"
@@ -134,7 +134,7 @@ export default function FeedbackPopup({ open, onClose }: FeedbackPopupProps) {
       }}
     >
       <div
-        className="w-full max-w-md rounded-t-2xl sm:rounded-2xl bg-white dark:bg-brand-charcoal border border-brand-teal/20 shadow-xl animate-slide-up"
+        className="w-full max-w-md rounded-2xl bg-white dark:bg-brand-charcoal border border-brand-teal/20 shadow-xl animate-slide-up max-h-[85vh] overflow-y-auto"
       >
         {/* Success state */}
         {submitted ? (

@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
+import BackToSettings from "@/components/BackToSettings";
 
 export const metadata: Metadata = { title: "Terms of Service — ForageWise" };
 
 /**
  * Terms of Service page.
- * Requirements: 22.1–22.4
+ * Requirements: 4.2, 22.1–22.4
  */
 export default function TermsPage() {
   return (
     <div className="p-4 pb-24 max-w-2xl mx-auto">
+      <BackToSettings />
       <h1 className="text-xl font-bold text-brand-charcoal dark:text-brand-sand mb-4">Terms of Service</h1>
       <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mb-6">Last updated: January 2025</p>
 

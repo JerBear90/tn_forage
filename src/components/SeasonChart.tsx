@@ -41,7 +41,7 @@ export default function SeasonChart({ seasons, compact = false }: SeasonChartPro
     return (
       <div className={compact ? '' : 'pb-6'}>
         <p
-          className={`text-gray-400 dark:text-gray-500 ${compact ? 'text-[10px]' : 'text-xs'}`}
+          className={`text-gray-400 dark:text-gray-400 ${compact ? 'text-[10px]' : 'text-xs'}`}
           role="status"
         >
           No season data available

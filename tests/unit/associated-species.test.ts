@@ -113,27 +113,49 @@ describe("Feature: foragewise-enhancements, Property 7: Associated species link 
 
           // Build the same lookup map the function uses
           const lookupMap = new Map<string, string>();
+          const allRecords: Array<{ commonName: string; id: string }> = [];
+
           for (const s of speciesRecords) {
             lookupMap.set(s.commonName.toLowerCase(), s.id);
+            allRecords.push({ commonName: s.commonName, id: s.id });
           }
           for (const p of plantRecords) {
             lookupMap.set(p.commonName.toLowerCase(), p.id);
+            allRecords.push({ commonName: p.commonName, id: p.id });
           }
           for (const t of treeRecords) {
             lookupMap.set(t.commonName.toLowerCase(), t.id);
+            allRecords.push({ commonName: t.commonName, id: t.id });
           }
 
           for (const name of queryNames) {
             const key = name.toLowerCase();
-            const expectedId = lookupMap.get(key) ?? null;
+            const exactId = lookupMap.get(key) ?? null;
 
-            if (expectedId !== null) {
-              // Name has a match → result should be a valid ID string
-              expect(result[name]).toBe(expectedId);
+            if (exactId !== null) {
+              // Name has an exact match → result should be that ID
+              expect(result[name]).toBe(exactId);
               expect(typeof result[name]).toBe("string");
             } else {
-              // Name has no match → result should be null
-              expect(result[name]).toBeNull();
+              // No exact match — check for partial word-boundary match
+              const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              let partialRegexValid = true;
+              let partialMatch: { id: string } | undefined;
+              try {
+                const wordBoundaryRegex = new RegExp('\\b' + escapedKey + '\\b', 'i');
+                partialMatch = allRecords.find((r) => wordBoundaryRegex.test(r.commonName));
+              } catch {
+                // Invalid regex — function would also fail, treat as no match
+                partialRegexValid = false;
+              }
+
+              if (partialRegexValid && partialMatch) {
+                // Partial match found → result should be that ID
+                expect(result[name]).toBe(partialMatch.id);
+              } else {
+                // No match at all → result should be null
+                expect(result[name]).toBeNull();
+              }
             }
           }
         }

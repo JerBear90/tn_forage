@@ -29,6 +29,7 @@ import ForagingTipSection from "@/components/ForagingTipSection";
 import VoicePronunciationButton from "@/components/VoicePronunciationButton";
 import BreadcrumbNavigator from "@/components/BreadcrumbNavigator";
 import INaturalistSection from "@/components/INaturalistSection";
+import TopParksSection from "@/components/TopParksSection";
 import { writeReferrer } from "@/utils/breadcrumbReferrer";
 import { useAssociatedSpeciesLookup } from "@/hooks/useAssociatedSpeciesLookup";
 import type {
@@ -51,7 +52,7 @@ function edibilityColor(label: EdibilityLabel): string {
     case "toxic":
       return "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700";
     case "inedible":
-      return "bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600";
+      return "bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600";
     case "unknown":
     default:
       return "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700";
@@ -500,6 +501,9 @@ function SpeciesOrPlantDetail({
       {/* iNaturalist Community Data */}
       <INaturalistSection scientificName={d.scientificName} commonName={d.commonName} />
 
+      {/* Top Parks where this species can be found */}
+      <TopParksSection speciesId={d.id} />
+
     </>
   );
 }
@@ -649,6 +653,9 @@ function TreeDetail({ data, onDetailNavigation }: { data: Tree; onDetailNavigati
           {data.region}
         </p>
       </Section>
+
+      {/* Top Parks where this species can be found */}
+      <TopParksSection speciesId={data.id} />
 
     </>
   );

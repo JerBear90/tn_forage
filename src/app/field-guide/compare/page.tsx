@@ -27,6 +27,7 @@ import Link from "next/link";
 import { useSpecies, type FieldGuideItem } from "@/hooks/useSpecies";
 import { useCompare, MIN_COMPARE, MAX_COMPARE } from "@/hooks/useCompare";
 import { findRecordById, type SpeciesDetailRecord } from "@/hooks/useSpeciesDetail";
+import { useAssociatedSpeciesLookup, type AssociatedSpeciesMap } from "@/hooks/useAssociatedSpeciesLookup";
 import SpeciesImage, { pickImageUrl } from "@/components/SpeciesImage";
 import DismissibleDisclaimer from "@/components/DismissibleDisclaimer";
 import type { Species, Plant, EdibilityLabel, SpeciesCategory } from "@/types";
@@ -305,7 +306,7 @@ function SelectedChips({
 // Comparison Card
 // ---------------------------------------------------------------------------
 
-function ComparisonCard({ d, remove }: { d: ComparisonData; remove: (id: string) => void }) {
+function ComparisonCard({ d, remove, treeLookupMap }: { d: ComparisonData; remove: (id: string) => void; treeLookupMap: AssociatedSpeciesMap }) {
   return (
     <article
       className={`rounded-xl border overflow-hidden ${
@@ -411,14 +412,39 @@ function ComparisonCard({ d, remove }: { d: ComparisonData; remove: (id: string)
               Tree Associations
             </h3>
             <div className="flex flex-wrap gap-1">
-              {d.treeAssociations.map((t) => (
-                <span
-                  key={t}
-                  className="inline-block rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2 py-0.5 text-xs text-brand-teal dark:text-brand-teal-300"
-                >
-                  {t}
-                </span>
-              ))}
+              {d.treeAssociations.map((t) => {
+                const treeId = treeLookupMap[t] ?? null;
+                if (treeId) {
+                  return (
+                    <Link
+                      key={t}
+                      href={`/field-guide/${treeId}`}
+                      className="inline-flex items-center gap-1 rounded-full border border-brand-teal bg-brand-teal/5 px-2 py-0.5 text-xs font-medium text-brand-teal dark:text-brand-teal-300 dark:border-brand-teal-300 hover:bg-brand-teal/10 transition-colors min-w-[44px] min-h-[44px] justify-center"
+                      aria-label={`View ${t} in field guide`}
+                    >
+                      <svg
+                        aria-hidden="true"
+                        className="w-3 h-3 shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      </svg>
+                      {t}
+                    </Link>
+                  );
+                }
+                return (
+                  <span
+                    key={t}
+                    className="inline-block rounded-full border border-brand-teal/20 bg-brand-teal/5 px-2 py-0.5 text-xs text-brand-teal dark:text-brand-teal-300"
+                  >
+                    {t}
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}
@@ -469,10 +495,12 @@ function ComparisonModal({
   data,
   remove,
   onClose,
+  treeLookupMap,
 }: {
   data: ComparisonData[];
   remove: (id: string) => void;
   onClose: () => void;
+  treeLookupMap: AssociatedSpeciesMap;
 }) {
   // Sort: toxic species first for safety
   const sorted = useMemo(() => {
@@ -528,7 +556,7 @@ function ComparisonModal({
         <div className="grid grid-cols-1 gap-4" role="list" aria-label="Species comparison cards">
           {sorted.map((d) => (
             <div key={d.id} role="listitem">
-              <ComparisonCard d={d} remove={remove} />
+              <ComparisonCard d={d} remove={remove} treeLookupMap={treeLookupMap} />
             </div>
           ))}
         </div>
@@ -547,6 +575,20 @@ function ComparePageContent() {
   const [comparisonData, setComparisonData] = useState<ComparisonData[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Collect all tree association names from comparison data for resolution
+  const allTreeNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const d of comparisonData) {
+      for (const t of d.treeAssociations) {
+        names.add(t);
+      }
+    }
+    return Array.from(names);
+  }, [comparisonData]);
+
+  // Resolve tree names to IDs via case-insensitive IndexedDB lookup
+  const treeLookupMap = useAssociatedSpeciesLookup(allTreeNames);
 
   // Load full detail records when selection changes
   useEffect(() => {
@@ -679,6 +721,7 @@ function ComparePageContent() {
           data={comparisonData}
           remove={remove}
           onClose={() => setModalOpen(false)}
+          treeLookupMap={treeLookupMap}
         />
       )}
     </main>

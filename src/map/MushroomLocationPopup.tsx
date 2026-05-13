@@ -67,13 +67,13 @@ export default function MushroomLocationPopup({
             ))}
           </ul>
           {/* Legend for green dot */}
-          <p className="mt-2 text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+          <p className="mt-2 text-[10px] text-gray-400 dark:text-gray-400 flex items-center gap-1">
             <span className="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" />
             = Currently in season
           </p>
         </>
       ) : (
-        <p className="mt-2 text-xs text-gray-400 dark:text-gray-500 italic">
+        <p className="mt-2 text-xs text-gray-400 dark:text-gray-400 italic">
           No mushroom species data available
         </p>
       )}
