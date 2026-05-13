@@ -140,7 +140,7 @@ export default function OtherUserProfilePage() {
   // Loading state
   if (loading) {
     return (
-      <main className="min-h-screen bg-brand-sand dark:bg-dark-bg px-4 pt-6 pb-24">
+      <main className="min-h-screen bg-brand-sand dark:bg-dark-surface px-4 pt-6 pb-24">
         <div className="max-w-lg mx-auto">
           <Link
             href="/feed"
@@ -159,7 +159,7 @@ export default function OtherUserProfilePage() {
   // Error / offline state
   if (error || !profile) {
     return (
-      <main className="min-h-screen bg-brand-sand dark:bg-dark-bg px-4 pt-6 pb-24">
+      <main className="min-h-screen bg-brand-sand dark:bg-dark-surface px-4 pt-6 pb-24">
         <div className="max-w-lg mx-auto">
           <Link
             href="/feed"
@@ -178,7 +178,7 @@ export default function OtherUserProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-brand-sand dark:bg-dark-bg px-4 pt-6 pb-24">
+    <main className="min-h-screen bg-brand-sand dark:bg-dark-surface px-4 pt-6 pb-24">
       <div className="max-w-lg mx-auto space-y-4">
         <Link
           href="/feed"

@@ -175,6 +175,15 @@ export function useFuzzySearch() {
       const searchResults = fuzzySearch(searchQuery, allItems);
 
       // Group by type and cap at 5 per category
+      // Note: result.type is singular ('park', 'post', 'user', 'species')
+      // but FuzzySearchResults keys are plural ('parks', 'posts', 'users', 'species')
+      const typeToCategory: Record<string, keyof FuzzySearchResults> = {
+        post: 'posts',
+        species: 'species',
+        park: 'parks',
+        user: 'users',
+      };
+
       const grouped: FuzzySearchResults = {
         posts: [],
         species: [],
@@ -183,8 +192,8 @@ export function useFuzzySearch() {
       };
 
       for (const result of searchResults) {
-        const category = result.type as keyof FuzzySearchResults;
-        if (grouped[category] && grouped[category].length < MAX_PER_CATEGORY) {
+        const category = typeToCategory[result.type];
+        if (category && grouped[category].length < MAX_PER_CATEGORY) {
           grouped[category].push(result);
         }
       }
