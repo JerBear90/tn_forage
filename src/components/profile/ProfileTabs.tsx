@@ -3,7 +3,7 @@
 /**
  * ForageWise — Profile Tabs Component
  *
- * Tabbed interface showing: Completed Trips, Achievements, Reviews, Photos.
+ * Tabbed interface showing: Badges, Reviews, Photos.
  * When viewing another user's profile, filters to public-visibility items only.
  *
  * Requirements: 13.3, 13.4, 5.3, 5.4, 5.5
@@ -11,12 +11,10 @@
 
 import { useState, useEffect } from "react";
 import { getDB, getAllRecords } from "@/offline/db";
-import { getAchievements } from "@/social/achievementTracker";
 import { filterPublicItems } from "@/social/visibilityFilter";
 import BadgesGrid from "@/components/profile/BadgesGrid";
 import type {
   Trip,
-  AchievementLocal,
   ReviewLocal,
   SocialPhoto,
   ChallengeBadge,
@@ -28,7 +26,6 @@ import type {
 
 /** Tab names displayed in the UI */
 export const TAB_NAMES = [
-  "Achievements",
   "Badges",
   "Reviews",
   "Photos",
@@ -50,9 +47,8 @@ export interface ProfileTabsProps {
 // ---------------------------------------------------------------------------
 
 export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) {
-  const [activeTab, setActiveTab] = useState<ProfileTab>("Achievements");
+  const [activeTab, setActiveTab] = useState<ProfileTab>("Badges");
   const [trips, setTrips] = useState<Trip[]>([]);
-  const [achievements, setAchievements] = useState<AchievementLocal[]>([]);
   const [reviews, setReviews] = useState<ReviewLocal[]>([]);
   const [photos, setPhotos] = useState<SocialPhoto[]>([]);
   const [badges, setBadges] = useState<ChallengeBadge[]>([]);
@@ -70,9 +66,6 @@ export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) 
         // Load trips
         const allTrips = await db.getAllFromIndex("trips", "by-userId", userId);
 
-        // Load achievements
-        const allAchievements = await getAchievements(userId);
-
         // Load reviews
         const allReviews = await db.getAllFromIndex("reviews", "by-userId", userId);
 
@@ -84,7 +77,6 @@ export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) 
 
         if (!cancelled) {
           setTrips(allTrips);
-          setAchievements(allAchievements);
           setReviews(allReviews);
           setPhotos(allPhotos);
           setBadges(allBadges);
@@ -111,7 +103,6 @@ export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) 
     : trips;
 
   const displayReviews = reviews;
-  const displayAchievements = achievements;
   const displayPhotos = photos;
 
   return (
@@ -148,40 +139,6 @@ export default function ProfileTabs({ userId, isOwnProfile }: ProfileTabsProps) 
           </p>
         ) : (
           <>
-            {/* Achievements */}
-            {activeTab === "Achievements" && (
-              <div
-                role="tabpanel"
-                id="tabpanel-achievements"
-                aria-label="Achievements"
-              >
-                {displayAchievements.length === 0 ? (
-                  <p className="text-sm text-brand-charcoal/50 dark:text-brand-sand/50 text-center py-6">
-                    No achievements earned yet.
-                  </p>
-                ) : (
-                  <ul className="space-y-3">
-                    {displayAchievements.map((ach) => (
-                      <li
-                        key={ach.id}
-                        className="rounded-lg bg-brand-moss/5 dark:bg-brand-moss/10 px-3 py-2.5"
-                      >
-                        <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
-                          🏆 {ach.title}
-                        </p>
-                        <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60 mt-0.5">
-                          {ach.description}
-                        </p>
-                        <p className="text-xs text-brand-charcoal/40 dark:text-brand-sand/40 mt-0.5">
-                          Earned {ach.earnedAt.split("T")[0]}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-
             {/* Badges */}
             {activeTab === "Badges" && (
               <div

@@ -657,9 +657,9 @@ export default function ProfileContent() {
         </div>
       </section>
 
-      {/* ── Stats Grid (Trips, Achievements, Badges) ── */}
+      {/* ── Stats Grid (Trips, Badges, Reviews) ── */}
       <section className="mb-6">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <Link
             href="/trips"
             className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
@@ -673,13 +673,6 @@ export default function ProfileContent() {
           >
             <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">0</span>
             <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Badges</span>
-          </Link>
-          <Link
-            href="/community#challenges"
-            className="flex flex-col items-center rounded-xl bg-white/80 dark:bg-brand-charcoal/60 border border-brand-teal/10 p-3 hover:bg-brand-teal/5 transition-colors"
-          >
-            <span className="text-lg font-bold text-brand-charcoal dark:text-brand-sand">0</span>
-            <span className="text-[10px] text-brand-charcoal/60 dark:text-brand-sand/60 text-center">Achievements</span>
           </Link>
           <Link
             href="/community#feed"
@@ -831,7 +824,7 @@ export default function ProfileContent() {
               Settings
             </p>
             <p className="text-xs text-brand-charcoal/60 dark:text-brand-sand/60">
-              Reset data, export, notifications, privacy
+              Reset data, notifications, privacy
             </p>
           </div>
           <svg aria-hidden="true" className="w-4 h-4 text-brand-charcoal/30 dark:text-brand-sand/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
