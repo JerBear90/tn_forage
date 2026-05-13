@@ -6,12 +6,14 @@
  * Displays all challenge badges in a responsive grid.
  * - Earned badges: full color with earned date
  * - Unearned badges: grayed out with lock icon overlay
+ * - Tap any badge to see what's needed to achieve it
  * - Shows progress summary (e.g., "3 of 10 earned")
  * - Responsive: 2 cols mobile, 3 cols tablet, 4 cols desktop
  *
  * Requirements: 44px min touch targets, ARIA labels, dark mode support
  */
 
+import { useState } from "react";
 import type { ChallengeBadge } from "@/types";
 
 interface BadgesGridProps {
@@ -21,6 +23,7 @@ interface BadgesGridProps {
 
 export default function BadgesGrid({ badges, earnedCount }: BadgesGridProps) {
   const totalCount = badges.length;
+  const [selectedBadge, setSelectedBadge] = useState<ChallengeBadge | null>(null);
 
   return (
     <div className="space-y-4">
@@ -58,18 +61,23 @@ export default function BadgesGrid({ badges, earnedCount }: BadgesGridProps) {
         aria-label="Challenge badges"
       >
         {badges.map((badge) => (
-          <BadgeCard key={badge.id} badge={badge} />
+          <BadgeCard key={badge.id} badge={badge} onTap={() => setSelectedBadge(badge)} />
         ))}
       </div>
+
+      {/* Badge detail modal */}
+      {selectedBadge && (
+        <BadgeDetailModal badge={selectedBadge} onClose={() => setSelectedBadge(null)} />
+      )}
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Badge Card
+// Badge Detail Modal
 // ---------------------------------------------------------------------------
 
-function BadgeCard({ badge }: { badge: ChallengeBadge }) {
+function BadgeDetailModal({ badge, onClose }: { badge: ChallengeBadge; onClose: () => void }) {
   const earnedDate = badge.earnedAt
     ? new Date(badge.earnedAt).toLocaleDateString(undefined, {
         month: "short",
@@ -80,17 +88,103 @@ function BadgeCard({ badge }: { badge: ChallengeBadge }) {
 
   return (
     <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Badge: ${badge.title}`}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-dark-surface border border-brand-teal/20 shadow-xl p-6 animate-slide-up">
+        {/* Close button */}
+        <div className="flex justify-end mb-2">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close badge details"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-brand-charcoal/50 dark:text-brand-sand/50 hover:bg-brand-charcoal/10 dark:hover:bg-brand-sand/10 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Badge icon */}
+        <div className="flex flex-col items-center text-center">
+          <span
+            className={`text-5xl leading-none mb-3 ${badge.isEarned ? "" : "grayscale opacity-50"}`}
+            role="img"
+            aria-hidden="true"
+          >
+            {badge.icon}
+          </span>
+
+          {/* Title */}
+          <h3 className="font-heading font-semibold text-lg text-brand-charcoal dark:text-brand-sand mb-2">
+            {badge.title}
+          </h3>
+
+          {/* Description — what's needed to achieve it */}
+          <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 leading-relaxed mb-3">
+            {badge.description}
+          </p>
+
+          {/* Status */}
+          {badge.isEarned ? (
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-teal/10 border border-brand-teal/20 px-3 py-1.5">
+              <svg className="w-4 h-4 text-brand-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-xs font-medium text-brand-teal">
+                Earned {earnedDate}
+              </span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-charcoal/5 dark:bg-brand-sand/5 border border-brand-charcoal/10 dark:border-brand-sand/10 px-3 py-1.5">
+              <svg className="w-4 h-4 text-brand-charcoal/40 dark:text-brand-sand/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+              <span className="text-xs font-medium text-brand-charcoal/50 dark:text-brand-sand/50">
+                Not yet earned
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Badge Card
+// ---------------------------------------------------------------------------
+
+function BadgeCard({ badge, onTap }: { badge: ChallengeBadge; onTap: () => void }) {
+  const earnedDate = badge.earnedAt
+    ? new Date(badge.earnedAt).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
+
+  return (
+    <button
+      type="button"
+      onClick={onTap}
       role="listitem"
-      aria-label={`${badge.title}${badge.isEarned ? ", earned" : ", locked"}`}
-      className={`relative flex flex-col items-center justify-center rounded-xl border p-4 min-h-[120px] transition-all ${
+      aria-label={`${badge.title}${badge.isEarned ? ", earned" : ", locked"}. Tap for details.`}
+      className={`relative flex flex-col items-center justify-center rounded-xl border p-4 min-h-[120px] min-w-[44px] transition-all cursor-pointer ${
         badge.isEarned
-          ? "border-brand-teal/20 bg-white dark:bg-dark-surface/80 shadow-sm"
-          : "border-brand-charcoal/10 dark:border-dark-border bg-brand-charcoal/5 dark:bg-dark-surface/40"
-      }`}
+          ? "border-brand-teal/20 bg-white dark:bg-dark-surface/80 shadow-sm hover:shadow-md hover:border-brand-teal/40"
+          : "border-brand-charcoal/10 dark:border-dark-border bg-brand-charcoal/5 dark:bg-dark-surface/40 hover:bg-brand-charcoal/10 dark:hover:bg-dark-surface/60"
+      } focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal`}
     >
       {/* Lock overlay for unearned badges */}
       {!badge.isEarned && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-brand-charcoal/5 dark:bg-black/10">
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-brand-charcoal/5 dark:bg-black/10 pointer-events-none">
           <span
             className="absolute top-2 right-2 text-brand-charcoal/30 dark:text-dark-text-muted/40"
             aria-hidden="true"
@@ -140,6 +234,6 @@ function BadgeCard({ badge }: { badge: ChallengeBadge }) {
           {earnedDate}
         </p>
       )}
-    </div>
+    </button>
   );
 }
