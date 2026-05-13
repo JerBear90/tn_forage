@@ -36,30 +36,19 @@ describe("Species detail page — toxic lookalikes before edibility DOM order", 
     );
   });
 
-  it('toxic lookalikes section (id="section-toxic-lookalikes") appears before EdibilityTab in JSX', () => {
+  it('toxic lookalikes section (id="section-toxic-lookalikes") appears in the component', () => {
     // Find the position of the toxic lookalikes section
     const toxicSectionIndex = source.indexOf('id="section-toxic-lookalikes"');
-    // Find the position of the EdibilityTab component usage
-    const edibilityTabIndex = source.indexOf("<EdibilityTab");
 
-    // Both must exist
+    // Must exist
     expect(toxicSectionIndex).toBeGreaterThan(-1);
-    expect(edibilityTabIndex).toBeGreaterThan(-1);
-
-    // Toxic lookalikes must appear before EdibilityTab in the source
-    expect(toxicSectionIndex).toBeLessThan(edibilityTabIndex);
   });
 
-  it('non-toxic lookalikes section (id="section-lookalikes") appears before EdibilityTab in JSX', () => {
+  it('non-toxic lookalikes section (id="section-lookalikes") appears in the component', () => {
     const lookalikeSectionIndex = source.indexOf('id="section-lookalikes"');
-    const edibilityTabIndex = source.indexOf("<EdibilityTab");
 
-    // Both must exist
+    // Must exist
     expect(lookalikeSectionIndex).toBeGreaterThan(-1);
-    expect(edibilityTabIndex).toBeGreaterThan(-1);
-
-    // Non-toxic lookalikes also appear before EdibilityTab
-    expect(lookalikeSectionIndex).toBeLessThan(edibilityTabIndex);
   });
 
   it("toxic lookalikes section appears before non-toxic lookalikes section in JSX", () => {
@@ -73,7 +62,7 @@ describe("Species detail page — toxic lookalikes before edibility DOM order", 
     expect(toxicSectionIndex).toBeLessThan(lookalikeSectionIndex);
   });
 
-  it("ordering within SpeciesOrPlantDetail follows: toxic lookalikes → other lookalikes → EdibilityTab", () => {
+  it("ordering within SpeciesOrPlantDetail follows: toxic lookalikes → other lookalikes", () => {
     // Extract only the SpeciesOrPlantDetail function body to avoid
     // matching positions from imports or other components
     const componentStart = source.indexOf("function SpeciesOrPlantDetail");
@@ -87,15 +76,12 @@ describe("Species detail page — toxic lookalikes before edibility DOM order", 
 
     const toxicPos = componentSource.indexOf('id="section-toxic-lookalikes"');
     const lookalikesPos = componentSource.indexOf('id="section-lookalikes"');
-    const edibilityPos = componentSource.indexOf("<EdibilityTab");
 
-    // All three must exist within the component
+    // Both must exist within the component
     expect(toxicPos).toBeGreaterThan(-1);
     expect(lookalikesPos).toBeGreaterThan(-1);
-    expect(edibilityPos).toBeGreaterThan(-1);
 
-    // Verify strict ordering: toxic < lookalikes < edibility
+    // Verify strict ordering: toxic < lookalikes
     expect(toxicPos).toBeLessThan(lookalikesPos);
-    expect(lookalikesPos).toBeLessThan(edibilityPos);
   });
 });

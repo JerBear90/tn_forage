@@ -21,7 +21,7 @@ const speciesSeasonArb = fc.record({
   seasons: fc.subarray(SEASONS, { minLength: 1, maxLength: 4 }),
 });
 
-const dateArb = fc.date({ min: new Date(2025, 0, 1), max: new Date(2026, 11, 31) });
+const dateArb = fc.date({ min: new Date(2025, 0, 1), max: new Date(2026, 11, 31), noInvalidDate: true });
 
 describe('Phase 3.2 Property P16: Seasonal countdown', () => {
   it('daysRemaining is never negative', () => {

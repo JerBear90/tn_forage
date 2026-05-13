@@ -12,7 +12,7 @@ import * as fc from 'fast-check';
 import type { UserDataExport } from '@/utils/dataExport';
 
 const exportArb: fc.Arbitrary<UserDataExport> = fc.record({
-  exportedAt: fc.date({ min: new Date(2024, 0, 1), max: new Date(2026, 11, 31) }).map((d) => d.toISOString()),
+  exportedAt: fc.date({ min: new Date(2024, 0, 1), max: new Date(2026, 11, 31), noInvalidDate: true }).map((d) => d.toISOString()),
   userId: fc.uuid(),
   version: fc.constant('1.0.0'),
   data: fc.record({

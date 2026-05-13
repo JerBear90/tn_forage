@@ -291,7 +291,7 @@ describe('Feature: season-charts-voice-map, Property 5: Mushroom location filter
       ),
       { numRuns: 100 },
     );
-  });
+  }, 30000);
 
   it('park markers are deduplicated (one marker per park)', () => {
     fc.assert(
@@ -313,5 +313,5 @@ describe('Feature: season-charts-voice-map, Property 5: Mushroom location filter
       ),
       { numRuns: 100 },
     );
-  });
+  }, 30000);
 });

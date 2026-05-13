@@ -442,7 +442,7 @@ const CONFIDENCE_STYLES: Record<
   },
   "Low confidence": {
     bg: "bg-gray-100 dark:bg-gray-800/40",
-    text: "text-gray-600 dark:text-gray-400",
+    text: "text-gray-600 dark:text-gray-300",
     border: "border-gray-300 dark:border-gray-600",
   },
   "Insufficient information": {

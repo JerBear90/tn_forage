@@ -26,6 +26,45 @@
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-brand-teal;
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Dark Mode Contrast Fixes — WCAG 2.1 AA Compliance (Req 9)          */
+  /* ------------------------------------------------------------------ */
+  /* Body text: 4.5:1 contrast ratio against dark-surface (#1a2332)     */
+  /* Headings (large text): 3:1 contrast ratio                          */
+  /* Interactive labels: 4.5:1 contrast ratio                           */
+  /* Placeholder/disabled text: 3:1 contrast ratio                      */
+  /* Approved text colors on dark backgrounds:                          */
+  /*   brand-sand (#F5F0DF) = ~13.5:1 on #1a2332                       */
+  /*   white (#FFFFFF) = ~15.4:1 on #1a2332                             */
+  /*   dark-text (#e8e0d0) = ~11.5:1 on #1a2332                        */
+  /*   dark-text-muted (#b8b0a0) = ~7.2:1 on #1a2332                   */
+  /* ------------------------------------------------------------------ */
+
+  /* Dark mode headings — brand-sand for high contrast (>3:1 large text) */
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark h4,
+  .dark h5,
+  .dark h6 {
+    color: #F5F0DF;
+  }
+
+  /* Dark mode placeholder text — 3:1 minimum contrast */
+  .dark input::placeholder,
+  .dark textarea::placeholder,
+  .dark select::placeholder {
+    color: #9ca3af; /* gray-400 — ~5.8:1 on #1a2332, passes 3:1 */
+  }
+
+  /* Dark mode disabled elements — 3:1 minimum contrast */
+  .dark input:disabled,
+  .dark textarea:disabled,
+  .dark select:disabled,
+  .dark button:disabled {
+    color: #9ca3af; /* gray-400 — ~5.8:1 on #1a2332, passes 3:1 */
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -253,4 +292,64 @@
 .logo-intro__skip:focus-visible {
   outline: 2px solid #F5F0DF;
   outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark Mode Contrast Utility Overrides — WCAG 2.1 AA (Req 9)        */
+/* ------------------------------------------------------------------ */
+/* These overrides fix inline Tailwind classes that fail contrast      */
+/* requirements in dark mode. They use higher specificity to ensure    */
+/* the corrected colors take effect.                                   */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  /* Fix dark:text-gray-500 (#6B7280) — only ~3.5:1 on dark-surface.
+     Override to gray-400 (#9CA3AF) which achieves ~5.8:1 */
+  .dark .dark\:text-gray-500 {
+    color: #9ca3af !important;
+  }
+
+  /* Fix dark:placeholder-gray-500 (older Tailwind syntax) — gray-500 on
+     brand-charcoal is only ~2.8:1. Override to gray-400 for 3:1+ */
+  .dark .dark\:placeholder-gray-500::placeholder {
+    color: #9ca3af !important;
+  }
+
+  /* Fix dark:placeholder:text-brand-sand/40 — brand-sand at 40% opacity
+     is approximately #8c8878 on dark-surface, only ~3.2:1.
+     Override to 60% opacity (#c4bda5) which achieves ~5.5:1 */
+  .dark .dark\:placeholder\:text-brand-sand\/40::placeholder {
+    color: rgba(245, 240, 223, 0.6) !important;
+  }
+
+  /* Fix dark:text-brand-sand/60 — at 60% opacity on dark-surface
+     this is borderline. Bump to 70% for safe 4.5:1 */
+  .dark .dark\:text-brand-sand\/60 {
+    color: rgba(245, 240, 223, 0.7) !important;
+  }
+
+  /* Fix dark:text-brand-charcoal/40 and /50 used as muted text —
+     these fail on dark backgrounds. Override to dark-text-muted */
+  .dark .dark\:text-brand-charcoal\/40,
+  .dark .dark\:text-brand-charcoal\/50 {
+    color: #b8b0a0 !important;
+  }
+
+  /* Fix dark:text-dark-text-muted/50 used for placeholder/hint text —
+     at 50% opacity this fails 3:1. Override to full dark-text-muted */
+  .dark .dark\:text-dark-text-muted\/50 {
+    color: #9ca3af !important;
+  }
+
+  /* Fix dark:placeholder:text-dark-text-muted/50 for placeholder text */
+  .dark .dark\:placeholder\:text-dark-text-muted\/50::placeholder {
+    color: #9ca3af !important;
+  }
+
+  /* Ensure colored card/badge text meets contrast on their backgrounds */
+  /* gray-400 on gray-800 bg = ~4.2:1 — bump to gray-300 for 4.5:1+ */
+  .dark .dark\:bg-gray-800 .dark\:text-gray-400,
+  .dark .dark\:bg-gray-800.dark\:text-gray-400 {
+    color: #d1d5db !important; /* gray-300 — ~7.5:1 on gray-800 */
+  }
 }

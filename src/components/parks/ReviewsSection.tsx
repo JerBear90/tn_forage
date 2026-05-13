@@ -317,9 +317,9 @@ export default function ReviewsSection({
               rows={4}
               maxLength={2000}
               placeholder="Share your experience..."
-              className="w-full rounded-lg border border-brand-charcoal/10 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2 text-sm text-brand-charcoal dark:text-dark-text placeholder:text-brand-charcoal/40 dark:placeholder:text-dark-text-muted/50 focus:outline-none focus:ring-2 focus:ring-brand-teal/50 resize-none"
+              className="w-full rounded-lg border border-brand-charcoal/10 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2 text-sm text-brand-charcoal dark:text-dark-text placeholder:text-brand-charcoal/40 dark:placeholder:text-dark-text-muted focus:outline-none focus:ring-2 focus:ring-brand-teal/50 resize-none"
             />
-            <p className="mt-1 text-xs text-brand-charcoal/40 dark:text-dark-text-muted/50">
+            <p className="mt-1 text-xs text-brand-charcoal/40 dark:text-dark-text-muted">
               {formText.trim().length}/2000
             </p>
           </div>

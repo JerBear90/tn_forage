@@ -56,11 +56,27 @@ export async function generatePayloadHash(payload: unknown): Promise<string> {
 // ---------------------------------------------------------------------------
 
 /**
+ * Monotonic timestamp counter to ensure unique `createdAt` values even when
+ * multiple items are enqueued within the same millisecond. Each call returns
+ * a timestamp that is strictly greater than the previous one.
+ */
+let lastTimestamp = 0;
+
+function getMonotonicTimestamp(): string {
+  let now = Date.now();
+  if (now <= lastTimestamp) {
+    now = lastTimestamp + 1;
+  }
+  lastTimestamp = now;
+  return new Date(now).toISOString();
+}
+
+/**
  * Add a new item to the sync queue.
  *
  * Automatically generates:
  * - `localId` via `crypto.randomUUID()`
- * - `createdAt` / `updatedAt` timestamps (ISO 8601)
+ * - `createdAt` / `updatedAt` timestamps (ISO 8601, monotonically increasing)
  * - `syncStatus` set to `"pending"`
  * - `retryCount` set to `0`
  * - `clientVersion` set to `1`
@@ -71,7 +87,7 @@ export async function generatePayloadHash(payload: unknown): Promise<string> {
  */
 export async function enqueue(input: EnqueueInput): Promise<SyncQueueItem> {
   const db = await getDB();
-  const now = new Date().toISOString();
+  const now = getMonotonicTimestamp();
   const payloadHash = await generatePayloadHash(input.payload);
 
   const item: SyncQueueItem = {
@@ -96,26 +112,31 @@ export async function enqueue(input: EnqueueInput): Promise<SyncQueueItem> {
 /**
  * Get the next pending item from the queue (oldest first by `createdAt`).
  *
+ * Uses the `by-createdAt` index so items are naturally ordered by timestamp,
+ * with ties broken by primary key (`localId`) in ascending order. This
+ * guarantees a deterministic FIFO order even when items share the same
+ * `createdAt` value.
+ *
  * @returns The oldest pending {@link SyncQueueItem}, or `undefined` if the
  *          queue has no pending items.
  */
 export async function dequeue(): Promise<SyncQueueItem | undefined> {
   const db = await getDB();
   const tx = db.transaction('syncQueue', 'readonly');
-  const index = tx.store.index('by-syncStatus');
-  let oldest: SyncQueueItem | undefined;
+  const index = tx.store.index('by-createdAt');
 
-  let cursor = await index.openCursor(IDBKeyRange.only('pending'));
+  let cursor = await index.openCursor();
   while (cursor) {
     const item = cursor.value;
-    if (!oldest || item.createdAt < oldest.createdAt) {
-      oldest = item;
+    if (item.syncStatus === 'pending') {
+      await tx.done;
+      return item;
     }
     cursor = await cursor.continue();
   }
 
   await tx.done;
-  return oldest;
+  return undefined;
 }
 
 /**

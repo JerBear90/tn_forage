@@ -130,7 +130,7 @@ function RatingFilter({
           className={`min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
             selected === rating
               ? 'bg-brand-teal text-white dark:bg-brand-teal dark:text-white'
-              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
           }`}
         >
           {rating === null ? 'All' : `${rating} ★`}

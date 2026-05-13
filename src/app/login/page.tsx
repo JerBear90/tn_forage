@@ -46,7 +46,7 @@ const ssoProviders: SSOProviderConfig[] = [
     bgClass:
       "bg-white border-gray-300 text-brand-charcoal hover:bg-gray-50 dark:bg-white dark:text-brand-charcoal dark:hover:bg-gray-100",
     disabledClass:
-      "bg-gray-100 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-500",
+      "bg-gray-100 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400",
   },
 ];
 

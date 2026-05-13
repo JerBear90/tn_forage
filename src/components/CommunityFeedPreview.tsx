@@ -1,32 +1,30 @@
-"use client";
+'use client';
 
 /**
  * ForageWise — CommunityFeedPreview Component
  *
- * Displays the 3 most recent public community sightings on the home page.
- * Each sighting shows species guess, notes preview, and timestamp.
- * Tapping the section navigates to `/community`.
+ * Displays up to 3 recent public community posts on the home page.
+ * Each post shows the author display name and a content preview
+ * (notes truncated to 100 chars with ellipsis).
+ * Tapping a post navigates to `/community`.
  *
- * Requirements: 11.2, 11.8
+ * Requirements: 8.1, 8.4, 8.5, 8.6, 8.7
  */
 
-import Link from "next/link";
-import { useCommunityPreview } from "@/hooks/useCommunityPreview";
+import Link from 'next/link';
+import { useLiveCommunity } from '@/hooks/useLiveCommunity';
 
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
+/**
+ * Truncate text to a maximum length, appending ellipsis if truncated.
+ * For notes of 100 characters or fewer, the full text is returned.
+ */
+export function truncatePreview(text: string, maxLength: number = 100): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '…';
 }
 
 export default function CommunityFeedPreview() {
-  const { previews, loading, error } = useCommunityPreview();
+  const { posts, loading, error } = useLiveCommunity();
 
   if (loading) {
     return (
@@ -80,46 +78,40 @@ export default function CommunityFeedPreview() {
         </Link>
       </div>
 
-      {previews.length === 0 ? (
+      {posts.length === 0 ? (
         <div className="rounded-lg border border-brand-charcoal/10 dark:border-dark-border bg-white/60 dark:bg-dark-surface/60 p-6 text-center">
           <p className="text-sm text-brand-charcoal/60 dark:text-dark-text-muted">
-            No public sightings yet. Be the first to share!
+            Explore the community
           </p>
           <Link
             href="/community"
-            className="inline-block mt-2 text-sm font-medium text-brand-teal hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+            className="inline-block mt-2 text-sm font-medium text-brand-teal hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Go to community page"
           >
             Go to Community →
           </Link>
         </div>
       ) : (
-        <Link
-          href="/community"
-          className="block rounded-xl border border-brand-teal/10 bg-white/80 dark:bg-dark-surface/80 overflow-hidden transition-colors hover:bg-brand-teal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-          aria-label="View all community sightings"
-        >
-          <ul className="divide-y divide-brand-teal/10">
-            {previews.map((sighting) => (
-              <li key={sighting.id} className="px-4 py-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-sm text-brand-charcoal dark:text-dark-text truncate">
-                      {sighting.speciesGuess || "Unknown species"}
-                    </p>
-                    {sighting.notes && (
-                      <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted mt-0.5 line-clamp-1">
-                        {sighting.notes}
-                      </p>
-                    )}
-                  </div>
-                  <span className="flex-shrink-0 text-xs text-brand-charcoal/50 dark:text-dark-text-muted">
-                    {formatDate(sighting.createdAt)}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Link>
+        <ul className="space-y-2">
+          {posts.map((post) => (
+            <li key={post.id}>
+              <Link
+                href="/community"
+                className="block rounded-xl border border-brand-teal/10 bg-white/80 dark:bg-dark-surface/80 px-4 py-3 transition-colors hover:bg-brand-teal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+                aria-label={`Post by ${post.authorName}. ${truncatePreview(post.notes)}`}
+              >
+                <p className="font-semibold text-sm text-brand-charcoal dark:text-dark-text">
+                  {post.authorName}
+                </p>
+                {post.notes && (
+                  <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted mt-0.5">
+                    {truncatePreview(post.notes)}
+                  </p>
+                )}
+              </Link>
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );

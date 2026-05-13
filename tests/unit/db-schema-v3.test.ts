@@ -28,12 +28,12 @@ beforeAll(async () => {
 // ---------------------------------------------------------------------------
 
 describe('DB version', () => {
-  it('DB_VERSION is 4', () => {
-    expect(DB_VERSION).toBe(4);
+  it('DB_VERSION is 6', () => {
+    expect(DB_VERSION).toBe(6);
   });
 
-  it('opened database reports version 4', () => {
-    expect(db.version).toBe(4);
+  it('opened database reports version 6', () => {
+    expect(db.version).toBe(6);
   });
 });
 
@@ -147,8 +147,8 @@ describe('Original stores preserved', () => {
 // ---------------------------------------------------------------------------
 
 describe('STORE_NAMES array', () => {
-  it('contains all 44 stores', () => {
-    expect(STORE_NAMES).toHaveLength(44);
+  it('contains all 46 stores', () => {
+    expect(STORE_NAMES).toHaveLength(46);
   });
 
   it('includes all 6 v3 stores', () => {

@@ -2,34 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { generateDataExport, downloadExportAsFile } from "@/utils/dataExport";
 import { deleteAccount, revokeSession } from "@/utils/accountDeletion";
 import { useFeedback } from "@/components/FeedbackProvider";
 
 /**
- * Settings page with analytics, push notifications, legal links, export, and delete.
+ * Settings page with analytics, push notifications, legal links, and delete.
  * Requirements: 20.4, 21.3, 22, 23
  */
 export default function SettingsPage() {
   const [analyticsOptOut, setAnalyticsOptOut] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [blogNotifications, setBlogNotifications] = useState(true);
-  const [isExporting, setIsExporting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { openFeedback } = useFeedback();
-
-  const handleExport = async () => {
-    setIsExporting(true);
-    try {
-      const data = await generateDataExport("current-user");
-      downloadExportAsFile(data);
-    } catch {
-      alert("Export failed. Please try again.");
-    } finally {
-      setIsExporting(false);
-    }
-  };
 
   const handleResetData = async () => {
     if (!confirm("This will clear all offline data (species, parks, etc.) and reload it fresh. Your posts and account are safe. Continue?")) return;
@@ -123,13 +109,6 @@ export default function SettingsPage() {
       <section className="mb-6">
         <h2 className="text-sm font-semibold text-brand-charcoal dark:text-brand-sand mb-2">Your Data</h2>
         <div className="space-y-2">
-          <button
-            onClick={handleExport}
-            disabled={isExporting}
-            className="w-full rounded-lg border border-brand-charcoal/10 dark:border-brand-sand/10 p-3 text-sm text-brand-charcoal dark:text-brand-sand hover:bg-brand-charcoal/5 dark:hover:bg-brand-sand/5 text-left disabled:opacity-50"
-          >
-            {isExporting ? "Exporting..." : "Export all data (JSON)"}
-          </button>
           <button
             onClick={handleResetData}
             disabled={isResetting}

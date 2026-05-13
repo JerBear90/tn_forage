@@ -41,7 +41,7 @@ function edibilityColor(label: EdibilityLabel): string {
     case "toxic":
       return "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700";
     case "inedible":
-      return "bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600";
+      return "bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600";
     case "unknown":
     default:
       return "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700";
@@ -202,15 +202,15 @@ function EdibilityContent({
     case "inedible":
       return (
         <div className="rounded-lg border border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600 p-3">
-          <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">
+          <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
             Inedible
           </h4>
-          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+          <p className="text-xs text-gray-500 dark:text-gray-300 leading-relaxed">
             This species is not considered edible. It may not be toxic but is not
             suitable for consumption.
           </p>
           {safetyNotes && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+            <p className="text-xs text-gray-500 dark:text-gray-300 mt-2 leading-relaxed">
               {safetyNotes}
             </p>
           )}

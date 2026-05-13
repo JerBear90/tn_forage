@@ -26,7 +26,7 @@ const reportArb = fc.record({
   trailId: fc.constant('trail-test'),
   categories: fc.array(fc.constantFrom(...CATEGORIES), { minLength: 1, maxLength: 3 }),
   details: fc.option(fc.string({ maxLength: 100 })),
-  reportedAt: fc.date({ min: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), max: new Date() }).map((d) => d.toISOString()),
+  reportedAt: fc.date({ min: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), max: new Date(), noInvalidDate: true }).map((d) => d.toISOString()),
   syncStatus: fc.constant('synced' as const),
 });
 

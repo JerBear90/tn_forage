@@ -329,7 +329,9 @@ export interface ExpeditionLog {
 export interface Photo {
   id: string;
   expeditionLogId?: string;
+  tripId?: string;
   blob: Blob;
+  thumbnailBlob?: Blob;
   mimeType: string;
   caption?: string;
   coordinates?: Coordinates;

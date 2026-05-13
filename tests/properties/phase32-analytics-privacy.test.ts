@@ -15,7 +15,7 @@ import type { UsageEvent } from '@/types';
 const usageEventArb: fc.Arbitrary<UsageEvent> = fc.record({
   id: fc.nat().map((n) => `evt-${n}-${Math.random().toString(36).slice(2, 9)}`),
   featureKey: fc.constantFrom('offline-maps', 'route-planner', 'beacon', 'foraging-journal'),
-  timestamp: fc.date({ min: new Date(2024, 0, 1), max: new Date(2026, 11, 31) }).map((d) => d.toISOString()),
+  timestamp: fc.date({ min: new Date(2024, 0, 1), max: new Date(2026, 11, 31), noInvalidDate: true }).map((d) => d.toISOString()),
   userId: fc.option(fc.uuid()),
   sessionId: fc.nat().map((n) => `sess-${n}-${Math.random().toString(36).slice(2, 9)}`),
 });

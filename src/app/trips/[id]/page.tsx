@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getAllRecords } from '@/offline/db';
+import TripPhotoGallery from '@/components/TripPhotoGallery';
 import type { Trip, Park } from '@/types';
 
 export default function TripDetailPage() {
@@ -145,6 +146,9 @@ export default function TripDetailPage() {
             </p>
           </div>
         )}
+
+        {/* Trip Photos */}
+        <TripPhotoGallery tripId={params.id} />
 
         {/* Safety Notes */}
         {trip.safetyNotes && (

@@ -29,7 +29,7 @@ export interface UseGlobalSearchResult {
 }
 
 const DEBOUNCE_MS = 300;
-const MIN_QUERY_LENGTH = 3;
+const MIN_QUERY_LENGTH = 1;
 
 export function useGlobalSearch(): UseGlobalSearchResult {
   const [query, setQuery] = useState('');

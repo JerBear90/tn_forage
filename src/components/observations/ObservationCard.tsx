@@ -15,7 +15,7 @@ import Link from 'next/link';
 import type { Observation, ObservationGrade } from '@/types/observations';
 
 const GRADE_CONFIG: Record<ObservationGrade, { label: string; color: string; icon: string }> = {
-  casual: { label: 'Casual', color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', icon: '○' },
+  casual: { label: 'Casual', color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300', icon: '○' },
   'needs-id': { label: 'Needs ID', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: '?' },
   research: { label: 'Research Grade', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: '✓' },
 };

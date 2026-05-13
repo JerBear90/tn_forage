@@ -51,7 +51,7 @@ const CONDITION_STYLES: Record<ConditionRating, { bg: string; icon: string; labe
   excellent: { bg: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700', icon: '🟢', label: 'Excellent' },
   good:      { bg: 'bg-lime-100 text-lime-800 border-lime-300 dark:bg-lime-900/30 dark:text-lime-300 dark:border-lime-700', icon: '🟡', label: 'Good' },
   fair:      { bg: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700', icon: '🟠', label: 'Fair' },
-  poor:      { bg: 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600', icon: '⚪', label: 'Poor' },
+  poor:      { bg: 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600', icon: '⚪', label: 'Poor' },
 };
 
 // ---------------------------------------------------------------------------
