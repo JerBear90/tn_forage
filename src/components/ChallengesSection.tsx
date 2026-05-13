@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useChallenges } from "@/hooks/useChallenges";
 import ChallengesCard from "@/components/ChallengesCard";
 import BadgeCelebration from "@/components/BadgeCelebration";
@@ -43,8 +43,32 @@ export default function ChallengesSection({
   } = useChallenges();
 
   const [submittingChallengeId, setSubmittingChallengeId] = useState<string | null>(null);
+  const scrolledRef = useRef(false);
 
   const displayedChallenges = preview ? getChallengesPreview() : challenges;
+
+  // Scroll to a specific challenge if URL has ?challenge=<id> param
+  useEffect(() => {
+    if (loading || scrolledRef.current) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const targetId = params.get("challenge");
+    if (targetId) {
+      scrolledRef.current = true;
+      // Small delay to ensure DOM is rendered
+      setTimeout(() => {
+        const el = document.getElementById(`challenge-${targetId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          // Brief highlight effect
+          el.classList.add("ring-2", "ring-brand-teal", "ring-offset-2");
+          setTimeout(() => {
+            el.classList.remove("ring-2", "ring-brand-teal", "ring-offset-2");
+          }, 2000);
+        }
+      }, 100);
+    }
+  }, [loading]);
 
   if (loading) {
     return (
@@ -127,7 +151,7 @@ export default function ChallengesSection({
 
       <div className="space-y-3">
         {displayedChallenges.map((challenge) => (
-          <div key={challenge.id} className="space-y-2">
+          <div key={challenge.id} id={`challenge-${challenge.id}`} className="space-y-2 rounded-xl transition-all">
             <ChallengesCard
               challenge={challenge}
               onCriterionChange={updateCriterion}

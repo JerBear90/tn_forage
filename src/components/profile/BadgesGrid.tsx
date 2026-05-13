@@ -222,7 +222,7 @@ function BadgeDetailModal({ badge, onClose }: { badge: ChallengeBadge; onClose: 
 
         {/* Go to challenge button */}
         <Link
-          href={`/community#challenges`}
+          href={`/community?challenge=${badge.challengeId}#challenges`}
           className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-teal/10 border border-brand-teal/20 px-4 py-3 min-h-[44px] text-sm font-medium text-brand-teal hover:bg-brand-teal/20 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
           onClick={onClose}
         >
