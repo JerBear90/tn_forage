@@ -352,4 +352,16 @@
   .dark .dark\:bg-gray-800.dark\:text-gray-400 {
     color: #d1d5db !important; /* gray-300 — ~7.5:1 on gray-800 */
   }
+
+  /* Fix dark:text-brand-moss (#4D7C0F) on dark-surface (#1a2332) = 3.16:1.
+     Override to brand-moss-300 (#A5C95D) which achieves ~7.5:1 */
+  .dark .dark\:text-brand-moss {
+    color: #A5C95D !important;
+  }
+
+  /* Fix text-brand-teal (#0F766E) on dark-surface (#1a2332) = 2.88:1.
+     Override to brand-teal-300 (#66C3BD) which achieves ~7.8:1 */
+  .dark .text-brand-teal:not(.dark\:text-brand-teal-300) {
+    color: #66C3BD !important;
+  }
 }

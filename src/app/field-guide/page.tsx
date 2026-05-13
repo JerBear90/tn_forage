@@ -53,7 +53,7 @@ const EDIBILITY_OPTIONS: { label: string; value: EdibilityLabel }[] = [
 function edibilityBadgeClasses(label: EdibilityLabel): string {
   switch (label) {
     case "commonly-considered-edible-with-expert-confirmation":
-      return "bg-brand-moss/15 text-brand-moss border-brand-moss/30";
+      return "bg-brand-moss/15 text-[#3d6200] border-brand-moss/30 dark:bg-brand-moss/20 dark:text-brand-moss-300 dark:border-brand-moss/40";
     case "toxic":
       return "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700";
     case "inedible":
@@ -87,7 +87,7 @@ function categoryBadgeClasses(category: SpeciesCategory): string {
     case "mushroom":
       return "bg-brand-earth/15 text-brand-earth border-brand-earth/30";
     case "plant":
-      return "bg-brand-moss/15 text-brand-moss border-brand-moss/30";
+      return "bg-brand-moss/15 text-[#3d6200] border-brand-moss/30 dark:bg-brand-moss/20 dark:text-brand-moss-300 dark:border-brand-moss/40";
     case "tree":
       return "bg-brand-forest/15 text-brand-forest border-brand-forest/30";
     default:
@@ -286,7 +286,7 @@ function SpeciesCard({ item, onPreload }: { item: FieldGuideItem; onPreload: (id
         <h3 className="font-heading font-semibold text-sm text-brand-charcoal dark:text-dark-text leading-tight">
           {item.commonName}
         </h3>
-        <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted italic mt-0.5">
+        <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted italic mt-0.5">
           {item.scientificName}
         </p>
 
@@ -661,7 +661,7 @@ export default function FieldGuidePage() {
       ) : (
         <>
           {/* Results count */}
-          <p className="text-xs text-brand-charcoal/50 dark:text-dark-text-muted mb-3">
+          <p className="text-xs text-brand-charcoal/70 dark:text-dark-text-muted mb-3">
             {filtered.length} {filtered.length === 1 ? "species" : "species"} found
           </p>
 

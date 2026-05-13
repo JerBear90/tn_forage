@@ -35,7 +35,7 @@ export default function BottomNav() {
                 className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[56px] px-2 py-2 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
                   isActive
                     ? "text-brand-teal"
-                    : "text-brand-charcoal/50 dark:text-dark-text-muted"
+                    : "text-brand-charcoal/70 dark:text-dark-text-muted"
                 }`}
               >
                 <svg

@@ -13,7 +13,7 @@ export default function SupportFooter() {
     <footer className="mt-8 pb-4 text-center space-y-2">
       <Link
         href="/support"
-        className="inline-flex items-center gap-1.5 text-xs text-brand-charcoal/50 dark:text-brand-sand/50 hover:text-brand-teal dark:hover:text-brand-teal-300 transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs text-brand-charcoal/70 dark:text-brand-sand/70 hover:text-brand-teal dark:hover:text-brand-teal-300 transition-colors"
       >
         <svg
           aria-hidden="true"
@@ -31,7 +31,7 @@ export default function SupportFooter() {
         </svg>
         Need help? Contact Support
       </Link>
-      <p className="text-[10px] text-brand-charcoal/30 dark:text-brand-sand/30">
+      <p className="text-[10px] text-brand-charcoal/70 dark:text-brand-sand/70">
         © {new Date().getFullYear()} ForageWise. All rights reserved.
       </p>
     </footer>

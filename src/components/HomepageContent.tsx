@@ -115,7 +115,7 @@ export default function HomepageContent() {
             >
               <span className="text-2xl" aria-hidden="true">🔍</span>
               <div>
-                <span className="text-sm font-semibold text-brand-teal">Comparison</span>
+                <span className="text-sm font-semibold text-brand-teal dark:text-brand-teal-300">Comparison</span>
                 <p className="text-xs text-brand-charcoal/60 dark:text-dark-text-muted">Compare species side by side</p>
               </div>
             </Link>
@@ -218,7 +218,7 @@ export default function HomepageContent() {
             height={72}
             className="h-[72px] w-[72px] rounded-2xl"
           />
-          <span className="text-3xl font-bold text-brand-teal font-heading">
+          <span className="text-3xl font-bold text-brand-teal dark:text-brand-teal-300 font-heading">
             ForageWise
           </span>
         </h1>
@@ -258,7 +258,7 @@ export default function HomepageContent() {
       <section className="mb-8">
         <Link
           href="/community"
-          className="flex items-center justify-center gap-2 w-full rounded-lg border border-brand-teal/20 bg-white/80 dark:bg-dark-surface/80 px-4 py-3 text-sm font-semibold text-brand-teal transition-colors hover:bg-brand-teal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal active:scale-[0.98] min-h-[44px]"
+          className="flex items-center justify-center gap-2 w-full rounded-lg border border-brand-teal/20 bg-white/80 dark:bg-dark-surface/80 px-4 py-3 text-sm font-semibold text-brand-teal dark:text-brand-teal-300 transition-colors hover:bg-brand-teal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal active:scale-[0.98] min-h-[44px]"
         >
           <svg
             aria-hidden="true"

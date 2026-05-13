@@ -26,15 +26,22 @@ import AxeBuilder from '@axe-core/playwright';
 async function setTheme(page: import('@playwright/test').Page, theme: 'light' | 'dark') {
   await page.evaluate((t) => {
     localStorage.setItem('foragewise-theme', t);
+    if (t === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, theme);
   await page.reload();
   if (theme === 'dark') {
-    await page.waitForFunction(() =>
-      document.documentElement.classList.contains('dark')
+    await page.waitForFunction(
+      () => document.documentElement.classList.contains('dark'),
+      { timeout: 10000 }
     );
   } else {
-    await page.waitForFunction(() =>
-      !document.documentElement.classList.contains('dark')
+    await page.waitForFunction(
+      () => !document.documentElement.classList.contains('dark'),
+      { timeout: 10000 }
     );
   }
 }
