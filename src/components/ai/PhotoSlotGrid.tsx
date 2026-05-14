@@ -147,9 +147,15 @@ function PhotoSlot({
           <div className="text-center">
             <p className="text-sm font-medium text-brand-charcoal dark:text-brand-sand">
               {config.label}
+              {config.required && (
+                <span className="ml-1 text-[10px] font-semibold text-red-500 dark:text-red-400">*</span>
+              )}
             </p>
             <p className="text-xs text-brand-charcoal/50 dark:text-brand-sand/50">
               {config.description}
+            </p>
+            <p className={`text-[10px] mt-0.5 font-medium ${config.required ? 'text-red-500 dark:text-red-400' : 'text-brand-charcoal/40 dark:text-brand-sand/40'}`}>
+              {config.required ? 'Required' : 'Optional'}
             </p>
           </div>
 
@@ -187,7 +193,7 @@ export default function PhotoSlotGrid({
   return (
     <div>
       <p className="text-sm text-brand-charcoal/70 dark:text-brand-sand/70 mb-3">
-        Upload 5 photos for best results. Each slot guides you on what to capture.
+        Only the first photo is required. Additional photos improve accuracy.
       </p>
       <div
         className="grid grid-cols-2 gap-3 sm:grid-cols-3"
